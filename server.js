@@ -150,7 +150,7 @@ Monitorear semanalmente. Registrar incidencia. Rotar productos para evitar resis
   }
 });
 
-app.get('/', (req,res) => res.json({status:'ok', service:'Fundo Ishizawa API'}));
+app.get('/', (req,res) => res.json({status:'ok', service:'Fundo Ishizawa API', version:'2.1', actualizado:'27/03/2026 23:08', apis:['plant.id','crop.health']}));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log('Server running on port', PORT));
