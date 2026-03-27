@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Fundo Ishizawa</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--verde:#3B6D11;--verde-claro:#EAF3DE;--verde-med:#639922;--amarillo:#854F0B;--amarillo-claro:#FAEEDA;--rojo:#A32D2D;--rojo-claro:#FCEBEB;--gris:#f5f5f3;--borde:#e0e0dc;--texto:#1a1a1a;--texto2:#666}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--gris);color:var(--texto);min-height:100vh;padding-bottom:70px}
+.topbar{background:white;border-bottom:1px solid var(--borde);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-size:17px;font-weight:700;color:var(--verde)}
+.logo small{font-size:11px;color:var(--texto2);font-weight:400;display:block}
+.badge{background:var(--verde-claro);color:var(--verde);font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500}
+.nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--borde);display:flex;z-index:100}
+.navbtn{flex:1;padding:10px 4px 8px;text-align:center;font-size:10px;color:var(--texto2);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent}
+.navbtn.active{color:var(--verde);border-bottom-color:var(--verde)}
+.navbtn svg{display:block;margin:0 auto 3px;width:22px;height:22px}
+.screen{display:none;padding:14px}
+.screen.active{display:block}
+.card{background:white;border-radius:14px;border:1px solid var(--borde);padding:14px 16px;margin-bottom:12px}
+.card-title{font-size:12px;font-weight:600;color:var(--texto2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat{background:var(--gris);border-radius:10px;padding:12px}
+.stat-label{font-size:11px;color:var(--texto2);margin-bottom:4px}
+.stat-val{font-size:22px;font-weight:700;color:var(--verde)}
+.stat-val.amber{color:var(--amarillo)}
+.lote-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lote-card{background:white;border:1px solid var(--borde);border-radius:12px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s}
+.lote-card:active{transform:scale(0.97)}
+.lote-card:hover{border-color:var(--verde)}
+.lote-num{font-size:10px;color:var(--texto2);margin-bottom:2px}
+.lote-cultivo{font-size:13px;font-weight:600;margin-bottom:5px}
+.lote-ha{font-size:11px;color:var(--texto2);margin-bottom:5px}
+.pill{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+.pill.verde{background:var(--verde-claro);color:var(--verde)}
+.pill.amarillo{background:var(--amarillo-claro);color:var(--amarillo)}
+.pill.rojo{background:var(--rojo-claro);color:var(--rojo)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all 0.15s}
+.btn-primary{background:var(--verde);color:white;width:100%;justify-content:center;padding:13px}
+.btn-secondary{background:var(--gris);color:var(--texto);border:1px solid var(--borde);width:100%;justify-content:center;padding:13px}
+.drop-area{border:2px dashed var(--borde);border-radius:14px;padding:40px 20px;text-align:center;cursor:pointer;transition:all 0.2s;background:white;margin-bottom:14px;position:relative}
+.drop-area:hover,.drop-area.drag{border-color:var(--verde);background:var(--verde-claro)}
+.drop-area input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-icon{font-size:52px;margin-bottom:12px}
+.drop-title{font-size:17px;font-weight:600;margin-bottom:6px}
+.drop-sub{font-size:13px;color:var(--texto2);line-height:1.5}
+.preview{width:100%;max-height:300px;object-fit:cover;border-radius:12px;margin-bottom:14px;display:block}
+.loading{text-align:center;padding:32px;background:white;border-radius:14px;border:1px solid var(--borde);margin-bottom:12px}
+.spinner{width:44px;height:44px;border:3px solid var(--verde-claro);border-top-color:var(--verde);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-step{font-size:14px;color:var(--texto2);margin-top:6px}
+.resultado{background:white;border-radius:14px;border:1px solid var(--borde);overflow:hidden;margin-bottom:12px}
+.resultado-header{padding:14px 16px;border-bottom:1px solid var(--borde);display:flex;gap:12px;align-items:center}
+.sev-badge{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}
+.sev-grave{background:var(--rojo-claro);color:var(--rojo)}
+.sev-moderado{background:var(--amarillo-claro);color:var(--amarillo)}
+.sev-leve{background:var(--verde-claro);color:var(--verde)}
+.resultado-body{padding:14px 16px}
+.res-seccion{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--borde)}
+.res-seccion:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.res-titulo{font-size:11px;font-weight:600;color:var(--texto2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.res-texto{font-size:14px;line-height:1.7;white-space:pre-line}
+.plantid-badge{background:#1a1a2e;color:white;font-size:11px;padding:2px 8px;border-radius:20px;margin-left:8px}
+.plaga-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--borde)}
+.plaga-row:last-child{border-bottom:none}
+.plaga-nombre{font-size:13px;font-weight:500;flex:1}
+.plaga-bar-wrap{width:80px;height:6px;background:var(--gris);border-radius:4px;overflow:hidden}
+.plaga-bar{height:100%;border-radius:4px;background:var(--verde)}
+.plaga-pct{font-size:12px;color:var(--texto2);min-width:36px;text-align:right}
+.detalle-back{display:flex;align-items:center;gap:8px;color:var(--verde);font-size:14px;font-weight:500;cursor:pointer;margin-bottom:14px;padding:8px 0}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--texto2);margin:12px 0 4px}
+.form-input{width:100%;padding:10px 12px;border:1px solid var(--borde);border-radius:8px;font-size:14px;background:white}
+.alerta-item{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--borde)}
+.alerta-item:last-child{border-bottom:none}
+.alerta-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.alerta-dot.rojo{background:var(--rojo)}
+.alerta-dot.amarillo{background:var(--amarillo)}
+.alerta-dot.verde{background:var(--verde)}
+.alerta-titulo{font-size:14px;font-weight:500}
+.alerta-desc{font-size:12px;color:var(--texto2);margin-top:2px}
+.tab-row{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px}
+.tab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;border:1px solid var(--borde);background:white;color:var(--texto2)}
+.tab.active{background:var(--verde);color:white;border-color:var(--verde)}
+.chart-wrap{position:relative;height:200px;margin-top:8px}
+.import-btn{display:flex;align-items:center;gap:8px;padding:10px 14px;background:white;border:1px solid var(--borde);border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;width:100%;position:relative}
+.import-btn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.error-box{background:var(--rojo-claro);border:1px solid var(--rojo);border-radius:12px;padding:14px;margin-bottom:12px;font-size:13px;color:var(--rojo)}
+.config-box{background:var(--amarillo-claro);border:1px solid #e0c080;border-radius:12px;padding:14px;margin-bottom:14px}
+.config-box p{font-size:13px;color:var(--amarillo);margin-bottom:8px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">Fundo Ishizawa <small>Suite fitosanitaria · v2.1 · 27/03/2026 23:08</small></div>
+  <span class="badge">29.4 há</span>
+</div>
+
+<div id="s-ia" class="screen active"></div>
+<div id="s-dashboard" class="screen"></div>
+<div id="s-lotes" class="screen"></div>
+<div id="s-alertas" class="screen"></div>
+<div id="s-detalle" class="screen"></div>
+
+<nav class="nav">
+  <button class="navbtn active" onclick="go('ia')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35M11 8v6M8 11h6"/></svg>
+    Análisis IA
+  </button>
+  <button class="navbtn" onclick="go('dashboard')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    Dashboard
+  </button>
+  <button class="navbtn" onclick="go('lotes')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+    Lotes
+  </button>
+  <button class="navbtn" onclick="go('alertas')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+    Alertas
+  </button>
+</nav>
+
+<script>
+const PLANTID_KEY = 'j3YfMbsXc1cSu5LhuPgcLz1QgQIuqIoyo7b69WZ30NVG9j2NCe';
+
+const LOTES = [
+  {id:'1',nombre:'Lote 1',cultivo:'Uva Quebranta',ha:2.5,plagas:['Gusano cogollero','Chinche','Oruga espiga','Trips','Oidium','Botrytis']},
+  {id:'2',nombre:'Lote 2',cultivo:'Palta Fuerte',ha:2.5,plagas:['Arañita roja','Queresa coma','Lasiodiplodia','Phytophthora','Antracnosis','Mosca blanca']},
+  {id:'3',nombre:'Lote 3',cultivo:'Palta Fuerte',ha:2.8,plagas:['Arañita roja','Queresa coma','Lasiodiplodia','Mosca blanca','Aleurotrachelus']},
+  {id:'3A',nombre:'Lote 3A',cultivo:'Palta Naval',ha:1.0,plagas:['Mosca blanca','Aleurotrachelus','Trips','Arañita roja']},
+  {id:'4',nombre:'Lote 4',cultivo:'Lúcuma',ha:2.9,plagas:['Saissetia','Oidium','Mancha gracienta','Alternaria','Fumagina']},
+  {id:'5',nombre:'Lote 5',cultivo:'Palta Hass',ha:1.3,plagas:['Arañita roja','Queresa coma','Lasiodiplodia','Mosca blanca','Antracnosis']},
+  {id:'5A',nombre:'Lote 5A',cultivo:'Palta Villacampa',ha:1.3,plagas:['Mosca blanca','Aleurotrachelus','Arañita roja']},
+  {id:'6',nombre:'Lote 6',cultivo:'Palta Hass',ha:1.5,plagas:['Arañita roja','Queresa coma','Lasiodiplodia','Mosca blanca','Antracnosis']},
+  {id:'6A',nombre:'Lote 6A',cultivo:'Palta Fuerte',ha:1.5,plagas:['Mosca blanca','Aleurotrachelus','Arañita roja']},
+  {id:'7',nombre:'Lote 7',cultivo:'Lúcuma',ha:1.0,plagas:['Arañita roja','Acaro tostado','Mancha gracienta','Minador hoja']},
+  {id:'8',nombre:'Lote 8',cultivo:'Caqui',ha:0.3,plagas:['Trips','Mosca blanca','Arañita roja']},
+  {id:'9',nombre:'Lote 9',cultivo:'Mandarina Okitsu',ha:1.0,plagas:['Arañita roja','Acaro tostado','Pulgón','Minador hoja','Mancha gracienta','Mosca blanca']},
+  {id:'9A',nombre:'Lote 9A',cultivo:'Mandarina Río',ha:1.5,plagas:['Arañita roja','Acaro tostado','Pulgón','Minador hoja']},
+  {id:'10',nombre:'Lote 10',cultivo:'Toronja',ha:0.2,plagas:['Arañita roja','Pulgón','Minador hoja','Mancha gracienta','Gomosis']},
+  {id:'10A',nombre:'Lote 10A',cultivo:'Limón',ha:0.1,plagas:['Arañita roja','Mosca blanca','Minador hoja']},
+  {id:'11',nombre:'Lote 11',cultivo:'Mandarina Okitsu',ha:0.8,plagas:['Arañita roja','Pulgón','Minador hoja','Mosca blanca','Saissetia']},
+  {id:'12',nombre:'Lote 12',cultivo:'Mandarina Okitsu',ha:0.5,plagas:['Arañita roja','Pulgón','Minador hoja','Mancha gracienta','Saissetia']},
+  {id:'13',nombre:'Lote 13',cultivo:'Manzana de Caña',ha:0.2,plagas:['Arañita roja','Gusano perforador','Pulgón','Trips','Botrytis']},
+  {id:'13A',nombre:'Lote 13A',cultivo:'Uva Quebranta',ha:1.0,plagas:['Arañita roja','Gusano perforador','Trips','Oidium']},
+  {id:'13B',nombre:'Lote 13B',cultivo:'Borgoña',ha:0.3,plagas:['Arañita roja','Trips','Oidium','Botrytis']},
+  {id:'14',nombre:'Lote 14',cultivo:'Palta Hass',ha:1.5,plagas:['Arañita roja','Queresa coma','Lasiodiplodia','Phytophthora','Antracnosis']},
+  {id:'15',nombre:'Lote 15',cultivo:'Palta Hass',ha:4.0,plagas:['Queresa coma','Lasiodiplodia','Mosca blanca','Antracnosis','Phytophthora','Aleurotrachelus']},
+  {id:'18',nombre:'Lote 18',cultivo:'Vivero',ha:0.1,plagas:['Mosca blanca','Trips','Damping off']}
+];
+
+const RIEGO = {
+  'Palta Hass':{dias:7,agua:'35-40 mm/semana',abono:'N-P-K 20-20-20, cada 15 días'},
+  'Palta Fuerte':{dias:7,agua:'35-40 mm/semana',abono:'N-P-K 20-20-20, cada 15 días'},
+  'Palta Naval':{dias:7,agua:'30-35 mm/semana',abono:'N-P-K, cada 15 días'},
+  'Palta Villacampa':{dias:7,agua:'30-35 mm/semana',abono:'N-P-K, cada 15 días'},
+  'Uva Quebranta':{dias:10,agua:'25-30 mm/semana',abono:'Sulfato de potasio, cada 21 días'},
+  'Borgoña':{dias:10,agua:'25-30 mm/semana',abono:'Sulfato de potasio, cada 21 días'},
+  'Lúcuma':{dias:14,agua:'20-25 mm/semana',abono:'Compost + N, mensual'},
+  'Mandarina Okitsu':{dias:7,agua:'30-35 mm/semana',abono:'Ca-Mg-B foliar, cada 15 días'},
+  'Mandarina Río':{dias:7,agua:'30-35 mm/semana',abono:'Ca-Mg-B foliar, cada 15 días'},
+  'Toronja':{dias:7,agua:'30-35 mm/semana',abono:'N-K, cada 15 días'},
+  'Limón':{dias:7,agua:'25-30 mm/semana',abono:'N-K, cada 15 días'},
+  'Caqui':{dias:10,agua:'20-25 mm/semana',abono:'K-Ca, mensual'},
+  'Manzana de Caña':{dias:10,agua:'25-30 mm/semana',abono:'N-K, cada 21 días'},
+  'Vivero':{dias:2,agua:'Riego diario',abono:'Solución nutritiva semanal'}
+};
+
+let monitoreoData = JSON.parse(localStorage.getItem('monitoreo')||'{}');
+let excelData = JSON.parse(localStorage.getItem('excelData')||'{}');
+let historialIA = JSON.parse(localStorage.getItem('historialIA')||'[]');
+let currentLote = null;
+let chartInicio = null;
+
+function go(name) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('s-'+name).classList.add('active');
+  const idx = ['ia','dashboard','lotes','alertas'].indexOf(name);
+  if(idx>=0) document.querySelectorAll('.navbtn')[idx].classList.add('active');
+  if(name==='ia') renderIA();
+  if(name==='dashboard') renderDashboard();
+  if(name==='lotes') renderLotes();
+  if(name==='alertas') renderAlertas();
+}
+
+function getAnthropicKey() { return ''; }
+function getEstado(loteId) {
+  const m = [...(excelData[loteId]||[]),...(monitoreoData[loteId]||[])];
+  if(!m.length) return {estado:'verde',inc:0};
+  const ult = m[m.length-1];
+  const vals = Object.values(ult.plagas||{}).filter(v=>v>0);
+  const max = vals.length?Math.max(...vals):0;
+  return {estado:max>=0.16?'rojo':max>=0.08?'amarillo':'verde',inc:max};
+}
+
+function renderIA() {
+  const key = getAnthropicKey();
+  document.getElementById('s-ia').innerHTML = `
+
+    <div class="drop-area" id="drop-area" onclick="document.getElementById('file-input').click()" ondragover="ev(event,'drag')" ondragleave="ev(event,'')" ondrop="drop(event)">
+      <input type="file" id="file-input" accept="image/*,video/*" onchange="handleFile(this.files[0])">
+      <div class="drop-icon">📷</div>
+      <div class="drop-title">Arrastra foto o video aquí</div>
+      <div class="drop-sub">O toca para abrir galería / cámara<br>Funciona con fotos de WhatsApp</div>
+    </div>
+    <div id="ia-resultado"></div>
+    ${historialIA.length?`<div class="card">
+      <div class="card-title">Últimos análisis (${historialIA.length})</div>
+      ${historialIA.slice(-5).reverse().map(h=>`
+        <div class="plaga-row">
+          <div style="flex:1">
+            <div class="plaga-nombre">${h.cultivo||'Cultivo'} — ${h.problema||'Análisis'}</div>
+            <div style="font-size:11px;color:var(--texto2)">${h.fecha} · ${h.lote||''}</div>
+          </div>
+          <span class="pill ${h.severidad==='Grave'?'rojo':h.severidad==='Moderado'?'amarillo':'verde'}">${h.severidad||'—'}</span>
+        </div>`).join('')}
+    </div>`:''}
+  `;
+}
+
+function ev(e,cls) { e.preventDefault(); document.getElementById('drop-area').className='drop-area'+(cls?' '+cls:''); }
+function drop(e) { e.preventDefault(); document.getElementById('drop-area').className='drop-area'; handleFile(e.dataTransfer.files[0]); }
+
+function saveKey() {
+  const v = document.getElementById('akey').value.trim();
+  if(v){ localStorage.setItem('anthropic-key',v); renderIA(); }
+}
+function changeKey() { localStorage.removeItem('anthropic-key'); renderIA(); }
+
+function handleFile(file) {
+  if(!file) return;
+  if(file.type.startsWith('video/')) { handleVideo(file); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const b64 = e.target.result.split(',')[1];
+    const mime = file.type||'image/jpeg';
+    showPreview(e.target.result);
+    analizar(b64, mime);
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleVideo(file) {
+  const video = document.createElement('video');
+  const canvas = document.createElement('canvas');
+  video.src = URL.createObjectURL(file);
+  video.onloadeddata = () => {
+    video.currentTime = Math.min(2, video.duration/3);
+  };
+  video.onseeked = () => {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video,0,0);
+    const dataUrl = canvas.toDataURL('image/jpeg',0.85);
+    const b64 = dataUrl.split(',')[1];
+    showPreview(dataUrl);
+    analizar(b64, 'image/jpeg');
+    URL.revokeObjectURL(video.src);
+  };
+  video.load();
+}
+
+function showPreview(src) {
+  document.getElementById('drop-area').innerHTML = `<img src="${src}" class="preview" style="margin:0;border-radius:10px">`;
+}
+
+async function analizar(b64, mime) {
+  document.getElementById('ia-resultado').innerHTML = `
+    <div class="loading">
+      <div class="spinner"></div>
+      <div style="font-weight:500">Analizando imagen...</div>
+      <div class="loading-step" id="loading-step">Consultando plant.id para identificación científica...</div>
+    </div>`;
+
+  let plantIdInfo = '';
+  let cultivoDetectado = '';
+  let enfermedadesDetectadas = [];
+
+  try {
+    document.getElementById('loading-step').textContent = 'Consultando base de datos fitosanitaria...';
+    const pidRes = await fetch('https://plant.id/api/v3/health_assessment', {
+      method:'POST',
+      headers:{'Api-Key':PLANTID_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({images:['data:'+mime+';base64,'+b64],health:'all',similar_images:false})
+    });
+    const pidData = await pidRes.json();
+    if(pidData?.result) {
+      const especie = pidData.result?.classification?.suggestions?.[0];
+      cultivoDetectado = especie?.name||'';
+      const enf = pidData.result?.disease?.suggestions||[];
+      enfermedadesDetectadas = enf.slice(0,4).map(d=>({nombre:d.name,prob:(d.probability*100).toFixed(0)}));
+      plantIdInfo = `Especie identificada: ${cultivoDetectado||'No determinada'}. Problemas detectados: ${enfermedadesDetectadas.map(e=>`${e.nombre} (${e.prob}%)`).join(', ')||'ninguno visible'}.`;
+    }
+  } catch(e) {
+    plantIdInfo = 'No se pudo consultar plant.id. Analizando solo con visión IA.';
+  }
+
+  const anthropicKey = getAnthropicKey();
+  if(!anthropicKey) {
+    document.getElementById('ia-resultado').innerHTML = `
+      <div class="error-box">⚠️ Necesitas ingresar tu API key de Anthropic para el análisis completo. Desplázate arriba y guarda tu key.</div>
+      ${plantIdInfo?`<div class="card"><div class="card-title">Resultado plant.id <span class="plantid-badge">plant.id</span></div><div class="res-texto">${plantIdInfo}</div></div>`:''}`;
+    return;
+  }
+
+  document.getElementById('loading-step').textContent = 'Generando diagnóstico agronómico completo...';
+
+  const prompt = `Eres un agrónomo peruano experto con 25 años en fundos de la costa peruana (Ica, Lima). Analizas cultivos del Fundo Ishizawa: Palta Hass/Fuerte/Naval/Villacampa, Uva Quebranta/Borgoña, Lúcuma, Mandarina Okitsu/Río, Toronja, Limón, Caqui, Manzana de Caña.
+
+IDENTIFICACIÓN VISUAL OBLIGATORIA:
+- Palto: hojas ovaladas grandes 10-20cm, verde oscuro brillante, nervadura central gruesa, peciolo 2-3cm
+- Mandarina/Cítricos: hojas pequeñas 5-8cm elípticas, peciolo alado, brillo intenso
+- Uva: hojas lobuladas 5 puntas, venas pronunciadas
+- Lúcuma: hojas grandes 15-25cm, verde oscuro mate, envés pálido
+
+plant.id detectó: ${plantIdInfo}
+
+Analiza la imagen y responde EXACTAMENTE en este formato:
+
+🌿 CULTIVO: [nombre exacto del cultivo que ves - sé preciso]
+🔍 PROBLEMA: [nombre científico + nombre común peruano]
+📍 PARTE: [hoja/tallo/raíz/fruto/planta completa]
+🚨 SEVERIDAD: [Leve/Moderado/Grave] — [% área afectada estimado]
+
+📊 DIAGNÓSTICO TÉCNICO:
+[Descripción precisa de síntomas, cómo se propaga, condiciones que lo favorecen temperatura/humedad]
+
+🌱 ESTADO FENOLÓGICO:
+[Etapa actual del cultivo en la costa peruana y su importancia para el manejo]
+
+🌿 ESTADO NUTRICIONAL:
+[Deficiencias o excesos detectados visualmente con valores de referencia: N óptimo 1.8-2.5%, Fe 60-200ppm, Zn 30-100ppm, Ca 1-2%, B 20-60ppm, Mg 0.3-0.8%, K 0.75-2%]
+
+💊 TRATAMIENTO PARA FUNDO COMERCIAL:
+Paso 1: [acción concreta para cientos de árboles]
+Paso 2: [producto + dosis exacta en ml/L o g/L]
+Paso 3: [volumen de caldo: paltos 800-1200 L/ha, cítricos 600-800 L/ha, uvas 400-600 L/ha]
+[NUNCA digas "retire hojas afectadas" — habla de poda sanitaria con desinfección de tijeras en lejía 5% entre árbol]
+
+🧪 PRODUCTOS DISPONIBLES EN PERÚ:
+- [Nombre comercial] — [ingrediente activo] — [dosis] — S/[precio referencial]/litro o kg
+- [Nombre comercial alternativo] — [dosis]
+
+🛒 INSUMOS A COMPRAR (para 1 ha):
+[lista con cantidades exactas]
+
+⏰ CUÁNDO APLICAR:
+[hora del día, temperatura ideal, humedad, días después de lluvia]
+
+🛡️ PREVENCIÓN PRÓXIMAS 4 SEMANAS:
+[medidas específicas al cultivo, no genéricas]
+
+⚡ URGENCIA: [Sí — actuar en X días / No — puede esperar X semanas] — [razón]`;
+
+  try {
+    const res = await fetch('https://fundo-ishizawa2.onrender.com/analyze',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({image: b64, mediaType: mime})
+    });
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+    const texto = data.resultado;
+
+    const cultivoMatch = texto.match(/🌿 CULTIVO:\s*(.+)/);
+    const problemaMatch = texto.match(/🔍 PROBLEMA:\s*(.+)/);
+    const sevMatch = texto.match(/🚨 SEVERIDAD:\s*(Leve|Moderado|Grave)/);
+    const cultivo = cultivoMatch?.[1]?.trim()||cultivoDetectado||'Cultivo';
+    const problema = problemaMatch?.[1]?.trim()||'Ver diagnóstico';
+    const sev = sevMatch?.[1]||'Moderado';
+
+    const entrada = {fecha:new Date().toLocaleDateString('es-PE'),cultivo,problema,severidad:sev,lote:''};
+    historialIA.unshift(entrada);
+    if(historialIA.length>50) historialIA.pop();
+    localStorage.setItem('historialIA',JSON.stringify(historialIA));
+
+    document.getElementById('ia-resultado').innerHTML = `
+      <div class="resultado">
+        <div class="resultado-header">
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:600">${cultivo}</div>
+            <div style="font-size:12px;color:var(--texto2)">${problema}</div>
+          </div>
+          <span class="sev-badge sev-${sev.toLowerCase()}">${sev}</span>
+        </div>
+        ${enfermedadesDetectadas.length?`<div style="padding:10px 16px;border-bottom:1px solid var(--borde);background:var(--gris)">
+          <div style="font-size:10px;font-weight:600;color:var(--texto2);margin-bottom:6px">PLANT.ID DETECTÓ <span class="plantid-badge">datos científicos</span></div>
+          ${enfermedadesDetectadas.map(e=>`<div class="plaga-row" style="padding:4px 0">
+            <div class="plaga-nombre" style="font-size:12px">${e.nombre}</div>
+            <div class="plaga-bar-wrap"><div class="plaga-bar" style="width:${e.prob}%;background:${parseInt(e.prob)>50?'var(--rojo)':parseInt(e.prob)>25?'var(--amarillo)':'var(--verde)'}"></div></div>
+            <div class="plaga-pct">${e.prob}%</div>
+          </div>`).join('')}
+        </div>`:''}
+        <div class="resultado-body">
+          <div class="res-texto">${texto}</div>
+        </div>
+      </div>
+      <button class="btn-secondary" style="border-radius:10px;margin-bottom:8px" onclick="renderIA()">📷 Analizar otra foto</button>
+    `;
+  } catch(err) {
+    document.getElementById('ia-resultado').innerHTML = `
+      <div class="error-box">❌ Error: ${err.message}<br><small>Verifica tu API key de Anthropic en console.anthropic.com</small></div>
+      ${plantIdInfo?`<div class="card" style="margin-top:12px"><div class="card-title">plant.id detectó <span class="plantid-badge">datos científicos</span></div><div class="res-texto">${plantIdInfo}</div></div>`:''}`;
+  }
+}
+
+function renderDashboard() {
+  const verdes = LOTES.filter(l=>getEstado(l.id).estado==='verde').length;
+  const amarillos = LOTES.filter(l=>getEstado(l.id).estado==='amarillo').length;
+  const rojos = LOTES.filter(l=>getEstado(l.id).estado==='rojo').length;
+
+  document.getElementById('s-dashboard').innerHTML = `
+    <div class="stat-row">
+      <div class="stat"><div class="stat-label">Área usada</div><div class="stat-val">29.4 há</div></div>
+      <div class="stat"><div class="stat-label">Lotes</div><div class="stat-val">${LOTES.length}</div></div>
+      <div class="stat"><div class="stat-label">Sin alerta</div><div class="stat-val">${verdes}</div></div>
+      <div class="stat"><div class="stat-label">Con alerta</div><div class="stat-val amber">${amarillos+rojos}</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Estado del fundo</div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <div style="flex:1;text-align:center;padding:12px;background:var(--verde-claro);border-radius:10px">
+          <div style="font-size:22px;font-weight:700;color:var(--verde)">${verdes}</div>
+          <div style="font-size:11px;color:var(--verde)">Bien</div>
+        </div>
+        <div style="flex:1;text-align:center;padding:12px;background:var(--amarillo-claro);border-radius:10px">
+          <div style="font-size:22px;font-weight:700;color:var(--amarillo)">${amarillos}</div>
+          <div style="font-size:11px;color:var(--amarillo)">Alerta</div>
+        </div>
+        <div style="flex:1;text-align:center;padding:12px;background:var(--rojo-claro);border-radius:10px">
+          <div style="font-size:22px;font-weight:700;color:var(--rojo)">${rojos}</div>
+          <div style="font-size:11px;color:var(--rojo)">Crítico</div>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="chart-ha"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Importar Excel de monitoreo</div>
+      <label class="import-btn">
+        <input type="file" accept=".xlsx,.xls" onchange="importExcel(this)">
+        📊 Subir FUNDO_ISHIZAWA-19-03-2026.xlsx
+      </label>
+      <p style="font-size:11px;color:var(--texto2);margin-top:6px">Carga el historial completo de evaluaciones fitosanitarias</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Últimos análisis IA</div>
+      ${historialIA.length?historialIA.slice(0,5).map(h=>`
+        <div class="plaga-row">
+          <div style="flex:1">
+            <div class="plaga-nombre">${h.cultivo||'Cultivo'}</div>
+            <div style="font-size:11px;color:var(--texto2)">${h.fecha} · ${h.problema||''}</div>
+          </div>
+          <span class="pill ${h.severidad==='Grave'?'rojo':h.severidad==='Moderado'?'amarillo':'verde'}">${h.severidad||'—'}</span>
+        </div>`).join(''):`<div style="text-align:center;padding:20px;color:var(--texto2);font-size:13px">Sin análisis aún — sube tu primera foto</div>`}
+    </div>
+  `;
+
+  setTimeout(()=>{
+    const ctx = document.getElementById('chart-ha');
+    if(!ctx) return;
+    const cultivos = {};
+    LOTES.forEach(l=>{ cultivos[l.cultivo]=(cultivos[l.cultivo]||0)+l.ha; });
+    const top = Object.entries(cultivos).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    if(chartInicio) chartInicio.destroy();
+    chartInicio = new Chart(ctx,{type:'bar',data:{
+      labels:top.map(e=>e[0].replace('Mandarina ','Mand. ').replace('Palta ','P. ')),
+      datasets:[{data:top.map(e=>e[1]),backgroundColor:'#3B6D11',borderRadius:6,barThickness:20}]
+    },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#f0f0ec'}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
+  },100);
+}
+
+function importExcel(input) {
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(e.target.result,{type:'array',cellDates:true});
+      let total = 0;
+      wb.SheetNames.forEach(sheetName=>{
+        const match = sheetName.match(/LOTE[\s]?(\w+)/i);
+        if(!match) return;
+        const loteId = match[1].trim();
+        if(!LOTES.find(l=>l.id===loteId)) return;
+        const ws = wb.Sheets[sheetName];
+        const data = XLSX.utils.sheet_to_json(ws,{header:1,defval:0});
+        if(data.length<2) return;
+        const headers = data[0];
+        const registros = [];
+        for(let i=1;i<data.length;i++){
+          const row = data[i];
+          if(!row||!row[0]) continue;
+          let fecha;
+          if(row[0] instanceof Date) fecha=row[0].toISOString().split('T')[0];
+          else if(typeof row[0]==='number') fecha=new Date(Math.round((row[0]-25569)*86400*1000)).toISOString().split('T')[0];
+          else fecha=String(row[0]).trim();
+          if(!fecha||fecha==='null') continue;
+          const plagas={};
+          for(let j=1;j<headers.length;j++){
+            if(headers[j]&&row[j]!==undefined) plagas[String(headers[j]).trim()]=parseFloat(row[j])||0;
+          }
+          registros.push({fecha,plagas});
+        }
+        if(registros.length){ excelData[loteId]=registros; total+=registros.length; }
+      });
+      localStorage.setItem('excelData',JSON.stringify(excelData));
+      alert(`✅ Excel importado: ${total} registros de ${Object.keys(excelData).length} lotes`);
+      renderDashboard();
+    } catch(err){ alert('Error: '+err.message); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function renderLotes() {
+  document.getElementById('s-lotes').innerHTML = `
+    <div class="tab-row">
+      <div class="tab active" onclick="filtrarLotes('todos',this)">Todos</div>
+      <div class="tab" onclick="filtrarLotes('Palta',this)">Paltas</div>
+      <div class="tab" onclick="filtrarLotes('Mandarina',this)">Mandarinas</div>
+      <div class="tab" onclick="filtrarLotes('Uva',this)">Uvas</div>
+      <div class="tab" onclick="filtrarLotes('Lúcuma',this)">Lúcuma</div>
+    </div>
+    <div class="lote-grid" id="lote-grid">
+      ${LOTES.map(l=>{
+        const e=getEstado(l.id);
+        const m=[...(excelData[l.id]||[]),...(monitoreoData[l.id]||[])];
+        return `<div class="lote-card" onclick="verDetalle('${l.id}')" data-cultivo="${l.cultivo}">
+          <div class="lote-num">${l.nombre}</div>
+          <div class="lote-cultivo">${l.cultivo}</div>
+          <div class="lote-ha">${l.ha} há · ${m.length} registros</div>
+          <span class="pill ${e.estado}">${e.estado==='verde'?'✓ Bien':e.estado==='amarillo'?'⚠ Alerta':'✗ Crítico'}</span>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+function filtrarLotes(f,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.lote-card').forEach(c=>{
+    c.style.display=f==='todos'||c.dataset.cultivo.includes(f)?'block':'none';
+  });
+}
+
+function verDetalle(loteId) {
+  currentLote = loteId;
+  const lote = LOTES.find(l=>l.id===loteId);
+  const e = getEstado(loteId);
+  const allData = [...(excelData[loteId]||[]),...(monitoreoData[loteId]||[])].sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
+  const riego = RIEGO[lote.cultivo]||{};
+
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-detalle').classList.add('active');
+  document.getElementById('s-detalle').innerHTML = `
+    <div class="detalle-back" onclick="go('lotes')">← Volver a lotes</div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:11px;color:var(--texto2)">${lote.nombre}</div>
+          <div style="font-size:20px;font-weight:700;margin:4px 0">${lote.cultivo}</div>
+          <div style="font-size:13px;color:var(--texto2)">${lote.ha} há · ${allData.length} registros</div>
+        </div>
+        <span class="pill ${e.estado}" style="font-size:12px;padding:4px 12px">${e.estado==='verde'?'Bien':e.estado==='amarillo'?'Alerta':'Crítico'}</span>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--borde);font-size:13px;color:var(--texto2)">
+        💧 Riego cada ${riego.dias||7} días — ${riego.agua||''}<br>
+        🌱 ${riego.abono||''}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Plagas monitoreadas</div>
+      ${lote.plagas.map(p=>{
+        const vals = allData.map(d=>d.plagas?.[p]||0);
+        const ult = vals.length?vals[vals.length-1]:0;
+        const pct = Math.min(ult/0.2,1)*100;
+        const col = ult>=0.16?'var(--rojo)':ult>=0.08?'var(--amarillo)':'var(--verde)';
+        return `<div class="plaga-row">
+          <div class="plaga-nombre">${p}</div>
+          <div class="plaga-bar-wrap"><div class="plaga-bar" style="width:${pct}%;background:${col}"></div></div>
+          <div class="plaga-pct">${(ult*100).toFixed(0)}%</div>
+        </div>`;
+      }).join('')}
+    </div>
+    ${allData.length>1?`<div class="card">
+      <div class="card-title">Evolución de incidencia</div>
+      <div class="chart-wrap"><canvas id="chart-detalle"></canvas></div>
+    </div>`:''}
+    <div class="card">
+      <div class="card-title">Registrar monitoreo</div>
+      <label class="form-label">Fecha</label>
+      <input type="date" id="m-fecha" class="form-input" value="${new Date().toISOString().split('T')[0]}">
+      ${lote.plagas.map(p=>`
+        <label class="form-label">${p}</label>
+        <input type="number" id="mp-${p.replace(/\s/g,'_')}" class="form-input" min="0" max="0.20" step="0.01" value="0" placeholder="0.00 - 0.20">
+      `).join('')}
+      <label class="form-label">Temperatura máx (°C)</label>
+      <input type="number" id="m-temp" class="form-input" placeholder="ej: 28.5">
+      <label class="form-label">Humedad (%)</label>
+      <input type="number" id="m-hum" class="form-input" placeholder="ej: 65">
+      <div style="margin-top:14px;display:flex;gap:8px">
+        <button class="btn-primary" style="border-radius:10px" onclick="guardarMonitoreo('${loteId}')">Guardar monitoreo</button>
+      </div>
+    </div>
+    <button class="btn-secondary" style="border-radius:10px;margin-bottom:8px" onclick="go('ia')">📷 Analizar foto de este lote</button>
+    <div class="card">
+      <div class="card-title">Historial (${allData.length} registros)</div>
+      ${!allData.length?`<div style="text-align:center;padding:20px;color:var(--texto2);font-size:13px">Sin registros — importa el Excel o registra un monitoreo</div>`:''}
+      ${allData.slice(-8).reverse().map(d=>`
+        <div style="padding:8px 0;border-bottom:1px solid var(--borde)">
+          <div style="font-size:11px;color:var(--texto2)">📅 ${d.fecha}${d.temp?` · 🌡️ ${d.temp}°C`:''} ${d.hum?`· 💧 ${d.hum}%`:''}</div>
+          <div style="font-size:13px;margin-top:2px">${Object.entries(d.plagas||{}).filter(([k,v])=>v>0).map(([k,v])=>`${k}: <b>${(v*100).toFixed(0)}%</b>`).join(' · ')||'Sin incidencias'}</div>
+        </div>`).join('')}
+    </div>
+  `;
+
+  setTimeout(()=>{
+    const ctx = document.getElementById('chart-detalle');
+    if(!ctx||allData.length<2) return;
+    const slice = allData.slice(-16);
+    const cols = ['#3B6D11','#854F0B','#A32D2D','#185FA5','#639922'];
+    const datasets = lote.plagas.slice(0,5).map((p,i)=>({
+      label:p,
+      data:slice.map(d=>((d.plagas?.[p]||0)*100).toFixed(1)),
+      borderColor:cols[i],backgroundColor:'transparent',tension:0.3,pointRadius:3,borderWidth:2
+    }));
+    new Chart(ctx,{type:'line',data:{labels:slice.map(d=>d.fecha.slice(5)),datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}},scales:{y:{beginAtZero:true,max:20,title:{display:true,text:'%'}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
+  },150);
+}
+
+function guardarMonitoreo(loteId) {
+  const lote = LOTES.find(l=>l.id===loteId);
+  const fecha = document.getElementById('m-fecha').value;
+  const plagas = {};
+  lote.plagas.forEach(p=>{
+    const id = 'mp-'+p.replace(/\s/g,'_');
+    const val = parseFloat(document.getElementById(id)?.value||0);
+    if(!isNaN(val)) plagas[p]=val;
+  });
+  const temp = document.getElementById('m-temp')?.value;
+  const hum = document.getElementById('m-hum')?.value;
+  if(!monitoreoData[loteId]) monitoreoData[loteId]=[];
+  monitoreoData[loteId].push({fecha,plagas,temp:temp?parseFloat(temp):null,hum:hum?parseFloat(hum):null});
+  localStorage.setItem('monitoreo',JSON.stringify(monitoreoData));
+  localStorage.setItem('riego_'+loteId,new Date().toISOString());
+  alert('✅ Monitoreo guardado');
+  verDetalle(loteId);
+}
+
+function renderAlertas() {
+  const alertas = [];
+  LOTES.forEach(l=>{
+    const r = RIEGO[l.cultivo]||{dias:7};
+    const ult = localStorage.getItem('riego_'+l.id);
+    const dias = ult?Math.floor((Date.now()-new Date(ult).getTime())/864e5):999;
+    if(dias>=r.dias) alertas.push({lote:l,dias,urgente:dias>r.dias+3,riego:r});
+    const e = getEstado(l.id);
+    if(e.estado==='rojo') alertas.unshift({lote:l,tipo:'critico',inc:e.inc});
+  });
+
+  document.getElementById('s-alertas').innerHTML = `
+    <div class="card">
+      <div class="card-title">Alertas fitosanitarias</div>
+      ${LOTES.filter(l=>getEstado(l.id).estado!=='verde').map(l=>{
+        const e=getEstado(l.id);
+        return `<div class="alerta-item">
+          <div class="alerta-dot ${e.estado}"></div>
+          <div style="flex:1">
+            <div class="alerta-titulo">${l.nombre} — ${l.cultivo}</div>
+            <div class="alerta-desc">Incidencia: ${(e.inc*100).toFixed(0)}% — ${e.estado==='rojo'?'Aplicar producto urgente':'Monitorear de cerca'}</div>
+          </div>
+          <button onclick="verDetalle('${l.id}')" style="font-size:11px;padding:4px 10px;background:var(--verde);color:white;border:none;border-radius:6px;cursor:pointer">Ver</button>
+        </div>`;
+      }).join('')||`<div style="text-align:center;padding:20px;color:var(--texto2);font-size:13px">✅ Todos los lotes sin alertas fitosanitarias</div>`}
+    </div>
+    <div class="card">
+      <div class="card-title">Alertas de riego</div>
+      ${alertas.filter(a=>!a.tipo).slice(0,8).map(a=>`
+        <div class="alerta-item">
+          <div class="alerta-dot ${a.urgente?'rojo':'amarillo'}"></div>
+          <div style="flex:1">
+            <div class="alerta-titulo">${a.lote.nombre} — ${a.lote.cultivo}</div>
+            <div class="alerta-desc">${a.dias>900?'Sin registro de riego':('Último riego hace '+a.dias+' días')} · ${a.riego.agua||''}</div>
+          </div>
+          <button onclick="marcarRiego('${a.lote.id}')" style="font-size:11px;padding:4px 10px;background:var(--verde);color:white;border:none;border-radius:6px;cursor:pointer">Regar</button>
+        </div>`).join('')||`<div style="text-align:center;padding:20px;color:var(--texto2);font-size:13px">✅ Todos los lotes al día con el riego</div>`}
+    </div>
+    <div class="card">
+      <div class="card-title">Umbrales de acción</div>
+      <div class="alerta-item"><div class="alerta-dot verde"></div><div><div class="alerta-titulo">Verde — Sin acción</div><div class="alerta-desc">Incidencia 0 - 8%</div></div></div>
+      <div class="alerta-item"><div class="alerta-dot amarillo"></div><div><div class="alerta-titulo">Amarillo — Monitorear</div><div class="alerta-desc">Incidencia 8 - 16%</div></div></div>
+      <div class="alerta-item"><div class="alerta-dot rojo"></div><div><div class="alerta-titulo">Rojo — Aplicar producto</div><div class="alerta-desc">Incidencia mayor a 16%</div></div></div>
+    </div>
+  `;
+}
+
+function marcarRiego(id){ localStorage.setItem('riego_'+id,new Date().toISOString()); renderAlertas(); }
+renderIA();
+</script>
+</body>
+</html>
