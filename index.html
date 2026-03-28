@@ -369,7 +369,15 @@ function handleVideo(file) {
 }
 
 function showPreview(src) {
-  document.getElementById('drop-area').innerHTML = `<img src="${src}" class="preview" style="margin:0;border-radius:10px">`;
+  const da = document.getElementById('drop-area');
+  da.removeAttribute('onclick');
+  da.removeAttribute('ondragover');
+  da.removeAttribute('ondragleave');
+  da.removeAttribute('ondrop');
+  da.style.padding = '0';
+  da.style.border = 'none';
+  da.style.cursor = 'default';
+  da.innerHTML = `<img src="${src}" class="preview" style="margin:0;border-radius:10px">`;
 }
 
 function showPreviewAdicional(src, n) {
