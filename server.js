@@ -321,7 +321,6 @@ ${alertas.join('\n')}`;
     ].filter(Boolean).join('\n');
 
     // --- [GEMINI] Google Gemini Vision — segunda opinión IA ---
-    let geminiInfo = '';
     if(GEMINI_KEY) {
       try {
         const geminiRes = await fetch(
