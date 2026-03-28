@@ -362,12 +362,28 @@ async function analizar(b64, mime, cultivoManual) {
     </div>`;
 
   try {
-    document.getElementById('loading-step').textContent = 'Procesando con 4 APIs especializadas...';
-    const res = await fetch('https://fundo-ishizawa2-1.onrender.com/analyze', {
+    // Despertar servidor Render Free si está dormido (puede tardar hasta 60s)
+    const SERVER = 'https://fundo-ishizawa2-1.onrender.com';
+    document.getElementById('loading-step').textContent = 'Conectando con servidor...';
+    try {
+      const ctrl0 = new AbortController();
+      setTimeout(()=>ctrl0.abort(), 8000);
+      await fetch(SERVER + '/health', {signal: ctrl0.signal});
+    } catch(e) {
+      // Si /health no responde en 8s, el servidor está dormido — esperamos
+      document.getElementById('loading-step').textContent = '⏳ Servidor iniciando (Render Free, ~40s)... por favor espera';
+      await new Promise(r => setTimeout(r, 30000));
+    }
+    document.getElementById('loading-step').textContent = 'Procesando con 6 APIs especializadas (puede tardar 30-60s)...';
+    const ctrl = new AbortController();
+    const tid = setTimeout(()=>ctrl.abort(), 120000); // 2 min timeout
+    const res = await fetch(SERVER + '/analyze', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({image: b64, mediaType: mime, loteId: loteSeleccionado, loteCultivo: cultivoConfirmado})
+      body: JSON.stringify({image: b64, mediaType: mime, loteId: loteSeleccionado, loteCultivo: cultivoConfirmado}),
+      signal: ctrl.signal
     });
+    clearTimeout(tid);
     const data = await res.json();
     if(data.error) throw new Error(data.error);
     const texto = data.resultado;
@@ -442,7 +458,7 @@ async function analizar(b64, mime, cultivoManual) {
     `;
   } catch(err) {
     document.getElementById('ia-resultado').innerHTML = `
-      <div class="error-box">❌ Error al analizar: ${err.message}<br><small>El servidor puede estar iniciando (Render Free tarda ~30s). Intenta de nuevo.</small></div>`;
+      <div class="error-box">❌ Error al analizar: ${err.name === 'AbortError' ? 'Tiempo de espera agotado (servidor ocupado)' : err.message}<br><small>${err.name === 'AbortError' ? 'El análisis tardó más de 2 minutos. Intenta de nuevo.' : 'Intenta de nuevo. Si persiste, el servidor Render Free puede estar iniciando (~40s).'}</small></div>`;
   }
 }
 
