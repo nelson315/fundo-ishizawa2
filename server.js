@@ -9,10 +9,9 @@ app.use(express.json({limit:'20mb'}));
 const PLANTID_KEY    = process.env.PLANTID_KEY    || '';
 const CROPHEALTH_KEY = process.env.CROPHEALTH_KEY || '';
 const ANTHROPIC_KEY  = process.env.ANTHROPIC_KEY  || '';
-const WEATHER_KEY    = process.env.WEATHER_KEY    || '';
-// Coordenadas del Fundo Ishizawa (ajustar si es necesario)
-const FUNDO_LAT = -13.35;
-const FUNDO_LON = -76.15;
+// Coordenadas exactas del Fundo Ishizawa - Huaura, Lima, Perú
+const FUNDO_LAT = -11.4521;
+const FUNDO_LON = -77.1235;
 
 // Base de conocimiento fitosanitario para el Fundo Ishizawa
 const TRATAMIENTOS = {
@@ -107,22 +106,27 @@ app.post('/analyze', async (req, res) => {
     let insultsResults = [];
     let climaInfo = '';
 
-    // --- Clima actual (OpenWeatherMap) ---
-    if (WEATHER_KEY) {
-      try {
-        const wRes = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${FUNDO_LAT}&lon=${FUNDO_LON}&appid=${WEATHER_KEY}&units=metric&lang=es`);
-        const w = await wRes.json();
-        if (w.main) {
-          const hum = w.main.humidity;
-          const temp = w.main.temp.toFixed(1);
-          const desc = w.weather?.[0]?.description || '';
-          const viento = w.wind?.speed?.toFixed(1) || '0';
-          const riesgo = hum > 80 ? 'ALTO riesgo hongos (humedad >80%)' : hum > 60 ? 'Riesgo moderado hongos' : 'Riesgo bajo hongos';
-          climaInfo = `Clima actual en el fundo: ${temp}°C, humedad ${hum}%, viento ${viento} m/s, ${desc}. ${riesgo}.`;
-          console.log('Clima OK:', climaInfo);
-        }
-      } catch(e) { console.log('Clima error:', e.message); }
-    }
+    // --- Clima actual (Open-Meteo - gratis, sin API key) ---
+    try {
+      const wRes = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${FUNDO_LAT}&longitude=${FUNDO_LON}` +
+        `&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,weather_code` +
+        `&forecast_days=1`
+      );
+      const w = await wRes.json();
+      if (w.current) {
+        const temp = w.current.temperature_2m;
+        const hum  = w.current.relative_humidity_2m;
+        const viento = w.current.wind_speed_10m;
+        const lluvia = w.current.precipitation;
+        const riesgoHongos = hum > 85 ? '⚠️ ALTO riesgo de hongos (humedad >85%) — postergar aplicaciones foliares' :
+                             hum > 70 ? 'Riesgo moderado de hongos (humedad 70-85%)' :
+                             'Riesgo bajo de hongos — condiciones favorables para aplicar';
+        const riesgoAcaros = temp > 28 ? '⚠️ Temperatura alta (>28°C) — condiciones favorables para arañita roja' : '';
+        climaInfo = `Clima actual Fundo Ishizawa (Huaura): ${temp}°C, humedad ${hum}%, viento ${viento} km/h, lluvia ${lluvia}mm. ${riesgoHongos}${riesgoAcaros ? '. ' + riesgoAcaros : ''}.`;
+        console.log('Clima OK:', climaInfo);
+      }
+    } catch(e) { console.log('Clima error:', e.message); }
 
     // --- crop.health (enfermedades de cultivos) ---
     try {
