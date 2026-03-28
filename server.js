@@ -136,6 +136,8 @@ Volumen de caldo: paltos 800-1200 L/ha | cítricos 600-800 L/ha | uvas 400-600 L
 
 ⚡ URGENCIA: [Crítica — actuar HOY / Alta — actuar en 3 días / Moderada — actuar en 5-7 días / Baja — puede esperar] — [razón concreta]`;
 
+    if (!ANTHROPIC_KEY) throw new Error('ANTHROPIC_KEY no configurada en el servidor. Agregar en Render > Environment.');
+
     const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -156,8 +158,11 @@ Volumen de caldo: paltos 800-1200 L/ha | cítricos 600-800 L/ha | uvas 400-600 L
       })
     });
 
-    const claudeData = await claudeRes.json();
-    if (claudeData.error) throw new Error('Claude: ' + claudeData.error.message);
+    const rawText = await claudeRes.text();
+    let claudeData;
+    try { claudeData = JSON.parse(rawText); }
+    catch(e) { throw new Error('Anthropic API error (HTTP ' + claudeRes.status + '): respuesta no válida. Verifica la ANTHROPIC_KEY en Render.'); }
+    if (claudeData.error) throw new Error('Claude error ' + claudeRes.status + ': ' + claudeData.error.message);
     const resultado = claudeData.content?.[0]?.text || 'Sin respuesta de Claude';
 
     const sevMatch = resultado.match(/🚨 SEVERIDAD:\s*(Leve|Moderado|Grave)/i);
