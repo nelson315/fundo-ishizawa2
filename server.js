@@ -146,7 +146,7 @@ Volumen de caldo: paltos 800-1200 L/ha | cítricos 600-800 L/ha | uvas 400-600 L
         'content-type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-3-haiku-20240307',
         max_tokens: 1500,
         messages: [{
           role: 'user',
