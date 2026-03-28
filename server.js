@@ -146,7 +146,7 @@ Volumen de caldo: paltos 800-1200 L/ha | cítricos 600-800 L/ha | uvas 400-600 L
         'content-type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'claude-opus-4-6',
+        model: 'claude-3-5-sonnet-20241022',
         max_tokens: 1500,
         messages: [{
           role: 'user',
@@ -159,9 +159,10 @@ Volumen de caldo: paltos 800-1200 L/ha | cítricos 600-800 L/ha | uvas 400-600 L
     });
 
     const rawText = await claudeRes.text();
+    console.log('Anthropic HTTP', claudeRes.status, rawText.substring(0, 200));
     let claudeData;
     try { claudeData = JSON.parse(rawText); }
-    catch(e) { throw new Error('Anthropic API error (HTTP ' + claudeRes.status + '): respuesta no válida. Verifica la ANTHROPIC_KEY en Render.'); }
+    catch(e) { throw new Error('Anthropic HTTP ' + claudeRes.status + ': ' + rawText.substring(0, 150)); }
     if (claudeData.error) throw new Error('Claude error ' + claudeRes.status + ': ' + claudeData.error.message);
     const resultado = claudeData.content?.[0]?.text || 'Sin respuesta de Claude';
 
