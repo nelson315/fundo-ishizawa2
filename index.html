@@ -270,7 +270,14 @@ function handleFile(file) {
     const b64 = e.target.result.split(',')[1];
     const mime = file.type||'image/jpeg';
     showPreview(e.target.result);
-    analizar(b64, mime);
+    if(!loteSeleccionado) {
+      // Sin lote: pedir cultivo primero para no confundirse
+      _pendingB64 = b64;
+      _pendingMime = mime;
+      mostrarSelectorCultivo();
+    } else {
+      analizar(b64, mime);
+    }
   };
   reader.readAsDataURL(file);
 }
@@ -278,7 +285,7 @@ function handleFile(file) {
 function mostrarSelectorCultivo() {
   document.getElementById('ia-resultado').innerHTML = `
     <div class="card" style="border:2px solid var(--verde)">
-      <div class="card-title" style="font-size:13px;color:var(--verde)">¿Qué cultivo es la foto?</div>
+      <div class="card-title" style="font-size:13px;color:var(--verde)">⚠️ Selecciona el lote arriba para diagnóstico preciso, o confirma el cultivo:</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
         ${CULTIVOS_FUNDO.map(c=>`
           <button onclick="confirmarCultivo('${c.id}')" style="
@@ -292,10 +299,10 @@ function mostrarSelectorCultivo() {
           </button>`).join('')}
       </div>
       <button onclick="confirmarCultivo(null)" style="
-        margin-top:10px;width:100%;padding:8px;background:var(--gris);
-        border:1px solid var(--borde);border-radius:8px;font-size:12px;
-        color:var(--texto2);cursor:pointer">
-        No sé / Dejar que Claude identifique
+        margin-top:10px;width:100%;padding:12px;background:var(--verde-claro);
+        border:2px solid var(--verde);border-radius:10px;font-size:13px;font-weight:600;
+        color:var(--verde);cursor:pointer">
+        🤖 Dejar que la IA identifique el cultivo
       </button>
     </div>`;
 }
@@ -339,7 +346,13 @@ function handleVideo(file) {
     const dataUrl = canvas.toDataURL('image/jpeg',0.85);
     const b64 = dataUrl.split(',')[1];
     showPreview(dataUrl);
-    analizar(b64, 'image/jpeg');
+    if(!loteSeleccionado) {
+      _pendingB64 = b64;
+      _pendingMime = 'image/jpeg';
+      mostrarSelectorCultivo();
+    } else {
+      analizar(b64, 'image/jpeg');
+    }
     URL.revokeObjectURL(video.src);
   };
   video.load();
