@@ -324,7 +324,11 @@ Temperatura ideal: menor a 28°C. No aplicar con viento fuerte (>15 km/h).
     const cultivoMatch = resultado.match(/🌿 CULTIVO IDENTIFICADO:\s*(.+)/);
     const cultivoFinal = cultivoMatch?.[1]?.trim() || cultivoNombre;
 
-    res.json({resultado, cultivo:cultivoFinal, enfermedades:todasEnf, severidad, saludable:false});
+    // Confianza en la identificación del cultivo (1.0 si lote confirmado, si no basada en APIs)
+    const cultivoConfianza = cultivoConfirmado ? 1.0 :
+      (cropResults[0]?.probability || plantResults[0]?.probability || 0);
+
+    res.json({resultado, cultivo:cultivoFinal, enfermedades:todasEnf, severidad, saludable:false, cultivoConfianza});
 
   } catch(err) {
     console.error('Error /analyze:', err.message);

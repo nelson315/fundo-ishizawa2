@@ -270,15 +270,7 @@ function handleFile(file) {
     const b64 = e.target.result.split(',')[1];
     const mime = file.type||'image/jpeg';
     showPreview(e.target.result);
-    // Si ya hay lote seleccionado, ir directo al análisis
-    if(loteSeleccionado) {
-      analizar(b64, mime);
-    } else {
-      // Preguntar cultivo antes de analizar
-      _pendingB64 = b64;
-      _pendingMime = mime;
-      mostrarSelectorCultivo();
-    }
+    analizar(b64, mime);
   };
   reader.readAsDataURL(file);
 }
@@ -316,6 +308,23 @@ function confirmarCultivo(cultivoId) {
   }
 }
 
+function reanalizar(cultivoId) {
+  // Reusar la última imagen del preview para reanálisis con cultivo correcto
+  const img = document.querySelector('#drop-area img.preview');
+  if(!img) return;
+  const canvas = document.createElement('canvas');
+  const image = new Image();
+  image.src = img.src;
+  image.onload = () => {
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+    canvas.getContext('2d').drawImage(image, 0, 0);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+    const b64 = dataUrl.split(',')[1];
+    analizar(b64, 'image/jpeg', cultivoId);
+  };
+}
+
 function handleVideo(file) {
   const video = document.createElement('video');
   const canvas = document.createElement('canvas');
@@ -330,12 +339,7 @@ function handleVideo(file) {
     const dataUrl = canvas.toDataURL('image/jpeg',0.85);
     const b64 = dataUrl.split(',')[1];
     showPreview(dataUrl);
-    if(loteSeleccionado) {
-      analizar(b64, 'image/jpeg');
-    } else {
-      _pendingB64 = b64; _pendingMime = 'image/jpeg';
-      mostrarSelectorCultivo();
-    }
+    analizar(b64, 'image/jpeg');
     URL.revokeObjectURL(video.src);
   };
   video.load();
@@ -421,6 +425,20 @@ async function analizar(b64, mime, cultivoManual) {
       </div>
       <button class="btn-secondary" style="border-radius:10px;margin-bottom:8px" onclick="renderIA()">📷 Analizar otra foto</button>
       <button class="btn-secondary" style="border-radius:10px;margin-bottom:8px;font-size:12px" onclick="exportarHistorial()">📥 Exportar historial a Excel</button>
+      ${!loteSeleccionado && data.cultivoConfianza < 0.7 ? `
+      <div class="card" style="border:1px solid var(--amarillo);background:var(--amarillo-claro)">
+        <div style="font-size:12px;font-weight:600;color:var(--amarillo);margin-bottom:10px">
+          ⚠️ Cultivo detectado con poca certeza. ¿Es correcto "${cultivo}"? Si no, selecciona:
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          ${CULTIVOS_FUNDO.map(c=>`<button onclick="reanalizar('${c.id}')" style="
+            padding:8px 10px;background:white;border:1px solid var(--borde);border-radius:8px;
+            font-size:12px;font-weight:500;cursor:pointer;text-align:left;display:flex;align-items:center;gap:6px"
+            onmouseover="this.style.borderColor='var(--verde)';this.style.background='var(--verde-claro)'"
+            onmouseout="this.style.borderColor='var(--borde)';this.style.background='white'">
+            ${c.icono} ${c.label}</button>`).join('')}
+        </div>
+      </div>` : ''}
     `;
   } catch(err) {
     document.getElementById('ia-resultado').innerHTML = `
