@@ -198,6 +198,7 @@ function getEstado(loteId) {
 }
 
 let loteSeleccionado = null;
+let _imagenesEnvio = []; // array de {data, mediaType} para multi-foto
 
 function renderIA() {
   document.getElementById('s-ia').innerHTML = `
@@ -262,16 +263,24 @@ const CULTIVOS_FUNDO = [
 let _pendingB64 = null;
 let _pendingMime = null;
 
-function handleFile(file) {
+function handleFile(file, esAdicional = false) {
   if(!file) return;
   if(file.type.startsWith('video/')) { handleVideo(file); return; }
   const reader = new FileReader();
   reader.onload = e => {
     const b64 = e.target.result.split(',')[1];
     const mime = file.type||'image/jpeg';
+    if(esAdicional) {
+      // Foto adicional: agregar al array y reanalizar con todas
+      _imagenesEnvio.push({data: b64, mediaType: mime});
+      showPreviewAdicional(e.target.result, _imagenesEnvio.length);
+      analizar(_imagenesEnvio[0].data, _imagenesEnvio[0].mediaType);
+      return;
+    }
+    // Primera foto: resetear array
+    _imagenesEnvio = [{data: b64, mediaType: mime}];
     showPreview(e.target.result);
     if(!loteSeleccionado) {
-      // Sin lote: pedir cultivo primero para no confundirse
       _pendingB64 = b64;
       _pendingMime = mime;
       mostrarSelectorCultivo();
@@ -345,6 +354,7 @@ function handleVideo(file) {
     canvas.getContext('2d').drawImage(video,0,0);
     const dataUrl = canvas.toDataURL('image/jpeg',0.85);
     const b64 = dataUrl.split(',')[1];
+    _imagenesEnvio = [{data: b64, mediaType: 'image/jpeg'}];
     showPreview(dataUrl);
     if(!loteSeleccionado) {
       _pendingB64 = b64;
@@ -360,6 +370,22 @@ function handleVideo(file) {
 
 function showPreview(src) {
   document.getElementById('drop-area').innerHTML = `<img src="${src}" class="preview" style="margin:0;border-radius:10px">`;
+}
+
+function showPreviewAdicional(src, n) {
+  // Añadir miniatura de foto adicional debajo del drop-area
+  let adicDiv = document.getElementById('fotos-adicionales');
+  if(!adicDiv) {
+    adicDiv = document.createElement('div');
+    adicDiv.id = 'fotos-adicionales';
+    adicDiv.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px';
+    document.getElementById('drop-area').after(adicDiv);
+  }
+  const img = document.createElement('img');
+  img.src = src;
+  img.style.cssText = 'width:80px;height:60px;object-fit:cover;border-radius:8px;border:2px solid var(--verde)';
+  img.title = `Foto adicional ${n}`;
+  adicDiv.appendChild(img);
 }
 
 async function analizar(b64, mime, cultivoManual) {
@@ -390,10 +416,14 @@ async function analizar(b64, mime, cultivoManual) {
     document.getElementById('loading-step').textContent = 'Procesando con 6 APIs especializadas (puede tardar 30-60s)...';
     const ctrl = new AbortController();
     const tid = setTimeout(()=>ctrl.abort(), 120000); // 2 min timeout
+    // Usar array de imágenes si hay más de una
+    const bodyPayload = _imagenesEnvio.length > 1
+      ? {images: _imagenesEnvio, loteId: loteSeleccionado, loteCultivo: cultivoConfirmado}
+      : {image: b64, mediaType: mime, loteId: loteSeleccionado, loteCultivo: cultivoConfirmado};
     const res = await fetch(SERVER + '/analyze', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({image: b64, mediaType: mime, loteId: loteSeleccionado, loteCultivo: cultivoConfirmado}),
+      body: JSON.stringify(bodyPayload),
       signal: ctrl.signal
     });
     clearTimeout(tid);
@@ -452,7 +482,19 @@ async function analizar(b64, mime, cultivoManual) {
           <div class="res-texto">${texto}</div>
         </div>
       </div>
-      <button class="btn-secondary" style="border-radius:10px;margin-bottom:8px" onclick="renderIA()">📷 Analizar otra foto</button>
+      ${data.recomendacionFoto && !data.recomendacionFoto.toLowerCase().includes('no es necesaria') && !data.recomendacionFoto.toLowerCase().includes('diagnóstico claro') ? `
+      <div style="background:var(--amarillo-claro);border:1px solid var(--amarillo);border-radius:10px;padding:10px 14px;margin-bottom:8px">
+        <div style="font-size:11px;font-weight:600;color:var(--amarillo);margin-bottom:4px">📷 FOTO RECOMENDADA PARA MEJOR DIAGNÓSTICO</div>
+        <div style="font-size:12px;color:var(--texto)">${data.recomendacionFoto}</div>
+        <label style="display:inline-block;margin-top:8px;padding:7px 14px;background:var(--verde);color:white;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+          ➕ Agregar esa foto
+          <input type="file" accept="image/*" style="display:none" onchange="handleFile(this.files[0], true)">
+        </label>
+      </div>` : `
+      <div style="background:var(--verde-claro);border:1px solid var(--verde);border-radius:10px;padding:8px 14px;margin-bottom:8px;font-size:12px;color:var(--verde)">
+        ✓ ${data.recomendacionFoto || 'Foto suficiente para el diagnóstico'}
+      </div>`}
+      <button class="btn-secondary" style="border-radius:10px;margin-bottom:8px" onclick="_imagenesEnvio=[];document.getElementById('fotos-adicionales')?.remove();renderIA()">📷 Analizar otra foto</button>
       <button class="btn-secondary" style="border-radius:10px;margin-bottom:8px;font-size:12px" onclick="exportarHistorial()">📥 Exportar historial a Excel</button>
       ${!loteSeleccionado && data.cultivoConfianza < 0.7 ? `
       <div class="card" style="border:1px solid var(--amarillo);background:var(--amarillo-claro)">

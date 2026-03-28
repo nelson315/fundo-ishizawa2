@@ -6,7 +6,7 @@ const sharp    = require('sharp');
 const app = express();
 
 app.use(cors());
-app.use(express.json({limit:'20mb'}));
+app.use(express.json({limit:'50mb'}));
 
 // APIs existentes
 const PLANTID_KEY    = process.env.PLANTID_KEY    || '';
@@ -105,8 +105,13 @@ function identificarCultivo(nombre) {
 
 app.post('/analyze', async (req, res) => {
   try {
-    const {image, mediaType} = req.body;
-    const imageDataUrl = 'data:' + mediaType + ';base64,' + image;
+    const { image, mediaType, images: imagesArr, loteId: _li, loteCultivo: _lc } = req.body;
+    // Soporte multi-foto: array de {data, mediaType} O foto única legacy
+    const images = (imagesArr && imagesArr.length)
+      ? imagesArr
+      : [{data: image, mediaType: mediaType || 'image/jpeg'}];
+    const primaryImage = images[0];
+    const imageDataUrl = 'data:' + primaryImage.mediaType + ';base64,' + primaryImage.data;
 
     let cultivoRaw = '';
     let cropResults = [];
@@ -116,6 +121,7 @@ app.post('/analyze', async (req, res) => {
     let geminiInfo = '';
     let plantnetInfo = '';
     let inatInfo = '';
+    let inatObsInfo = '';
     let agrioInfo = '';
     let analisisNutricional = '';
 
@@ -141,7 +147,29 @@ app.post('/analyze', async (req, res) => {
       }
     } catch(e) { console.log('Clima error:', e.message); }
 
-    // --- crop.health (enfermedades de cultivos) ---
+    // --- iNaturalist Observations (gratis, sin key) — plagas reportadas cerca del fundo ---
+    try {
+      const inatObsRes = await fetch(
+        `https://api.inaturalist.org/v1/observations?lat=${FUNDO_LAT}&lng=${FUNDO_LON}` +
+        `&radius=30&quality_grade=research&iconic_taxa=Insecta,Fungi&per_page=8` +
+        `&order_by=observed_on&order=desc`,
+        {headers: {'User-Agent': 'FundoIshizawaApp/1.0'}}
+      );
+      const inatObsData = await inatObsRes.json();
+      if(inatObsData?.results?.length) {
+        const vistos = inatObsData.results
+          .filter(o => o.taxon)
+          .map(o => o.taxon.preferred_common_name || o.taxon.name)
+          .filter((v,i,a) => a.indexOf(v) === i)
+          .slice(0,6);
+        if(vistos.length) {
+          inatObsInfo = `iNaturalist — organismos reportados recientemente (30km de Huayán): ${vistos.join(', ')}.`;
+          console.log('iNat Obs OK:', inatObsInfo);
+        }
+      }
+    } catch(e) { console.log('iNat Obs error:', e.message); }
+
+    // --- crop.health (enfermedades de cultivos) — usa foto principal ---
     try {
       const cropRes = await fetch('https://crop.kindwise.com/api/v1/identification', {
         method:'POST',
@@ -169,7 +197,7 @@ app.post('/analyze', async (req, res) => {
       console.log('plant.id OK — cultivo:', cultivoRaw, '— enf:', plantResults.map(e=>e.name+' '+Math.round(e.probability*100)+'%').join(', '));
     } catch(e) { console.log('plant.id error:', e.message); }
 
-    // --- insect.id (Kindwise) ---
+    // --- insect.id (Kindwise) — usa foto principal ---
     try {
       const insRes = await fetch('https://insect.kindwise.com/api/v1/identification', {
         method:'POST',
@@ -186,7 +214,7 @@ app.post('/analyze', async (req, res) => {
     // --- [4] Pl@ntNet — identificación botánica de alta precisión ---
     if(PLANTNET_KEY) {
       try {
-        const imgBuffer = Buffer.from(image, 'base64');
+        const imgBuffer = Buffer.from(primaryImage.data, 'base64');
         const fd = new FormData();
         fd.append('images', imgBuffer, {filename:'leaf.jpg', contentType: mediaType});
         fd.append('organs', 'leaf');
@@ -206,7 +234,7 @@ app.post('/analyze', async (req, res) => {
     // --- [5] iNaturalist — identificación de organismos/plagas ---
     if(INAT_TOKEN) {
       try {
-        const imgBuffer = Buffer.from(image, 'base64');
+        const imgBuffer = Buffer.from(primaryImage.data, 'base64');
         const fd2 = new FormData();
         fd2.append('image', imgBuffer, {filename:'photo.jpg', contentType: mediaType});
         const inatRes = await fetch('https://api.inaturalist.org/v1/computervision/score_image', {
@@ -226,7 +254,7 @@ app.post('/analyze', async (req, res) => {
     // --- [6] Agrio — enfermedades tropicales ---
     if(AGRIO_KEY) {
       try {
-        const imgBuffer = Buffer.from(image, 'base64');
+        const imgBuffer = Buffer.from(primaryImage.data, 'base64');
         const fd3 = new FormData();
         fd3.append('image', imgBuffer, {filename:'plant.jpg', contentType: mediaType});
         const agrioRes = await fetch('https://api.agrio.ag/v2/diagnose', {
@@ -244,7 +272,7 @@ app.post('/analyze', async (req, res) => {
 
     // --- [NUTRICIONAL] Análisis de píxeles con Sharp (NDVI + clorosis + necrosis) ---
     try {
-      const imgBuffer = Buffer.from(image, 'base64');
+      const imgBuffer = Buffer.from(primaryImage.data, 'base64');
       const {data, info} = await sharp(imgBuffer)
         .resize(300, 300, {fit:'inside'})
         .removeAlpha()
@@ -298,7 +326,8 @@ ${alertas.join('\n')}`;
       .slice(0,6);
 
     // Si el usuario seleccionó el lote, ese cultivo es DEFINITIVO — no adivinar
-    const {loteId, loteCultivo} = req.body;
+    const loteId = req.body.loteId || _li;
+    const loteCultivo = req.body.loteCultivo || _lc;
     const cultivoConfirmado = loteCultivo || null;
     const cultivoNombre = cultivoConfirmado || identificarCultivo(cultivoRaw) || 'Cultivo del Fundo Ishizawa';
     const fenologia = estadoFenologico(cultivoConfirmado || cultivoRaw);
@@ -317,7 +346,8 @@ ${alertas.join('\n')}`;
       agrioInfo,
       geminiInfo,
       analisisNutricional,
-      climaInfo
+      climaInfo,
+      inatObsInfo
     ].filter(Boolean).join('\n');
 
     // --- [GEMINI] Google Gemini Vision — segunda opinión IA ---
@@ -330,8 +360,8 @@ ${alertas.join('\n')}`;
             headers: {'Content-Type':'application/json'},
             body: JSON.stringify({
               contents:[{parts:[
-                {inline_data:{mime_type: mediaType, data: image}},
-                {text:`Eres experto en fitopatología de cultivos peruanos. Analiza esta foto y responde en 3-4 líneas en español:
+                ...images.map(img => ({inline_data:{mime_type: img.mediaType, data: img.data}})),
+                {text:`Eres experto en fitopatología de cultivos peruanos. Analiza ${images.length > 1 ? 'estas '+images.length+' fotos' : 'esta foto'} y responde en 3-4 líneas en español:
 1. ¿Qué cultivo es exactamente? (palta, lúcuma, mandarina, uva, etc.)
 2. ¿Qué problema fitosanitario o nutricional ves? Nombre científico + síntomas específicos.
 3. ¿Qué parte está afectada y qué porcentaje del tejido visible?
@@ -413,18 +443,25 @@ Paso 3: [volumen caldo: paltos 800-1200 L/ha, cítricos 600-800 L/ha, uvas 400-6
 • [medida 2]
 • [medida 3]
 
-⚡ URGENCIA: [Crítica — actuar HOY / Alta — 3 días / Moderada — 7 días / Baja — puede esperar] — [razón concreta]`;
+⚡ URGENCIA: [Crítica — actuar HOY / Alta — 3 días / Moderada — 7 días / Baja — puede esperar] — [razón concreta]
+
+📷 RECOMENDACIÓN DE FOTO: [En 1 línea: ¿la foto es suficiente para diagnóstico certero? Si no, qué foto adicional ayudaría: "foto del envés de la hoja" / "primer plano del insecto" / "foto de la planta completa" / "foto más nítida" / "foto del tallo" / "NO es necesaria foto adicional — diagnóstico claro". Si hay varias fotos, evalúa si juntas son suficientes.]`;
+
+        // Construir contenido multi-imagen para Claude
+        const claudeContent = [];
+        images.forEach((img, idx) => {
+          if(idx > 0) claudeContent.push({type:'text', text:`Foto adicional ${idx+1}:`});
+          claudeContent.push({type:'image', source:{type:'base64', media_type:img.mediaType, data:img.data}});
+        });
+        claudeContent.push({type:'text', text:prompt});
 
         const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
           method:'POST',
           headers:{'x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01','content-type':'application/json'},
           body:JSON.stringify({
             model:'claude-haiku-4-5-20251001',
-            max_tokens:1500,
-            messages:[{role:'user',content:[
-              {type:'image',source:{type:'base64',media_type:mediaType,data:image}},
-              {type:'text',text:prompt}
-            ]}]
+            max_tokens:1600,
+            messages:[{role:'user', content: claudeContent}]
           })
         });
         const raw = await claudeRes.text();
@@ -480,11 +517,15 @@ Temperatura ideal: menor a 28°C. No aplicar con viento fuerte (>15 km/h).
     const cultivoMatch = resultado.match(/🌿 CULTIVO IDENTIFICADO:\s*(.+)/);
     const cultivoFinal = cultivoMatch?.[1]?.trim() || cultivoNombre;
 
+    // Extraer recomendación de foto
+    const recFotoMatch = resultado.match(/📷 RECOMENDACIÓN DE FOTO:\s*(.+)/);
+    const recomendacionFoto = recFotoMatch?.[1]?.trim() || '';
+
     // Confianza en la identificación del cultivo (1.0 si lote confirmado, si no basada en APIs)
     const cultivoConfianza = cultivoConfirmado ? 1.0 :
       (cropResults[0]?.probability || plantResults[0]?.probability || 0);
 
-    res.json({resultado, cultivo:cultivoFinal, enfermedades:todasEnf, severidad, saludable:false, cultivoConfianza});
+    res.json({resultado, cultivo:cultivoFinal, enfermedades:todasEnf, severidad, saludable:false, cultivoConfianza, recomendacionFoto, fotosRecibidas: images.length});
 
   } catch(err) {
     console.error('Error /analyze:', err.message);
@@ -492,8 +533,9 @@ Temperatura ideal: menor a 28°C. No aplicar con viento fuerte (>15 km/h).
   }
 });
 
+app.get('/health', (req,res) => res.json({status:'ok'}));
 app.get('/', (req,res) => res.json({
-  status:'ok', service:'Fundo Ishizawa API', version:'2.5',
+  status:'ok', service:'Fundo Ishizawa API', version:'2.6',
   actualizado:'28/03/2026',
   apis_activas: {
     'plant.id':    !!PLANTID_KEY,
