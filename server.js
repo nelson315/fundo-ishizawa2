@@ -177,12 +177,21 @@ app.post('/analyze', async (req, res) => {
       .filter((e,i,arr) => arr.findIndex(x=>x.name===e.name)===i) // deduplicar
       .slice(0,6);
 
-    const cultivoNombre = identificarCultivo(cultivoRaw) || 'Cultivo del Fundo Ishizawa';
-    const fenologia = estadoFenologico(cultivoRaw);
+    // Si el usuario seleccionó el lote, ese cultivo es DEFINITIVO — no adivinar
+    const {loteId, loteCultivo} = req.body;
+    const cultivoConfirmado = loteCultivo || null;
+    const cultivoNombre = cultivoConfirmado || identificarCultivo(cultivoRaw) || 'Cultivo del Fundo Ishizawa';
+    const fenologia = estadoFenologico(cultivoConfirmado || cultivoRaw);
+
+    const contextoLote = cultivoConfirmado
+      ? `CULTIVO CONFIRMADO POR EL USUARIO (lote ${loteId}): ${cultivoConfirmado}. NO intentes identificar el cultivo — ya se sabe que es ${cultivoConfirmado}. Enfócate SOLO en diagnosticar el problema fitosanitario o nutricional visible.`
+      : `El usuario no seleccionó lote. Identifica el cultivo visualmente usando las características descritas abajo.`;
 
     const apiBio = [
-      todasEnf.length ? `crop.health + plant.id detectaron en ${cultivoNombre}: ${todasEnf.map(e=>`${e.name} (${(e.probability*100).toFixed(0)}%)`).join(', ')}.` : `crop.health + plant.id identificaron: ${cultivoNombre}. Sin enfermedades con alta certeza.`,
-      insultsResults.length ? `insect.id detectó posibles insectos/plagas: ${insultsResults.map(e=>`${e.name} (${(e.probability*100).toFixed(0)}%)`).join(', ')}.` : '',
+      todasEnf.length
+        ? `APIs (crop.health + plant.id) detectaron: ${todasEnf.map(e=>`${e.name} (${(e.probability*100).toFixed(0)}%)`).join(', ')}.`
+        : `APIs no detectaron enfermedades con alta certeza. Analiza visualmente.`,
+      insultsResults.length ? `insect.id detectó: ${insultsResults.map(e=>`${e.name} (${(e.probability*100).toFixed(0)}%)`).join(', ')}.` : '',
       climaInfo
     ].filter(Boolean).join('\n');
 
@@ -192,16 +201,27 @@ app.post('/analyze', async (req, res) => {
 
     if (ANTHROPIC_KEY) {
       try {
-        const prompt = `Eres un agrónomo peruano experto con 25 años en fundos de la costa peruana (Ica, Lima, La Libertad). Analizas el Fundo Ishizawa (29.4 há): Palta Hass/Fuerte/Naval/Villacampa, Uva Quebranta/Borgoña, Lúcuma, Mandarina Okitsu/Río, Toronja, Limón, Caqui, Manzana de Caña.
+        const prompt = `Eres un agrónomo peruano experto con 25 años en fundos de la costa peruana. Analizas el Fundo Ishizawa (29.4 há, Huayán, Huaral, Lima): Palta Hass/Fuerte/Naval/Villacampa, Uva Quebranta/Borgoña, Lúcuma, Mandarina Okitsu/Río, Toronja, Limón, Caqui, Manzana de Caña.
 
-DATOS DE 3 APIs ESPECIALIZADAS:
+${contextoLote}
+
+GUÍA VISUAL DE CULTIVOS DEL FUNDO (para identificar si no hay lote seleccionado):
+• PALTA (Persea americana): hojas ovaladas GRANDES 10-20cm, verde oscuro BRILLANTE, nervadura central gruesa, peciolo rojizo 2-3cm, borde entero liso, aromática al estrujar
+• LÚCUMA (Pouteria lucuma): hojas GRANDES 15-25cm, elípticas, verde oscuro MATE (sin brillo), envés pálido grisáceo, nervadura pinnada, textura coriácea, NO confundir con palta — la lúcuma NO tiene brillo
+• MANDARINA/CÍTRICOS (Citrus): hojas PEQUEÑAS 5-8cm, elípticas, brillo intenso en el haz, PECIOLO ALADO (característica única), olor cítrico, frutos esféricos pequeños naranja
+• VID/UVA (Vitis vinifera): hojas LOBULADAS 5 puntas como mano abierta, venas muy pronunciadas, forma palmada inconfundible, zarcillos en tallos
+• CAQUI (Diospyros kaki): hojas ovales 10-15cm, nervadura muy marcada, frutos naranjas esféricos en ramas
+• MANZANA DE CAÑA (Malus domestica): hojas 4-8cm, bordes SERRADOS/dentados, verde medio, no brillante
+• TORONJA/LIMÓN: similar a mandarina pero hojas más grandes (toronja) o con espinas (limón)
+
+DATOS DE APIs ESPECIALIZADAS:
 ${apiBio}
 
-Mes actual: Marzo 2026. Costa peruana.
+Mes actual: Marzo 2026. Fundo en Huayán, Huaral, costa peruana.
 
 Analiza la imagen con VISIÓN EXPERTA y responde EXACTAMENTE en este formato (empieza directo):
 
-🌿 CULTIVO IDENTIFICADO: [nombre exacto visible en la foto]
+🌿 CULTIVO IDENTIFICADO: [${cultivoConfirmado ? cultivoConfirmado + ' — confirmado por lote seleccionado' : 'nombre exacto del cultivo que ves, siendo muy preciso con la guía visual'}]
 🔍 PROBLEMA PRINCIPAL: [nombre científico + nombre común peruano]
 📍 PARTE AFECTADA: [hoja / tallo / raíz / fruto / planta completa]
 🚨 SEVERIDAD: [Leve / Moderado / Grave] — [% área afectada estimado]
