@@ -242,6 +242,26 @@ function ev(e,cls) { e.preventDefault(); document.getElementById('drop-area').cl
 function drop(e) { e.preventDefault(); document.getElementById('drop-area').className='drop-area'; handleFile(e.dataTransfer.files[0]); }
 
 
+// Cultivos del fundo para confirmación rápida
+const CULTIVOS_FUNDO = [
+  {id:'Palta Hass',      icono:'🥑', label:'Palta Hass'},
+  {id:'Palta Fuerte',    icono:'🥑', label:'Palta Fuerte'},
+  {id:'Palta Naval',     icono:'🥑', label:'Palta Naval'},
+  {id:'Palta Villacampa',icono:'🥑', label:'Palta Villacampa'},
+  {id:'Lúcuma',          icono:'🟡', label:'Lúcuma'},
+  {id:'Mandarina Okitsu',icono:'🍊', label:'Mandarina Okitsu'},
+  {id:'Mandarina Río',   icono:'🍊', label:'Mandarina Río'},
+  {id:'Uva Quebranta',   icono:'🍇', label:'Uva Quebranta'},
+  {id:'Borgoña',         icono:'🍇', label:'Borgoña'},
+  {id:'Toronja',         icono:'🍋', label:'Toronja'},
+  {id:'Limón',           icono:'🍋', label:'Limón'},
+  {id:'Caqui',           icono:'🟠', label:'Caqui'},
+  {id:'Manzana de Caña', icono:'🍎', label:'Manzana de Caña'},
+];
+
+let _pendingB64 = null;
+let _pendingMime = null;
+
 function handleFile(file) {
   if(!file) return;
   if(file.type.startsWith('video/')) { handleVideo(file); return; }
@@ -250,9 +270,50 @@ function handleFile(file) {
     const b64 = e.target.result.split(',')[1];
     const mime = file.type||'image/jpeg';
     showPreview(e.target.result);
-    analizar(b64, mime);
+    // Si ya hay lote seleccionado, ir directo al análisis
+    if(loteSeleccionado) {
+      analizar(b64, mime);
+    } else {
+      // Preguntar cultivo antes de analizar
+      _pendingB64 = b64;
+      _pendingMime = mime;
+      mostrarSelectorCultivo();
+    }
   };
   reader.readAsDataURL(file);
+}
+
+function mostrarSelectorCultivo() {
+  document.getElementById('ia-resultado').innerHTML = `
+    <div class="card" style="border:2px solid var(--verde)">
+      <div class="card-title" style="font-size:13px;color:var(--verde)">¿Qué cultivo es la foto?</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+        ${CULTIVOS_FUNDO.map(c=>`
+          <button onclick="confirmarCultivo('${c.id}')" style="
+            display:flex;align-items:center;gap:8px;padding:10px 12px;
+            background:white;border:1px solid var(--borde);border-radius:10px;
+            font-size:13px;font-weight:500;cursor:pointer;text-align:left;
+            transition:all 0.15s"
+            onmouseover="this.style.borderColor='var(--verde)';this.style.background='var(--verde-claro)'"
+            onmouseout="this.style.borderColor='var(--borde)';this.style.background='white'">
+            <span style="font-size:20px">${c.icono}</span>${c.label}
+          </button>`).join('')}
+      </div>
+      <button onclick="confirmarCultivo(null)" style="
+        margin-top:10px;width:100%;padding:8px;background:var(--gris);
+        border:1px solid var(--borde);border-radius:8px;font-size:12px;
+        color:var(--texto2);cursor:pointer">
+        No sé / Dejar que Claude identifique
+      </button>
+    </div>`;
+}
+
+function confirmarCultivo(cultivoId) {
+  if(_pendingB64) {
+    analizar(_pendingB64, _pendingMime, cultivoId);
+    _pendingB64 = null;
+    _pendingMime = null;
+  }
 }
 
 function handleVideo(file) {
@@ -269,7 +330,12 @@ function handleVideo(file) {
     const dataUrl = canvas.toDataURL('image/jpeg',0.85);
     const b64 = dataUrl.split(',')[1];
     showPreview(dataUrl);
-    analizar(b64, 'image/jpeg');
+    if(loteSeleccionado) {
+      analizar(b64, 'image/jpeg');
+    } else {
+      _pendingB64 = b64; _pendingMime = 'image/jpeg';
+      mostrarSelectorCultivo();
+    }
     URL.revokeObjectURL(video.src);
   };
   video.load();
@@ -279,22 +345,24 @@ function showPreview(src) {
   document.getElementById('drop-area').innerHTML = `<img src="${src}" class="preview" style="margin:0;border-radius:10px">`;
 }
 
-async function analizar(b64, mime) {
+async function analizar(b64, mime, cultivoManual) {
+  const lote = LOTES.find(l=>l.id===loteSeleccionado);
+  // Cultivo confirmado: primero lote, luego selector manual
+  const cultivoConfirmado = lote?.cultivo || cultivoManual || '';
+
   document.getElementById('ia-resultado').innerHTML = `
     <div class="loading">
       <div class="spinner"></div>
-      <div style="font-weight:500">Analizando imagen...</div>
-      <div class="loading-step" id="loading-step">Consultando plant.id + crop.health + Claude Vision...</div>
+      <div style="font-weight:500">Analizando ${cultivoConfirmado ? cultivoConfirmado : 'imagen'}...</div>
+      <div class="loading-step" id="loading-step">Consultando plant.id · crop.health · insect.id · Claude Vision...</div>
     </div>`;
 
-  const lote = LOTES.find(l=>l.id===loteSeleccionado);
-
   try {
-    document.getElementById('loading-step').textContent = 'Consultando plant.id + crop.health + insect.id + Claude Vision...';
+    document.getElementById('loading-step').textContent = 'Procesando con 4 APIs especializadas...';
     const res = await fetch('https://fundo-ishizawa2-1.onrender.com/analyze', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({image: b64, mediaType: mime, loteId: loteSeleccionado, loteCultivo: lote?.cultivo||''})
+      body: JSON.stringify({image: b64, mediaType: mime, loteId: loteSeleccionado, loteCultivo: cultivoConfirmado})
     });
     const data = await res.json();
     if(data.error) throw new Error(data.error);
