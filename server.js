@@ -12,10 +12,11 @@ app.use(express.json({limit:'20mb'}));
 const PLANTID_KEY    = process.env.PLANTID_KEY    || '';
 const CROPHEALTH_KEY = process.env.CROPHEALTH_KEY || '';
 const ANTHROPIC_KEY  = process.env.ANTHROPIC_KEY  || '';
-// APIs nuevas (agregar en Render > Environment cuando tengas las keys)
-const PLANTNET_KEY   = process.env.PLANTNET_KEY   || '';  // my-api.plantnet.org
-const INAT_TOKEN     = process.env.INAT_TOKEN     || '';  // inaturalist.org
-const AGRIO_KEY      = process.env.AGRIO_KEY      || '';  // agrio.ag
+// APIs nuevas
+const PLANTNET_KEY   = process.env.PLANTNET_KEY   || '';
+const INAT_TOKEN     = process.env.INAT_TOKEN     || '';
+const AGRIO_KEY      = process.env.AGRIO_KEY      || '';
+const GEMINI_KEY     = process.env.GEMINI_KEY     || '';
 // Coordenadas exactas del Fundo Ishizawa - Huayán, Huaral, Lima, Perú
 const FUNDO_LAT = -11.4521;
 const FUNDO_LON = -77.1235;
@@ -313,9 +314,42 @@ ${alertas.join('\n')}`;
       plantnetInfo,
       inatInfo,
       agrioInfo,
+      geminiInfo,
       analisisNutricional,
       climaInfo
     ].filter(Boolean).join('\n');
+
+    // --- [GEMINI] Google Gemini Vision — segunda opinión IA ---
+    let geminiInfo = '';
+    if(GEMINI_KEY) {
+      try {
+        const geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
+          {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({
+              contents:[{parts:[
+                {inline_data:{mime_type: mediaType, data: image}},
+                {text:`Eres experto en fitopatología de cultivos peruanos. Analiza esta foto y responde en 3-4 líneas en español:
+1. ¿Qué cultivo es exactamente? (palta, lúcuma, mandarina, uva, etc.)
+2. ¿Qué problema fitosanitario o nutricional ves? Nombre científico + síntomas específicos.
+3. ¿Qué parte está afectada y qué porcentaje del tejido visible?
+4. ¿Qué tan urgente es el tratamiento?
+Sé preciso y directo. Si no hay problema, dilo claramente.`}
+              ]}],
+              generationConfig:{maxOutputTokens:400, temperature:0.2}
+            })
+          }
+        );
+        const gd = await geminiRes.json();
+        const gText = gd?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        if(gText) {
+          geminiInfo = `GEMINI VISION (segunda opinión IA):\n${gText.trim()}`;
+          console.log('Gemini OK:', gText.substring(0,100));
+        }
+      } catch(e) { console.log('Gemini error:', e.message); }
+    }
 
     // --- Claude Vision (modelo actual) ---
     let resultado = '';
@@ -466,11 +500,12 @@ app.get('/', (req,res) => res.json({
     'crop.health': !!CROPHEALTH_KEY,
     'insect.id':   !!CROPHEALTH_KEY,
     'Claude Vision': !!ANTHROPIC_KEY,
-    'Pl@ntNet':    !!PLANTNET_KEY,
-    'iNaturalist': !!INAT_TOKEN,
-    'Agrio':       !!AGRIO_KEY,
-    'Sharp/NDVI':  true,
-    'Open-Meteo':  true
+    'Gemini Vision': !!GEMINI_KEY,
+    'Pl@ntNet':      !!PLANTNET_KEY,
+    'iNaturalist':   !!INAT_TOKEN,
+    'Agrio':         !!AGRIO_KEY,
+    'Sharp/NDVI':    true,
+    'Open-Meteo':    true
   }
 }));
 
