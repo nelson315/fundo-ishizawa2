@@ -95,7 +95,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <body>
 
 <div class="topbar">
-  <div class="logo">Fundo Ishizawa <small>Suite fitosanitaria · v2.1 · 27/03/2026 23:08</small></div>
+  <div class="logo">Fundo Ishizawa <small>Suite fitosanitaria · v2.3 · 28/03/2026</small></div>
   <span class="badge">29.4 há</span>
 </div>
 
@@ -188,7 +188,6 @@ function go(name) {
   if(name==='alertas') renderAlertas();
 }
 
-function getAnthropicKey() { return ''; }
 function getEstado(loteId) {
   const m = [...(excelData[loteId]||[]),...(monitoreoData[loteId]||[])];
   if(!m.length) return {estado:'verde',inc:0};
@@ -199,14 +198,12 @@ function getEstado(loteId) {
 }
 
 function renderIA() {
-  const key = getAnthropicKey();
   document.getElementById('s-ia').innerHTML = `
-
     <div class="drop-area" id="drop-area" onclick="document.getElementById('file-input').click()" ondragover="ev(event,'drag')" ondragleave="ev(event,'')" ondrop="drop(event)">
       <input type="file" id="file-input" accept="image/*,video/*" onchange="handleFile(this.files[0])">
       <div class="drop-icon">📷</div>
       <div class="drop-title">Arrastra foto o video aquí</div>
-      <div class="drop-sub">O toca para abrir galería / cámara<br>Funciona con fotos de WhatsApp</div>
+      <div class="drop-sub">O toca para abrir galería / cámara<br>Funciona con fotos de WhatsApp<br><small style="color:var(--verde);font-weight:500">✓ plant.id + crop.health + Claude Vision</small></div>
     </div>
     <div id="ia-resultado"></div>
     ${historialIA.length?`<div class="card">
@@ -226,11 +223,6 @@ function renderIA() {
 function ev(e,cls) { e.preventDefault(); document.getElementById('drop-area').className='drop-area'+(cls?' '+cls:''); }
 function drop(e) { e.preventDefault(); document.getElementById('drop-area').className='drop-area'; handleFile(e.dataTransfer.files[0]); }
 
-function saveKey() {
-  const v = document.getElementById('akey').value.trim();
-  if(v){ localStorage.setItem('anthropic-key',v); renderIA(); }
-}
-function changeKey() { localStorage.removeItem('anthropic-key'); renderIA(); }
 
 function handleFile(file) {
   if(!file) return;
@@ -274,94 +266,15 @@ async function analizar(b64, mime) {
     <div class="loading">
       <div class="spinner"></div>
       <div style="font-weight:500">Analizando imagen...</div>
-      <div class="loading-step" id="loading-step">Consultando plant.id para identificación científica...</div>
+      <div class="loading-step" id="loading-step">Consultando plant.id + crop.health + Claude Vision...</div>
     </div>`;
 
-  let plantIdInfo = '';
-  let cultivoDetectado = '';
-  let enfermedadesDetectadas = [];
-
   try {
-    document.getElementById('loading-step').textContent = 'Consultando base de datos fitosanitaria...';
-    const pidRes = await fetch('https://plant.id/api/v3/health_assessment', {
-      method:'POST',
-      headers:{'Api-Key':PLANTID_KEY,'Content-Type':'application/json'},
-      body:JSON.stringify({images:['data:'+mime+';base64,'+b64],health:'all',similar_images:false})
-    });
-    const pidData = await pidRes.json();
-    if(pidData?.result) {
-      const especie = pidData.result?.classification?.suggestions?.[0];
-      cultivoDetectado = especie?.name||'';
-      const enf = pidData.result?.disease?.suggestions||[];
-      enfermedadesDetectadas = enf.slice(0,4).map(d=>({nombre:d.name,prob:(d.probability*100).toFixed(0)}));
-      plantIdInfo = `Especie identificada: ${cultivoDetectado||'No determinada'}. Problemas detectados: ${enfermedadesDetectadas.map(e=>`${e.nombre} (${e.prob}%)`).join(', ')||'ninguno visible'}.`;
-    }
-  } catch(e) {
-    plantIdInfo = 'No se pudo consultar plant.id. Analizando solo con visión IA.';
-  }
-
-  const anthropicKey = getAnthropicKey();
-  if(!anthropicKey) {
-    document.getElementById('ia-resultado').innerHTML = `
-      <div class="error-box">⚠️ Necesitas ingresar tu API key de Anthropic para el análisis completo. Desplázate arriba y guarda tu key.</div>
-      ${plantIdInfo?`<div class="card"><div class="card-title">Resultado plant.id <span class="plantid-badge">plant.id</span></div><div class="res-texto">${plantIdInfo}</div></div>`:''}`;
-    return;
-  }
-
-  document.getElementById('loading-step').textContent = 'Generando diagnóstico agronómico completo...';
-
-  const prompt = `Eres un agrónomo peruano experto con 25 años en fundos de la costa peruana (Ica, Lima). Analizas cultivos del Fundo Ishizawa: Palta Hass/Fuerte/Naval/Villacampa, Uva Quebranta/Borgoña, Lúcuma, Mandarina Okitsu/Río, Toronja, Limón, Caqui, Manzana de Caña.
-
-IDENTIFICACIÓN VISUAL OBLIGATORIA:
-- Palto: hojas ovaladas grandes 10-20cm, verde oscuro brillante, nervadura central gruesa, peciolo 2-3cm
-- Mandarina/Cítricos: hojas pequeñas 5-8cm elípticas, peciolo alado, brillo intenso
-- Uva: hojas lobuladas 5 puntas, venas pronunciadas
-- Lúcuma: hojas grandes 15-25cm, verde oscuro mate, envés pálido
-
-plant.id detectó: ${plantIdInfo}
-
-Analiza la imagen y responde EXACTAMENTE en este formato:
-
-🌿 CULTIVO: [nombre exacto del cultivo que ves - sé preciso]
-🔍 PROBLEMA: [nombre científico + nombre común peruano]
-📍 PARTE: [hoja/tallo/raíz/fruto/planta completa]
-🚨 SEVERIDAD: [Leve/Moderado/Grave] — [% área afectada estimado]
-
-📊 DIAGNÓSTICO TÉCNICO:
-[Descripción precisa de síntomas, cómo se propaga, condiciones que lo favorecen temperatura/humedad]
-
-🌱 ESTADO FENOLÓGICO:
-[Etapa actual del cultivo en la costa peruana y su importancia para el manejo]
-
-🌿 ESTADO NUTRICIONAL:
-[Deficiencias o excesos detectados visualmente con valores de referencia: N óptimo 1.8-2.5%, Fe 60-200ppm, Zn 30-100ppm, Ca 1-2%, B 20-60ppm, Mg 0.3-0.8%, K 0.75-2%]
-
-💊 TRATAMIENTO PARA FUNDO COMERCIAL:
-Paso 1: [acción concreta para cientos de árboles]
-Paso 2: [producto + dosis exacta en ml/L o g/L]
-Paso 3: [volumen de caldo: paltos 800-1200 L/ha, cítricos 600-800 L/ha, uvas 400-600 L/ha]
-[NUNCA digas "retire hojas afectadas" — habla de poda sanitaria con desinfección de tijeras en lejía 5% entre árbol]
-
-🧪 PRODUCTOS DISPONIBLES EN PERÚ:
-- [Nombre comercial] — [ingrediente activo] — [dosis] — S/[precio referencial]/litro o kg
-- [Nombre comercial alternativo] — [dosis]
-
-🛒 INSUMOS A COMPRAR (para 1 ha):
-[lista con cantidades exactas]
-
-⏰ CUÁNDO APLICAR:
-[hora del día, temperatura ideal, humedad, días después de lluvia]
-
-🛡️ PREVENCIÓN PRÓXIMAS 4 SEMANAS:
-[medidas específicas al cultivo, no genéricas]
-
-⚡ URGENCIA: [Sí — actuar en X días / No — puede esperar X semanas] — [razón]`;
-
-  try {
-    const res = await fetch('https://fundo-ishizawa2.onrender.com/analyze',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({image: b64, mediaType: mime})
+    document.getElementById('loading-step').textContent = 'Procesando con inteligencia artificial...';
+    const res = await fetch('https://fundo-ishizawa2.onrender.com/analyze', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({image: b64, mediaType: mime})
     });
     const data = await res.json();
     if(data.error) throw new Error(data.error);
@@ -369,15 +282,19 @@ Paso 3: [volumen de caldo: paltos 800-1200 L/ha, cítricos 600-800 L/ha, uvas 40
 
     const cultivoMatch = texto.match(/🌿 CULTIVO:\s*(.+)/);
     const problemaMatch = texto.match(/🔍 PROBLEMA:\s*(.+)/);
-    const sevMatch = texto.match(/🚨 SEVERIDAD:\s*(Leve|Moderado|Grave)/);
-    const cultivo = cultivoMatch?.[1]?.trim()||cultivoDetectado||'Cultivo';
-    const problema = problemaMatch?.[1]?.trim()||'Ver diagnóstico';
-    const sev = sevMatch?.[1]||'Moderado';
+    const sevMatch = texto.match(/🚨 SEVERIDAD:\s*(Leve|Moderado|Grave)/i);
+    const cultivo = cultivoMatch?.[1]?.trim() || data.cultivo || 'Cultivo';
+    const problema = problemaMatch?.[1]?.trim() || 'Ver diagnóstico';
+    const sev = sevMatch?.[1] || data.severidad || 'Moderado';
+    const enfermedadesDetectadas = (data.enfermedades||[]).map(e=>({
+      nombre: e.name,
+      prob: (e.probability*100).toFixed(0)
+    }));
 
     const entrada = {fecha:new Date().toLocaleDateString('es-PE'),cultivo,problema,severidad:sev,lote:''};
     historialIA.unshift(entrada);
     if(historialIA.length>50) historialIA.pop();
-    localStorage.setItem('historialIA',JSON.stringify(historialIA));
+    localStorage.setItem('historialIA', JSON.stringify(historialIA));
 
     document.getElementById('ia-resultado').innerHTML = `
       <div class="resultado">
@@ -388,14 +305,14 @@ Paso 3: [volumen de caldo: paltos 800-1200 L/ha, cítricos 600-800 L/ha, uvas 40
           </div>
           <span class="sev-badge sev-${sev.toLowerCase()}">${sev}</span>
         </div>
-        ${enfermedadesDetectadas.length?`<div style="padding:10px 16px;border-bottom:1px solid var(--borde);background:var(--gris)">
-          <div style="font-size:10px;font-weight:600;color:var(--texto2);margin-bottom:6px">PLANT.ID DETECTÓ <span class="plantid-badge">datos científicos</span></div>
+        ${enfermedadesDetectadas.length ? `<div style="padding:10px 16px;border-bottom:1px solid var(--borde);background:var(--gris)">
+          <div style="font-size:10px;font-weight:600;color:var(--texto2);margin-bottom:6px">PLANT.ID + CROP.HEALTH <span class="plantid-badge">datos científicos</span></div>
           ${enfermedadesDetectadas.map(e=>`<div class="plaga-row" style="padding:4px 0">
             <div class="plaga-nombre" style="font-size:12px">${e.nombre}</div>
             <div class="plaga-bar-wrap"><div class="plaga-bar" style="width:${e.prob}%;background:${parseInt(e.prob)>50?'var(--rojo)':parseInt(e.prob)>25?'var(--amarillo)':'var(--verde)'}"></div></div>
             <div class="plaga-pct">${e.prob}%</div>
           </div>`).join('')}
-        </div>`:''}
+        </div>` : ''}
         <div class="resultado-body">
           <div class="res-texto">${texto}</div>
         </div>
@@ -404,8 +321,7 @@ Paso 3: [volumen de caldo: paltos 800-1200 L/ha, cítricos 600-800 L/ha, uvas 40
     `;
   } catch(err) {
     document.getElementById('ia-resultado').innerHTML = `
-      <div class="error-box">❌ Error: ${err.message}<br><small>Verifica tu API key de Anthropic en console.anthropic.com</small></div>
-      ${plantIdInfo?`<div class="card" style="margin-top:12px"><div class="card-title">plant.id detectó <span class="plantid-badge">datos científicos</span></div><div class="res-texto">${plantIdInfo}</div></div>`:''}`;
+      <div class="error-box">❌ Error al analizar: ${err.message}<br><small>El servidor puede estar iniciando (Render Free tarda ~30s). Intenta de nuevo.</small></div>`;
   }
 }
 
