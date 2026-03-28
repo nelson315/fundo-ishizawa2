@@ -9,7 +9,7 @@ app.use(express.json({limit:'20mb'}));
 const PLANTID_KEY    = process.env.PLANTID_KEY    || '';
 const CROPHEALTH_KEY = process.env.CROPHEALTH_KEY || '';
 const ANTHROPIC_KEY  = process.env.ANTHROPIC_KEY  || '';
-// Coordenadas exactas del Fundo Ishizawa - Huaura, Lima, Perú
+// Coordenadas exactas del Fundo Ishizawa - Huayán, Huaral, Lima, Perú
 const FUNDO_LAT = -11.4521;
 const FUNDO_LON = -77.1235;
 
@@ -123,7 +123,7 @@ app.post('/analyze', async (req, res) => {
                              hum > 70 ? 'Riesgo moderado de hongos (humedad 70-85%)' :
                              'Riesgo bajo de hongos — condiciones favorables para aplicar';
         const riesgoAcaros = temp > 28 ? '⚠️ Temperatura alta (>28°C) — condiciones favorables para arañita roja' : '';
-        climaInfo = `Clima actual Fundo Ishizawa (Huaura): ${temp}°C, humedad ${hum}%, viento ${viento} km/h, lluvia ${lluvia}mm. ${riesgoHongos}${riesgoAcaros ? '. ' + riesgoAcaros : ''}.`;
+        climaInfo = `Clima actual Fundo Ishizawa (Huayán, Huaral): ${temp}°C, humedad ${hum}%, viento ${viento} km/h, lluvia ${lluvia}mm. ${riesgoHongos}${riesgoAcaros ? '. ' + riesgoAcaros : ''}.`;
         console.log('Clima OK:', climaInfo);
       }
     } catch(e) { console.log('Clima error:', e.message); }
