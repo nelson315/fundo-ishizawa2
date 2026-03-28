@@ -9,6 +9,10 @@ app.use(express.json({limit:'20mb'}));
 const PLANTID_KEY    = process.env.PLANTID_KEY    || '';
 const CROPHEALTH_KEY = process.env.CROPHEALTH_KEY || '';
 const ANTHROPIC_KEY  = process.env.ANTHROPIC_KEY  || '';
+const WEATHER_KEY    = process.env.WEATHER_KEY    || '';
+// Coordenadas del Fundo Ishizawa (ajustar si es necesario)
+const FUNDO_LAT = -13.35;
+const FUNDO_LON = -76.15;
 
 // Base de conocimiento fitosanitario para el Fundo Ishizawa
 const TRATAMIENTOS = {
@@ -100,8 +104,27 @@ app.post('/analyze', async (req, res) => {
     let cultivoRaw = '';
     let cropResults = [];
     let plantResults = [];
+    let insultsResults = [];
+    let climaInfo = '';
 
-    // --- crop.health ---
+    // --- Clima actual (OpenWeatherMap) ---
+    if (WEATHER_KEY) {
+      try {
+        const wRes = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${FUNDO_LAT}&lon=${FUNDO_LON}&appid=${WEATHER_KEY}&units=metric&lang=es`);
+        const w = await wRes.json();
+        if (w.main) {
+          const hum = w.main.humidity;
+          const temp = w.main.temp.toFixed(1);
+          const desc = w.weather?.[0]?.description || '';
+          const viento = w.wind?.speed?.toFixed(1) || '0';
+          const riesgo = hum > 80 ? 'ALTO riesgo hongos (humedad >80%)' : hum > 60 ? 'Riesgo moderado hongos' : 'Riesgo bajo hongos';
+          climaInfo = `Clima actual en el fundo: ${temp}°C, humedad ${hum}%, viento ${viento} m/s, ${desc}. ${riesgo}.`;
+          console.log('Clima OK:', climaInfo);
+        }
+      } catch(e) { console.log('Clima error:', e.message); }
+    }
+
+    // --- crop.health (enfermedades de cultivos) ---
     try {
       const cropRes = await fetch('https://crop.kindwise.com/api/v1/identification', {
         method:'POST',
@@ -110,11 +133,11 @@ app.post('/analyze', async (req, res) => {
       });
       const d = await cropRes.json();
       if(d?.result?.crop?.suggestions?.length) cultivoRaw = d.result.crop.suggestions[0].name;
-      if(d?.result?.disease?.suggestions?.length) cropResults = d.result.disease.suggestions.slice(0,5);
-      console.log('crop.health OK, cultivo:', cultivoRaw, 'enf:', cropResults.length);
+      if(d?.result?.disease?.suggestions?.length) cropResults = d.result.disease.suggestions.slice(0,6);
+      console.log('crop.health OK — cultivo:', cultivoRaw, '— enf:', cropResults.map(e=>e.name+' '+Math.round(e.probability*100)+'%').join(', '));
     } catch(e) { console.log('crop.health error:', e.message); }
 
-    // --- plant.id ---
+    // --- plant.id (identificación + salud) ---
     try {
       const pidRes = await fetch('https://plant.id/api/v3/health_assessment', {
         method:'POST',
@@ -125,22 +148,39 @@ app.post('/analyze', async (req, res) => {
       if(d?.result?.classification?.suggestions?.length && !cultivoRaw) {
         cultivoRaw = d.result.classification.suggestions[0].name;
       }
-      if(d?.result?.disease?.suggestions?.length) plantResults = d.result.disease.suggestions.slice(0,5);
-      console.log('plant.id OK, cultivo:', cultivoRaw, 'enf:', plantResults.length);
+      if(d?.result?.disease?.suggestions?.length) plantResults = d.result.disease.suggestions.slice(0,6);
+      console.log('plant.id OK — cultivo:', cultivoRaw, '— enf:', plantResults.map(e=>e.name+' '+Math.round(e.probability*100)+'%').join(', '));
     } catch(e) { console.log('plant.id error:', e.message); }
 
-    // Combinar y priorizar resultados
+    // --- insect.id (Kindwise - identificación de insectos/plagas) ---
+    try {
+      const insRes = await fetch('https://insect.kindwise.com/api/v1/identification', {
+        method:'POST',
+        headers:{'Api-Key':CROPHEALTH_KEY,'Content-Type':'application/json'},
+        body:JSON.stringify({images:[imageDataUrl],similar_images:false})
+      });
+      const d = await insRes.json();
+      if(d?.result?.classification?.suggestions?.length) {
+        insultsResults = d.result.classification.suggestions.slice(0,3)
+          .filter(s => s.probability > 0.1);
+        if(insultsResults.length) console.log('insect.id OK:', insultsResults.map(e=>e.name+' '+Math.round(e.probability*100)+'%').join(', '));
+      }
+    } catch(e) { console.log('insect.id error:', e.message); }
+
+    // Combinar y priorizar resultados (sin umbral mínimo para no perder datos)
     const todasEnf = [...cropResults, ...plantResults]
-      .filter(e => e.probability > 0.04)
       .sort((a,b) => b.probability - a.probability)
       .filter((e,i,arr) => arr.findIndex(x=>x.name===e.name)===i) // deduplicar
-      .slice(0,5);
+      .slice(0,6);
 
     const cultivoNombre = identificarCultivo(cultivoRaw) || 'Cultivo del Fundo Ishizawa';
     const fenologia = estadoFenologico(cultivoRaw);
-    const apiBio = todasEnf.length
-      ? `APIs identificaron: ${cultivoNombre}. Problemas: ${todasEnf.map(e=>`${e.name} (${(e.probability*100).toFixed(0)}%)`).join(', ')}.`
-      : `APIs identificaron: ${cultivoNombre}. No detectaron enfermedades con alta certeza.`;
+
+    const apiBio = [
+      todasEnf.length ? `crop.health + plant.id detectaron en ${cultivoNombre}: ${todasEnf.map(e=>`${e.name} (${(e.probability*100).toFixed(0)}%)`).join(', ')}.` : `crop.health + plant.id identificaron: ${cultivoNombre}. Sin enfermedades con alta certeza.`,
+      insultsResults.length ? `insect.id detectó posibles insectos/plagas: ${insultsResults.map(e=>`${e.name} (${(e.probability*100).toFixed(0)}%)`).join(', ')}.` : '',
+      climaInfo
+    ].filter(Boolean).join('\n');
 
     // --- Claude Vision (modelo actual) ---
     let resultado = '';
@@ -148,44 +188,52 @@ app.post('/analyze', async (req, res) => {
 
     if (ANTHROPIC_KEY) {
       try {
-        const prompt = `Eres un agrónomo peruano experto con 25 años en fundos de la costa peruana. Analizas el Fundo Ishizawa (29.4 há, Perú): Palta Hass/Fuerte/Naval/Villacampa, Uva Quebranta/Borgoña, Lúcuma, Mandarina Okitsu/Río, Toronja, Limón, Caqui, Manzana de Caña.
+        const prompt = `Eres un agrónomo peruano experto con 25 años en fundos de la costa peruana (Ica, Lima, La Libertad). Analizas el Fundo Ishizawa (29.4 há): Palta Hass/Fuerte/Naval/Villacampa, Uva Quebranta/Borgoña, Lúcuma, Mandarina Okitsu/Río, Toronja, Limón, Caqui, Manzana de Caña.
 
-Datos de APIs especializadas: ${apiBio}
-Mes actual: Marzo. Ubicación: Costa peruana.
+DATOS DE 3 APIs ESPECIALIZADAS:
+${apiBio}
 
-Analiza la imagen y responde EXACTAMENTE en este formato (empieza directo, sin introducción):
+Mes actual: Marzo 2026. Costa peruana.
 
-🌿 CULTIVO IDENTIFICADO: [nombre exacto del cultivo que ves en la foto]
+Analiza la imagen con VISIÓN EXPERTA y responde EXACTAMENTE en este formato (empieza directo):
+
+🌿 CULTIVO IDENTIFICADO: [nombre exacto visible en la foto]
 🔍 PROBLEMA PRINCIPAL: [nombre científico + nombre común peruano]
 📍 PARTE AFECTADA: [hoja / tallo / raíz / fruto / planta completa]
 🚨 SEVERIDAD: [Leve / Moderado / Grave] — [% área afectada estimado]
 
 📊 DIAGNÓSTICO TÉCNICO:
-[Síntomas observados, cómo se propaga, condiciones que lo favorecen]
+[Describe los síntomas exactos que ves: color, forma, distribución de manchas/lesiones. Mecanismo de daño, cómo se propaga, condiciones que lo favorecen (temperatura/humedad/época)]
 
 🌱 ESTADO FENOLÓGICO (Costa Peruana — Marzo):
-[Etapa actual y su importancia para el manejo]
+[Etapa actual y su importancia crítica para el manejo]
+
+🧬 ANÁLISIS NUTRICIONAL VISUAL:
+[Evalúa el estado nutricional observando: color de hojas (verde oscuro=N ok, amarillo=N defic, verde pálido=Mg/Fe defic), necrosis de bordes (K/Ca defic), manchas internervales (Mg defic), hojas pequeñas (Zn/B defic). Indica deficiencias o excesos con valores de referencia en palto: N 1.8-2.5%, P 0.1-0.3%, K 0.75-2%, Ca 1-2%, Mg 0.3-0.8%, Fe 60-200ppm, Zn 30-100ppm, B 20-60ppm, Mn 50-200ppm. Si la nutrición parece normal, dilo claramente.]
 
 💊 TRATAMIENTO PARA FUNDO COMERCIAL (cientos de árboles):
 Paso 1: [acción inmediata]
 Paso 2: [producto principal + dosis exacta ml/L o g/L]
 Paso 3: [volumen caldo: paltos 800-1200 L/ha, cítricos 600-800 L/ha, uvas 400-600 L/ha]
-Nota: poda sanitaria = desinfectar tijeras en lejía 5% entre árbol y árbol
+[Poda sanitaria: desinfectar tijeras en lejía 5% entre árbol y árbol]
 
 🧪 PRODUCTOS DISPONIBLES EN PERÚ:
 - [Nombre comercial] — [ingrediente activo] — [dosis] — S/[precio]/litro o kg
-- [Alternativa] — [dosis]
+- [Alternativa 1] — [dosis]
+- [Alternativa 2] — [dosis]
 
 🛒 INSUMOS PARA 1 HECTÁREA:
-[cantidades exactas y costo estimado en soles]
+[lista con cantidades exactas y costo total estimado en soles]
 
 ⏰ MOMENTO DE APLICACIÓN:
-[hora, temperatura, humedad, frecuencia]
+[hora del día, temperatura máxima, humedad relativa ideal, frecuencia, días antes/después de lluvia]
 
 🛡️ PREVENCIÓN PRÓXIMAS 4 SEMANAS:
-[medidas específicas para este cultivo y problema]
+• [medida 1 específica para este cultivo y problema]
+• [medida 2]
+• [medida 3]
 
-⚡ URGENCIA: [Crítica — HOY / Alta — 3 días / Moderada — 7 días / Baja] — [razón]`;
+⚡ URGENCIA: [Crítica — actuar HOY / Alta — 3 días / Moderada — 7 días / Baja — puede esperar] — [razón concreta]`;
 
         const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
           method:'POST',
@@ -261,9 +309,12 @@ Temperatura ideal: menor a 28°C. No aplicar con viento fuerte (>15 km/h).
 });
 
 app.get('/', (req,res) => res.json({
-  status:'ok', service:'Fundo Ishizawa API', version:'2.3',
-  actualizado:'28/03/2026', apis:['plant.id','crop.health']
+  status:'ok', service:'Fundo Ishizawa API', version:'2.4',
+  actualizado:'28/03/2026',
+  apis:['plant.id','crop.health (Kindwise)','insect.id (Kindwise)','Claude Vision','OpenWeatherMap'],
+  clima_configurado: !!WEATHER_KEY,
+  claude_configurado: !!ANTHROPIC_KEY
 }));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log('Fundo Ishizawa API v2.3 corriendo en puerto', PORT));
+app.listen(PORT, () => console.log('Fundo Ishizawa API v2.4 corriendo en puerto', PORT));
