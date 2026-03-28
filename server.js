@@ -113,6 +113,11 @@ app.post('/analyze', async (req, res) => {
     let plantResults = [];
     let insultsResults = [];
     let climaInfo = '';
+    let geminiInfo = '';
+    let plantnetInfo = '';
+    let inatInfo = '';
+    let agrioInfo = '';
+    let analisisNutricional = '';
 
     // --- Clima actual (Open-Meteo - gratis, sin API key) ---
     try {
@@ -179,7 +184,6 @@ app.post('/analyze', async (req, res) => {
     } catch(e) { console.log('insect.id error:', e.message); }
 
     // --- [4] Pl@ntNet — identificación botánica de alta precisión ---
-    let plantnetInfo = '';
     if(PLANTNET_KEY) {
       try {
         const imgBuffer = Buffer.from(image, 'base64');
@@ -200,7 +204,6 @@ app.post('/analyze', async (req, res) => {
     }
 
     // --- [5] iNaturalist — identificación de organismos/plagas ---
-    let inatInfo = '';
     if(INAT_TOKEN) {
       try {
         const imgBuffer = Buffer.from(image, 'base64');
@@ -221,7 +224,6 @@ app.post('/analyze', async (req, res) => {
     }
 
     // --- [6] Agrio — enfermedades tropicales ---
-    let agrioInfo = '';
     if(AGRIO_KEY) {
       try {
         const imgBuffer = Buffer.from(image, 'base64');
@@ -241,7 +243,6 @@ app.post('/analyze', async (req, res) => {
     }
 
     // --- [NUTRICIONAL] Análisis de píxeles con Sharp (NDVI + clorosis + necrosis) ---
-    let analisisNutricional = '';
     try {
       const imgBuffer = Buffer.from(image, 'base64');
       const {data, info} = await sharp(imgBuffer)
