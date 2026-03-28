@@ -147,27 +147,7 @@ app.post('/analyze', async (req, res) => {
       }
     } catch(e) { console.log('Clima error:', e.message); }
 
-    // --- iNaturalist Observations (gratis, sin key) — plagas reportadas cerca del fundo ---
-    try {
-      const inatObsRes = await fetch(
-        `https://api.inaturalist.org/v1/observations?lat=${FUNDO_LAT}&lng=${FUNDO_LON}` +
-        `&radius=30&quality_grade=research&iconic_taxa=Insecta,Fungi&per_page=8` +
-        `&order_by=observed_on&order=desc`,
-        {headers: {'User-Agent': 'FundoIshizawaApp/1.0'}}
-      );
-      const inatObsData = await inatObsRes.json();
-      if(inatObsData?.results?.length) {
-        const vistos = inatObsData.results
-          .filter(o => o.taxon)
-          .map(o => o.taxon.preferred_common_name || o.taxon.name)
-          .filter((v,i,a) => a.indexOf(v) === i)
-          .slice(0,6);
-        if(vistos.length) {
-          inatObsInfo = `iNaturalist — organismos reportados recientemente (30km de Huayán): ${vistos.join(', ')}.`;
-          console.log('iNat Obs OK:', inatObsInfo);
-        }
-      }
-    } catch(e) { console.log('iNat Obs error:', e.message); }
+    // iNaturalist Observations: desactivado (zona rural sin reportes suficientes)
 
     // --- crop.health (enfermedades de cultivos) — usa foto principal ---
     try {
