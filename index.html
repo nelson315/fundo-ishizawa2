@@ -271,7 +271,7 @@ async function analizar(b64, mime) {
 
   try {
     document.getElementById('loading-step').textContent = 'Procesando con inteligencia artificial...';
-    const res = await fetch('https://fundo-ishizawa2.onrender.com/analyze', {
+    const res = await fetch('https://fundo-ishizawa2-1.onrender.com/analyze', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({image: b64, mediaType: mime})
