@@ -212,7 +212,7 @@ function renderIA() {
         ✓ ${LOTES.find(l=>l.id===loteSeleccionado)?.cultivo} — Plagas frecuentes: ${LOTES.find(l=>l.id===loteSeleccionado)?.plagas.slice(0,3).join(', ')}
       </div>` : ''}
     </div>
-    <div class="drop-area" id="drop-area" onclick="document.getElementById('file-input').click()" ondragover="ev(event,'drag')" ondragleave="ev(event,'')" ondrop="drop(event)">
+    <div class="drop-area" id="drop-area" ondragover="ev(event,'drag')" ondragleave="ev(event,'')" ondrop="drop(event)">
       <input type="file" id="file-input" accept="image/*,video/*" onchange="handleFile(this.files[0])">
       <div class="drop-icon">📷</div>
       <div class="drop-title">Arrastra foto o video aquí</div>
