@@ -1,14 +1,21 @@
-const express = require('express');
-const cors = require('cors');
-const fetch = require('node-fetch');
+const express  = require('express');
+const cors     = require('cors');
+const fetch    = require('node-fetch');
+const FormData = require('form-data');
+const sharp    = require('sharp');
 const app = express();
 
 app.use(cors());
 app.use(express.json({limit:'20mb'}));
 
+// APIs existentes
 const PLANTID_KEY    = process.env.PLANTID_KEY    || '';
 const CROPHEALTH_KEY = process.env.CROPHEALTH_KEY || '';
 const ANTHROPIC_KEY  = process.env.ANTHROPIC_KEY  || '';
+// APIs nuevas (agregar en Render > Environment cuando tengas las keys)
+const PLANTNET_KEY   = process.env.PLANTNET_KEY   || '';  // my-api.plantnet.org
+const INAT_TOKEN     = process.env.INAT_TOKEN     || '';  // inaturalist.org
+const AGRIO_KEY      = process.env.AGRIO_KEY      || '';  // agrio.ag
 // Coordenadas exactas del Fundo Ishizawa - Huayán, Huaral, Lima, Perú
 const FUNDO_LAT = -11.4521;
 const FUNDO_LON = -77.1235;
@@ -156,7 +163,7 @@ app.post('/analyze', async (req, res) => {
       console.log('plant.id OK — cultivo:', cultivoRaw, '— enf:', plantResults.map(e=>e.name+' '+Math.round(e.probability*100)+'%').join(', '));
     } catch(e) { console.log('plant.id error:', e.message); }
 
-    // --- insect.id (Kindwise - identificación de insectos/plagas) ---
+    // --- insect.id (Kindwise) ---
     try {
       const insRes = await fetch('https://insect.kindwise.com/api/v1/identification', {
         method:'POST',
@@ -165,16 +172,127 @@ app.post('/analyze', async (req, res) => {
       });
       const d = await insRes.json();
       if(d?.result?.classification?.suggestions?.length) {
-        insultsResults = d.result.classification.suggestions.slice(0,3)
-          .filter(s => s.probability > 0.1);
+        insultsResults = d.result.classification.suggestions.slice(0,3).filter(s=>s.probability>0.1);
         if(insultsResults.length) console.log('insect.id OK:', insultsResults.map(e=>e.name+' '+Math.round(e.probability*100)+'%').join(', '));
       }
     } catch(e) { console.log('insect.id error:', e.message); }
 
-    // Combinar y priorizar resultados (sin umbral mínimo para no perder datos)
+    // --- [4] Pl@ntNet — identificación botánica de alta precisión ---
+    let plantnetInfo = '';
+    if(PLANTNET_KEY) {
+      try {
+        const imgBuffer = Buffer.from(image, 'base64');
+        const fd = new FormData();
+        fd.append('images', imgBuffer, {filename:'leaf.jpg', contentType: mediaType});
+        fd.append('organs', 'leaf');
+        const pnRes = await fetch(
+          `https://my-api.plantnet.org/v2/identify/all?api-key=${PLANTNET_KEY}&lang=es&nb-results=3`,
+          {method:'POST', body:fd, headers:fd.getHeaders()}
+        );
+        const pnData = await pnRes.json();
+        if(pnData?.results?.length) {
+          const top = pnData.results.slice(0,3);
+          plantnetInfo = `Pl@ntNet identificó: ${top.map(r=>`${r.species?.commonNames?.[0]||r.species?.scientificNameWithoutAuthor} (${(r.score*100).toFixed(0)}%)`).join(', ')}.`;
+          console.log('Pl@ntNet OK:', plantnetInfo);
+        }
+      } catch(e) { console.log('Pl@ntNet error:', e.message); }
+    }
+
+    // --- [5] iNaturalist — identificación de organismos/plagas ---
+    let inatInfo = '';
+    if(INAT_TOKEN) {
+      try {
+        const imgBuffer = Buffer.from(image, 'base64');
+        const fd2 = new FormData();
+        fd2.append('image', imgBuffer, {filename:'photo.jpg', contentType: mediaType});
+        const inatRes = await fetch('https://api.inaturalist.org/v1/computervision/score_image', {
+          method:'POST',
+          headers:{...fd2.getHeaders(), 'Authorization': `Bearer ${INAT_TOKEN}`},
+          body: fd2
+        });
+        const inatData = await inatRes.json();
+        if(inatData?.results?.length) {
+          const top = inatData.results.slice(0,3);
+          inatInfo = `iNaturalist detectó: ${top.map(r=>`${r.taxon?.preferred_common_name||r.taxon?.name} (${(r.combined_score*100).toFixed(0)}%)`).join(', ')}.`;
+          console.log('iNaturalist OK:', inatInfo);
+        }
+      } catch(e) { console.log('iNaturalist error:', e.message); }
+    }
+
+    // --- [6] Agrio — enfermedades tropicales ---
+    let agrioInfo = '';
+    if(AGRIO_KEY) {
+      try {
+        const imgBuffer = Buffer.from(image, 'base64');
+        const fd3 = new FormData();
+        fd3.append('image', imgBuffer, {filename:'plant.jpg', contentType: mediaType});
+        const agrioRes = await fetch('https://api.agrio.ag/v2/diagnose', {
+          method:'POST',
+          headers:{...fd3.getHeaders(), 'x-api-key': AGRIO_KEY},
+          body: fd3
+        });
+        const agrioData = await agrioRes.json();
+        if(agrioData?.diagnoses?.length) {
+          agrioInfo = `Agrio detectó: ${agrioData.diagnoses.slice(0,3).map(d=>`${d.name} (${(d.confidence*100).toFixed(0)}%)`).join(', ')}.`;
+          console.log('Agrio OK:', agrioInfo);
+        }
+      } catch(e) { console.log('Agrio error:', e.message); }
+    }
+
+    // --- [NUTRICIONAL] Análisis de píxeles con Sharp (NDVI + clorosis + necrosis) ---
+    let analisisNutricional = '';
+    try {
+      const imgBuffer = Buffer.from(image, 'base64');
+      const {data, info} = await sharp(imgBuffer)
+        .resize(300, 300, {fit:'inside'})
+        .removeAlpha()
+        .raw()
+        .toBuffer({resolveWithObject:true});
+
+      let sumR=0, sumG=0, sumB=0;
+      let pixAmarillo=0, pixMarron=0, pixVerde=0, pixVerdOscuro=0, pixTotal=0;
+
+      for(let i=0; i<data.length; i+=3) {
+        const r=data[i], g=data[i+1], b=data[i+2];
+        sumR+=r; sumG+=g; sumB+=b; pixTotal++;
+        // Amarillo-verde pálido → déficit N, Fe, Mg
+        if(r>160 && g>160 && b<110 && Math.abs(r-g)<60) pixAmarillo++;
+        // Marrón/necrótico → déficit K, Ca o enfermedad
+        else if(r>110 && g<90 && b<80) pixMarron++;
+        // Verde oscuro saludable
+        else if(g>r && g>b && g>100) { if(g>140) pixVerdOscuro++; else pixVerde++; }
+      }
+
+      const avgR = sumR/pixTotal, avgG = sumG/pixTotal, avgB = sumB/pixTotal;
+      // NDVI aproximado desde RGB: (G-R)/(G+R)
+      const ndvi = ((avgG-avgR)/(avgG+avgR+0.001)).toFixed(3);
+      // Índice de clorofila: G/(R+B)
+      const iClorofila = (avgG/(avgR+avgB+0.001)).toFixed(2);
+      const pctAmarillo = (pixAmarillo/pixTotal*100).toFixed(1);
+      const pctMarron   = (pixMarron/pixTotal*100).toFixed(1);
+      const pctVerde    = ((pixVerde+pixVerdOscuro)/pixTotal*100).toFixed(1);
+
+      // Diagnóstico nutricional automático
+      const alertas = [];
+      if(parseFloat(pctAmarillo)>25) alertas.push(`⚠️ ${pctAmarillo}% área amarilla — posible déficit N, Fe o Mg`);
+      else if(parseFloat(pctAmarillo)>12) alertas.push(`⚠️ ${pctAmarillo}% área amarillenta — vigilar déficit N`);
+      if(parseFloat(pctMarron)>15) alertas.push(`⚠️ ${pctMarron}% necrosis — posible déficit K, Ca o enfermedad`);
+      if(parseFloat(ndvi)<0.05) alertas.push('⚠️ NDVI muy bajo — planta con estrés severo');
+      else if(parseFloat(ndvi)<0.15) alertas.push('⚠️ NDVI bajo — estrés moderado');
+      if(parseFloat(iClorofila)<0.5) alertas.push('⚠️ Clorofila baja — probable deficiencia nutricional');
+      if(!alertas.length) alertas.push('✓ Colorimetría normal — sin señales de deficiencia grave');
+
+      analisisNutricional = `ANÁLISIS NUTRICIONAL AUTOMÁTICO (Sharp/NDVI):
+NDVI≈${ndvi} (saludable>0.2, estrés<0.1) | Clorofila≈${iClorofila}
+Píxeles: verde ${pctVerde}% | amarillo ${pctAmarillo}% | necrótico ${pctMarron}%
+${alertas.join('\n')}`;
+      console.log('Análisis nutricional OK:', analisisNutricional.split('\n')[0]);
+    } catch(e) { console.log('Sharp error:', e.message); }
+
+    // Combinar y priorizar resultados
     const todasEnf = [...cropResults, ...plantResults]
       .sort((a,b) => b.probability - a.probability)
-      .filter((e,i,arr) => arr.findIndex(x=>x.name===e.name)===i) // deduplicar
+      .filter((e,i,arr) => arr.findIndex(x=>x.name===e.name)===i)
       .slice(0,6);
 
     // Si el usuario seleccionó el lote, ese cultivo es DEFINITIVO — no adivinar
@@ -189,9 +307,13 @@ app.post('/analyze', async (req, res) => {
 
     const apiBio = [
       todasEnf.length
-        ? `APIs (crop.health + plant.id) detectaron: ${todasEnf.map(e=>`${e.name} (${(e.probability*100).toFixed(0)}%)`).join(', ')}.`
-        : `APIs no detectaron enfermedades con alta certeza. Analiza visualmente.`,
-      insultsResults.length ? `insect.id detectó: ${insultsResults.map(e=>`${e.name} (${(e.probability*100).toFixed(0)}%)`).join(', ')}.` : '',
+        ? `crop.health + plant.id: ${todasEnf.map(e=>`${e.name} (${(e.probability*100).toFixed(0)}%)`).join(', ')}.`
+        : `crop.health + plant.id: sin enfermedades con alta certeza — analiza visualmente.`,
+      insultsResults.length ? `insect.id: ${insultsResults.map(e=>`${e.name} (${(e.probability*100).toFixed(0)}%)`).join(', ')}.` : '',
+      plantnetInfo,
+      inatInfo,
+      agrioInfo,
+      analisisNutricional,
       climaInfo
     ].filter(Boolean).join('\n');
 
@@ -337,12 +459,20 @@ Temperatura ideal: menor a 28°C. No aplicar con viento fuerte (>15 km/h).
 });
 
 app.get('/', (req,res) => res.json({
-  status:'ok', service:'Fundo Ishizawa API', version:'2.4',
+  status:'ok', service:'Fundo Ishizawa API', version:'2.5',
   actualizado:'28/03/2026',
-  apis:['plant.id','crop.health (Kindwise)','insect.id (Kindwise)','Claude Vision','OpenWeatherMap'],
-  clima_configurado: !!WEATHER_KEY,
-  claude_configurado: !!ANTHROPIC_KEY
+  apis_activas: {
+    'plant.id':    !!PLANTID_KEY,
+    'crop.health': !!CROPHEALTH_KEY,
+    'insect.id':   !!CROPHEALTH_KEY,
+    'Claude Vision': !!ANTHROPIC_KEY,
+    'Pl@ntNet':    !!PLANTNET_KEY,
+    'iNaturalist': !!INAT_TOKEN,
+    'Agrio':       !!AGRIO_KEY,
+    'Sharp/NDVI':  true,
+    'Open-Meteo':  true
+  }
 }));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log('Fundo Ishizawa API v2.4 corriendo en puerto', PORT));
+app.listen(PORT, () => console.log('Fundo Ishizawa API v2.5 corriendo en puerto', PORT));
