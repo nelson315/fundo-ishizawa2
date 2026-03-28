@@ -8,6 +8,7 @@ app.use(express.json({limit:'20mb'}));
 
 const PLANTID_KEY    = process.env.PLANTID_KEY    || '';
 const CROPHEALTH_KEY = process.env.CROPHEALTH_KEY || '';
+const ANTHROPIC_KEY  = process.env.ANTHROPIC_KEY  || '';
 
 // Base de conocimiento fitosanitario para el Fundo Ishizawa
 const TRATAMIENTOS = {
@@ -135,23 +136,94 @@ app.post('/analyze', async (req, res) => {
       .filter((e,i,arr) => arr.findIndex(x=>x.name===e.name)===i) // deduplicar
       .slice(0,5);
 
-    const cultivoNombre = identificarCultivo(cultivoRaw);
+    const cultivoNombre = identificarCultivo(cultivoRaw) || 'Cultivo del Fundo Ishizawa';
     const fenologia = estadoFenologico(cultivoRaw);
+    const apiBio = todasEnf.length
+      ? `APIs identificaron: ${cultivoNombre}. Problemas: ${todasEnf.map(e=>`${e.name} (${(e.probability*100).toFixed(0)}%)`).join(', ')}.`
+      : `APIs identificaron: ${cultivoNombre}. No detectaron enfermedades con alta certeza.`;
 
-    // Seleccionar el problema principal
-    const principal = todasEnf[0];
-    const nombreProblema = principal?.name || '';
-    const trat = buscarTratamiento(nombreProblema);
-    const prob = principal?.probability || 0;
-    const severidad = prob > 0.55 ? 'Grave' : prob > 0.25 ? 'Moderado' : prob > 0 ? 'Leve' : 'Sin problema visible';
-    const saludable = !principal || prob < 0.1;
+    // --- Claude Vision (modelo actual) ---
+    let resultado = '';
+    let severidad = 'Moderado';
 
-    const resultado = `🌿 CULTIVO IDENTIFICADO: ${cultivoNombre}
+    if (ANTHROPIC_KEY) {
+      try {
+        const prompt = `Eres un agrónomo peruano experto con 25 años en fundos de la costa peruana. Analizas el Fundo Ishizawa (29.4 há, Perú): Palta Hass/Fuerte/Naval/Villacampa, Uva Quebranta/Borgoña, Lúcuma, Mandarina Okitsu/Río, Toronja, Limón, Caqui, Manzana de Caña.
+
+Datos de APIs especializadas: ${apiBio}
+Mes actual: Marzo. Ubicación: Costa peruana.
+
+Analiza la imagen y responde EXACTAMENTE en este formato (empieza directo, sin introducción):
+
+🌿 CULTIVO IDENTIFICADO: [nombre exacto del cultivo que ves en la foto]
+🔍 PROBLEMA PRINCIPAL: [nombre científico + nombre común peruano]
+📍 PARTE AFECTADA: [hoja / tallo / raíz / fruto / planta completa]
+🚨 SEVERIDAD: [Leve / Moderado / Grave] — [% área afectada estimado]
+
+📊 DIAGNÓSTICO TÉCNICO:
+[Síntomas observados, cómo se propaga, condiciones que lo favorecen]
+
+🌱 ESTADO FENOLÓGICO (Costa Peruana — Marzo):
+[Etapa actual y su importancia para el manejo]
+
+💊 TRATAMIENTO PARA FUNDO COMERCIAL (cientos de árboles):
+Paso 1: [acción inmediata]
+Paso 2: [producto principal + dosis exacta ml/L o g/L]
+Paso 3: [volumen caldo: paltos 800-1200 L/ha, cítricos 600-800 L/ha, uvas 400-600 L/ha]
+Nota: poda sanitaria = desinfectar tijeras en lejía 5% entre árbol y árbol
+
+🧪 PRODUCTOS DISPONIBLES EN PERÚ:
+- [Nombre comercial] — [ingrediente activo] — [dosis] — S/[precio]/litro o kg
+- [Alternativa] — [dosis]
+
+🛒 INSUMOS PARA 1 HECTÁREA:
+[cantidades exactas y costo estimado en soles]
+
+⏰ MOMENTO DE APLICACIÓN:
+[hora, temperatura, humedad, frecuencia]
+
+🛡️ PREVENCIÓN PRÓXIMAS 4 SEMANAS:
+[medidas específicas para este cultivo y problema]
+
+⚡ URGENCIA: [Crítica — HOY / Alta — 3 días / Moderada — 7 días / Baja] — [razón]`;
+
+        const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
+          method:'POST',
+          headers:{'x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01','content-type':'application/json'},
+          body:JSON.stringify({
+            model:'claude-haiku-4-5-20251001',
+            max_tokens:1500,
+            messages:[{role:'user',content:[
+              {type:'image',source:{type:'base64',media_type:mediaType,data:image}},
+              {type:'text',text:prompt}
+            ]}]
+          })
+        });
+        const raw = await claudeRes.text();
+        console.log('Claude HTTP', claudeRes.status, raw.substring(0,200));
+        const cd = JSON.parse(raw);
+        if(cd.error) throw new Error('Claude ' + claudeRes.status + ': ' + cd.error.message);
+        resultado = cd.content?.[0]?.text || '';
+        const sm = resultado.match(/🚨 SEVERIDAD:\s*(Leve|Moderado|Grave)/i);
+        if(sm) severidad = sm[1];
+      } catch(e) {
+        console.log('Claude error:', e.message);
+        resultado = '';
+      }
+    }
+
+    // Fallback: diagnóstico desde base de conocimiento si Claude falla
+    if (!resultado) {
+      const principal = todasEnf[0];
+      const trat = buscarTratamiento(principal?.name || '');
+      const prob = principal?.probability || 0;
+      severidad = prob > 0.55 ? 'Grave' : prob > 0.25 ? 'Moderado' : prob > 0 ? 'Leve' : 'Moderado';
+      resultado = `🌿 CULTIVO IDENTIFICADO: ${cultivoNombre}
 🔍 PROBLEMA PRINCIPAL: ${trat.nombre}
 🚨 SEVERIDAD: ${severidad}${principal ? ' — ' + (prob*100).toFixed(0) + '% probabilidad' : ''}
 
 📊 PROBLEMAS DETECTADOS (plant.id + crop.health):
-${todasEnf.length ? todasEnf.map(e=>`• ${e.name}: ${(e.probability*100).toFixed(0)}%`).join('\n') : '• Sin problemas claros detectados en la imagen'}
+${todasEnf.length ? todasEnf.map(e=>`• ${e.name}: ${(e.probability*100).toFixed(0)}%`).join('\n') : '• Enviar foto más clara con buena iluminación para mejor diagnóstico'}
 
 🌱 ESTADO FENOLÓGICO (Costa Peruana — Marzo):
 ${fenologia}
@@ -162,23 +234,25 @@ ${trat.tratamiento}
 🧪 PRODUCTOS DISPONIBLES EN PERÚ:
 ${trat.productos}
 
-🛒 INSUMOS A COMPRAR:
+🛒 INSUMOS PARA 1 HECTÁREA:
 ${trat.compras}
 
 ⏰ MOMENTO DE APLICACIÓN:
 Aplicar en horas frescas: 6:00-9:00 AM o después de las 5:00 PM.
 Temperatura ideal: menor a 28°C. No aplicar con viento fuerte (>15 km/h).
-No aplicar si hay lluvia prevista en las próximas 4 horas.
 
 🛡️ PREVENCIÓN PRÓXIMAS 4 SEMANAS:
-• Monitoreo semanal: revisar 10 plantas por lote, contar incidencia.
-• Registrar aplicaciones en cuaderno de campo (producto, dosis, fecha, lote).
+• Monitoreo semanal: revisar 10 plantas por lote, registrar incidencia.
 • Rotar grupos químicos para evitar resistencia.
-• Mantener limpias las malezas alrededor de los árboles.
+• Aplicar solo si hay diagnóstico confirmado.
 
 ⚡ URGENCIA: ${trat.urgencia}`;
+    }
 
-    res.json({resultado, cultivo:cultivoNombre, enfermedades:todasEnf, severidad, saludable});
+    const cultivoMatch = resultado.match(/🌿 CULTIVO IDENTIFICADO:\s*(.+)/);
+    const cultivoFinal = cultivoMatch?.[1]?.trim() || cultivoNombre;
+
+    res.json({resultado, cultivo:cultivoFinal, enfermedades:todasEnf, severidad, saludable:false});
 
   } catch(err) {
     console.error('Error /analyze:', err.message);
