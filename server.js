@@ -418,6 +418,18 @@ DIAGNÓSTICO DIFERENCIAL CRÍTICO — POLVO BLANCO/GRISÁCEO EN HOJAS O TALLOS:
 • Mosca blanca: masas algodonosas blancas en envés — diferente textura al oidio
 • Si hay duda entre oidio y arañita: el polvo se desprende al frotar = oidio; tela pegajosa = arañita
 
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — HOJA PÁLIDA/GRISÁCEA SIN VERDOR:
+• Si la hoja está MUY PÁLIDA (verde-grisácea/amarillenta) con nervaduras blancas MUY PROMINENTES y contraste hoja/nervadura exagerado → sospecha MOSCA BLANCA o ALEUROTRACHELUS en alta densidad (succión intensa de savia)
+• Los adultos de mosca blanca (1-2mm, blancos) son casi invisibles sin zoom extremo — su daño es la palidez de la hoja, NO su presencia visible
+• NO diagnosticar deficiencia de N o Mg si la hoja está pálida pero las nervaduras resaltan en blanco — ese patrón es de plaga chupadora, no de carencia nutricional
+• Diferencia mosca blanca vs arañita roja: mosca blanca = hoja pálida difusa con nervaduras prominentes; arañita = bronceado con puntitos necróticos o brillos metálicos
+
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS/PUNTOS OSCUROS EN FRUTOS:
+• Si ves PUNTOS CIRCULARES OSCUROS (1-3mm, marrones o rojizos, ligeramente hundidos) en la piel del fruto → son PICADURAS DE OVIPOSICIÓN de Mosca de la fruta (Anastrepha striata, Ceratitis capitata)
+• Este daño es endémico en Huayán — siempre el PRIMER SOSPECHOSO en frutos con puntos oscuros
+• No confundir con antracnosis (manchas difusas, irregulares, con halo amarillo) ni con daño mecánico
+• Mosca de la fruta: 1-4 puntos pequeños redondos en piel = postura; el daño interno puede no verse externamente hasta descomposición
+
 ${contextoLote}
 
 GUÍA VISUAL DE CULTIVOS:
