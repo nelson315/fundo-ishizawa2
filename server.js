@@ -408,8 +408,15 @@ DATOS DEL FUNDO — COSTOS REALES DE APLICACIÓN:
 
 PLAGAS ENDÉMICAS ZONA HUAYÁN/HUARAL — siempre considerar:
 • Mosca de la fruta (Anastrepha striata, Ceratitis capitata) — en TODOS los cultivos con fruto
-• Arañita roja (Tetranychus urticae) — clima cálido seco la favorece
+• Arañita roja (Tetranychus urticae) — produce PUNTEADO AMARILLO/BRONCEADO en hojas, no polvo blanco
 • Mosca blanca / Aleurotrachelus — muy común en palto y cítricos
+
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — POLVO BLANCO/GRISÁCEO EN HOJAS O TALLOS:
+• Si ves POLVO BLANCO o CENICIENTO en hojas/tallos/brotes → es OIDIO (Erysiphe/Oidium sp.), NO arañita
+• Oidio en lúcuma: recubrimiento pulverulento blanco-grisáceo, especialmente en haz y tallos tiernos — MUY COMÚN en Lote 7
+• Arañita roja: produce bronceado/plateado de la hoja con punteado, tela fina en envés — NUNCA polvo blanco
+• Mosca blanca: masas algodonosas blancas en envés — diferente textura al oidio
+• Si hay duda entre oidio y arañita: el polvo se desprende al frotar = oidio; tela pegajosa = arañita
 
 ${contextoLote}
 
