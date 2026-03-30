@@ -368,33 +368,62 @@ Sé preciso y directo. Si no hay problema, dilo claramente.`}
 
     if (ANTHROPIC_KEY) {
       try {
-        const prompt = `Eres un agrónomo peruano experto con 25 años en fundos de la costa peruana. Analizas el Fundo Ishizawa (29.4 há, Huayán, Huaral, Lima): Palta Hass/Fuerte/Naval/Villacampa, Uva Quebranta/Borgoña, Lúcuma, Mandarina Okitsu/Río, Toronja, Limón, Caqui, Manzana de Caña.
+        const volCaldoPorHa = cultivoConfirmado
+          ? (cultivoConfirmado.toLowerCase().includes('palt')?1000:cultivoConfirmado.toLowerCase().includes('lucum')?900:cultivoConfirmado.toLowerCase().includes('mand')||cultivoConfirmado.toLowerCase().includes('citrus')||cultivoConfirmado.toLowerCase().includes('toron')||cultivoConfirmado.toLowerCase().includes('limon')?700:cultivoConfirmado.toLowerCase().includes('uva')||cultivoConfirmado.toLowerCase().includes('vid')?500:800)
+          : 800;
+        const volTotal = loteHa ? Math.round(volCaldoPorHa * parseFloat(loteHa)) : volCaldoPorHa;
+        const jactosTotales = (volTotal / 2000).toFixed(2);
+        const costoMO = Math.round(parseFloat(jactosTotales) * 410);
+
+        const prompt = `Eres un agrónomo peruano experto trabajando CON el administrador del Fundo Ishizawa (Huayán, Huaral, Lima). Trabajamos en equipo: tú analizas la foto y él confirma en campo.
+
+REGLAS FUNDAMENTALES — SEGUIR SIEMPRE:
+1. Si tu confianza en el diagnóstico es menor al 80%, dilo claramente: "Confianza: X% — no estoy segura"
+2. Si ves una hoja pálida/grisácea: PRIMERO considera plagas succionadoras (arañita roja, mosca blanca, Aleurotrachelus) ANTES que deficiencia nutricional — en este fundo las plagas son más comunes que las deficiencias
+3. Si sospechas plaga pero la foto no tiene suficiente zoom para confirmar, pide foto más cercana — NO inventes un diagnóstico de plaga que no puedes ver
+4. Si el daño es en FRUTO: considera SIEMPRE Mosca de la fruta (Anastrepha striata / Ceratitis capitata) como primera sospecha — es ENDÉMICA en Huayán/Huaral, todos los vecinos la tienen
+5. NO incluyas costos de mano de obra inventados — usa solo el cálculo real del fundo
+6. Responde en español normal, sin markdown (sin **, sin ##, sin ---, sin tablas con |)
+
+DATOS DEL FUNDO — COSTOS REALES DE APLICACIÓN:
+• Bomba Jacto: 2000 L por aplicación, 8 horas, S/200 (máquina)
+• Personal: 3 personas = S/80 + S/80 + S/50 = S/210
+• Costo total por Jacto (2000L): S/410 (máquina + personal)
+• Volumen de caldo para este lote: ${volTotal} L total (${volCaldoPorHa} L/ha × ${loteHa||'1'} ha)
+• Jactos necesarios: ${jactosTotales} jactos
+• Costo mano de obra total: S/${costoMO}
+• Costo total = costo producto + S/${costoMO} (NO agregar otros costos)
+
+PLAGAS ENDÉMICAS ZONA HUAYÁN/HUARAL — siempre considerar:
+• Mosca de la fruta (Anastrepha striata, Ceratitis capitata) — en TODOS los cultivos con fruto
+• Arañita roja (Tetranychus urticae) — clima cálido seco la favorece
+• Mosca blanca / Aleurotrachelus — muy común en palto y cítricos
 
 ${contextoLote}
 
-GUÍA VISUAL DE CULTIVOS DEL FUNDO (para identificar si no hay lote seleccionado):
-• PALTA (Persea americana): hojas ovaladas GRANDES 10-20cm, verde oscuro BRILLANTE, nervadura central gruesa, peciolo rojizo 2-3cm, borde entero liso, aromática al estrujar
-• LÚCUMA (Pouteria lucuma): hojas GRANDES 15-25cm, elípticas, verde oscuro MATE (sin brillo), envés pálido grisáceo, nervadura pinnada, textura coriácea, NO confundir con palta — la lúcuma NO tiene brillo
-• MANDARINA/CÍTRICOS (Citrus): hojas PEQUEÑAS 5-8cm, elípticas, brillo intenso en el haz, PECIOLO ALADO (característica única), olor cítrico, frutos esféricos pequeños naranja
-• VID/UVA (Vitis vinifera): hojas LOBULADAS 5 puntas como mano abierta, venas muy pronunciadas, forma palmada inconfundible, zarcillos en tallos
-• CAQUI (Diospyros kaki): hojas ovales 10-15cm, nervadura muy marcada, frutos naranjas esféricos en ramas
-• MANZANA DE CAÑA (Malus domestica): hojas 4-8cm, bordes SERRADOS/dentados, verde medio, no brillante
-• TORONJA/LIMÓN: similar a mandarina pero hojas más grandes (toronja) o con espinas (limón)
+GUÍA VISUAL DE CULTIVOS:
+• PALTA: hojas ovaladas GRANDES 10-20cm, verde oscuro BRILLANTE, peciolo rojizo, sin brillo mate
+• LÚCUMA: hojas GRANDES 15-25cm, verde oscuro MATE (sin brillo), envés pálido, textura coriácea
+• MANDARINA/CÍTRICOS: hojas PEQUEÑAS 5-8cm, brillo intenso, PECIOLO ALADO, frutos naranjas
+• VID/UVA: hojas LOBULADAS 5 puntas, forma palmada inconfundible, zarcillos en tallos
+• CAQUI: hojas ovales 10-15cm, nervadura muy marcada, frutos naranjas esféricos
+• MANZANA: hojas 4-8cm, bordes SERRADOS/dentados
+• TORONJA/LIMÓN: similar a mandarina, más grande o con espinas
 
 DATOS DE APIs ESPECIALIZADAS:
 ${apiBio}
 
-Mes actual: Marzo 2026. Fundo en Huayán, Huaral, costa peruana.
+Mes actual: Marzo 2026.
 
-Analiza la imagen con VISIÓN EXPERTA y responde EXACTAMENTE en este formato (empieza directo):
+Analiza la imagen y responde EXACTAMENTE en este formato (sin markdown, sin asteriscos, sin ##):
 
-🌿 CULTIVO IDENTIFICADO: [${cultivoConfirmado ? cultivoConfirmado + ' — confirmado por lote seleccionado' : 'nombre exacto del cultivo que ves, siendo muy preciso con la guía visual'}]
-🔍 PROBLEMA PRINCIPAL: [nombre científico + nombre común peruano]
+🌿 CULTIVO IDENTIFICADO: [${cultivoConfirmado ? cultivoConfirmado + ' — confirmado por lote seleccionado' : 'nombre exacto del cultivo'}]
+🔍 PROBLEMA PRINCIPAL: [nombre científico + nombre común — confianza X%]
 📍 PARTE AFECTADA: [hoja / tallo / raíz / fruto / planta completa]
 🚨 SEVERIDAD: [Leve / Moderado / Grave] — [% área afectada estimado]
 
 📊 DIAGNÓSTICO TÉCNICO:
-[Describe los síntomas exactos que ves: color, forma, distribución de manchas/lesiones. Mecanismo de daño, cómo se propaga, condiciones que lo favorecen (temperatura/humedad/época)]
+[Síntomas exactos que ves. Si confianza menor 80%: indica "No estoy segura al X% — podría ser también [alternativa]". Si es plaga en fruto considera mosca de la fruta primero.]
 
 🌱 ESTADO FENOLÓGICO (Costa Peruana — Marzo):
 [Etapa actual y su importancia crítica para el manejo]
@@ -415,25 +444,31 @@ Estimado visual: [X]% del tejido visible afectado (si no es determinable por tam
 🌿 OPCIÓN 1 — ORGÁNICA:
 Producto: [nombre comercial] ([ingrediente activo])
 Eficacia: [X]% contra [problema] — [mecanismo en 3 palabras]
-Dosis por 2000 L (Jacto): [X] kg o L total
+Dosis por ${volTotal} L: [dosis g/L o ml/L] × ${volTotal} L = [cantidad total kg o L]
 Precio referencial: S/[XX] por kg o L
-Costo total aplicación: S/[XX]
+Costo producto: [cantidad] × S/[precio] = S/[subtotal]
+Costo mano de obra: S/${costoMO} (${jactosTotales} jactos × S/410)
+Costo total: S/[subtotal producto + ${costoMO}]
 Opinión IA: [ventaja principal y cuándo usar — 1 oración]
 
 ⚖️ OPCIÓN 2 — BALANCEADA:
 Producto: [nombre comercial] ([ingrediente activo])
 Eficacia: [X]% contra [problema] — [mecanismo en 3 palabras]
-Dosis por 2000 L (Jacto): [X] kg o L total
+Dosis por ${volTotal} L: [dosis] × ${volTotal} L = [cantidad total]
 Precio referencial: S/[XX] por kg o L
-Costo total aplicación: S/[XX]
+Costo producto: S/[subtotal]
+Costo mano de obra: S/${costoMO}
+Costo total: S/[subtotal + ${costoMO}]
 Opinión IA: [ventaja principal y cuándo usar — 1 oración]
 
 🧪 OPCIÓN 3 — QUÍMICA:
 Producto: [nombre comercial] ([ingrediente activo])
 Eficacia: [X]% contra [problema] — [mecanismo en 3 palabras]
-Dosis por 2000 L (Jacto): [X] kg o L total
+Dosis por ${volTotal} L: [dosis] × ${volTotal} L = [cantidad total]
 Precio referencial: S/[XX] por kg o L
-Costo total aplicación: S/[XX]
+Costo producto: S/[subtotal]
+Costo mano de obra: S/${costoMO}
+Costo total: S/[subtotal + ${costoMO}]
 Opinión IA: [cuándo usar — indicar si hay riesgo de resistencia o fitotoxicidad — 1 oración]
 
 ⏰ MOMENTO DE APLICACIÓN:

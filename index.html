@@ -422,7 +422,7 @@ async function analizar(b64, mime, cultivoManual) {
     <div class="loading">
       <div class="spinner"></div>
       <div style="font-weight:500">Analizando ${cultivoConfirmado ? cultivoConfirmado : 'imagen'}...</div>
-      <div class="loading-step" id="loading-step">Consultando plant.id · crop.health · insect.id · Claude Vision...</div>
+      <div class="loading-step" id="loading-step">Consultando 7 APIs: plant.id · crop.health · insect.id · Pl@ntNet · Claude · Gemini · Sharp...</div>
     </div>`;
 
   try {
@@ -438,7 +438,7 @@ async function analizar(b64, mime, cultivoManual) {
       document.getElementById('loading-step').textContent = '⏳ Servidor iniciando (Render Free, ~40s)... por favor espera';
       await new Promise(r => setTimeout(r, 30000));
     }
-    document.getElementById('loading-step').textContent = 'Procesando con 6 APIs especializadas (puede tardar 30-60s)...';
+    document.getElementById('loading-step').textContent = 'Procesando con 7 APIs especializadas (puede tardar 30-60s)...';
     const ctrl = new AbortController();
     const tid = setTimeout(()=>ctrl.abort(), 120000); // 2 min timeout
     // Usar array de imágenes si hay más de una
@@ -866,11 +866,57 @@ function renderAlertas() {
 function marcarRiego(id){ localStorage.setItem('riego_'+id,new Date().toISOString()); renderAlertas(); }
 
 // ── PARSEO VISUAL DEL DIAGNÓSTICO ─────────────────────────────────────────
+function ucFirst(s){return s?s.charAt(0).toUpperCase()+s.slice(1).toLowerCase():'';}
+
+function convertirTablaMarkdown(texto) {
+  const lineas = texto.split('\n');
+  let html = '';
+  let headers = [];
+  let rows = [];
+  let inTable = false;
+  const flush = () => {
+    if(!headers.length) return;
+    const diagIdx = headers.findIndex(h=>/diagn/i.test(h));
+    html += '<div style="overflow-x:auto;margin:8px 0"><table style="width:100%;border-collapse:collapse;font-size:12px">';
+    html += '<thead><tr>' + headers.map(h=>`<th style="padding:6px 10px;background:#f5f5f3;border:1px solid #e0e0dc;font-weight:600;text-align:left;color:var(--texto2)">${h}</th>`).join('') + '</tr></thead><tbody>';
+    rows.forEach(row=>{
+      const diag=(diagIdx>=0?row[diagIdx]||'':'').toLowerCase();
+      const bg=diag.includes('confirmada')||diag.includes('grave')?'#fff0f0':diag.includes('probable')||diag.includes('leve')||diag.includes('vigilar')?'#fffbf0':diag.includes('normal')?'#f0fff4':'white';
+      const dot=diag.includes('confirmada')||diag.includes('grave')?'🔴':diag.includes('probable')||diag.includes('leve')?'🟡':diag.includes('normal')?'🟢':'';
+      html+='<tr style="background:'+bg+'">';
+      row.forEach((cell,i)=>{html+=`<td style="padding:6px 10px;border:1px solid #e0e0dc;font-size:12px">${i===row.length-1&&dot?dot+' '+cell:cell}</td>`;});
+      html+='</tr>';
+    });
+    html += '</tbody></table></div>';
+    headers=[]; rows=[];
+  };
+  for(const ln of lineas){
+    const t=ln.trim();
+    if(t.startsWith('|')&&!t.match(/^\|[\s\-|:]+\|$/)){
+      const cells=t.split('|').filter((_,i,a)=>i>0&&i<a.length-1).map(c=>c.trim());
+      if(!inTable){inTable=true;headers=cells;}else{rows.push(cells);}
+    } else if(t.match(/^\|[\s\-|:]+\|$/)){
+      // separador, ignorar
+    } else {
+      if(inTable){flush();inTable=false;}
+      html+=ln+'\n';
+    }
+  }
+  if(inTable)flush();
+  return html;
+}
+
 function formatearTexto(t) {
-  return (t||'')
+  let s = (t||'')
+    .replace(/^#{1,3}\s*/gm, '')           // quitar ##, ###
     .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
     .replace(/\*([^*\n]+)\*/g, '<em>$1</em>')
-    .replace(/^---+\s*$/gm, '')
+    .replace(/\*+/g, '')                   // asteriscos sueltos
+    .replace(/#+/g, '')                    // hashes sueltos
+    .replace(/^---+\s*$/gm, '');
+  // Detectar y convertir tablas markdown
+  s = convertirTablaMarkdown(s);
+  return s
     .replace(/^• (.+)$/gm, '<div class="diag-item" style="color:var(--verde)">• $1</div>')
     .replace(/^- (.+)$/gm, '<div class="diag-item" style="color:var(--texto2)">– $1</div>')
     .replace(/^(Paso \d+):\s*(.+)$/gm, (_,n,txt)=>`<div class="diag-paso"><div class="diag-paso-n" style="color:var(--verde)">${n.replace('Paso ','')}</div><div style="flex:1;font-size:13px">${txt}</div></div>`)
@@ -913,14 +959,26 @@ function parsearResultado(texto) {
 
   let html = '';
   for (const s of secciones) {
-    if (s.emoji === '📷') continue; // se muestra fuera
+    if (s.emoji === '📷') continue;
     const { bg, bd, tc } = s.def;
     if (s.emoji === '💊') {
       html += renderTratamiento(s.header, s.body.join('\n'), bg, bd, tc);
     } else {
+      // Separar el título del valor (lo que viene después de ":")
+      const colonIdx = s.header.indexOf(':');
+      let titulo = s.header;
+      let valorInline = '';
+      if (colonIdx > 0 && colonIdx < s.header.length - 2) {
+        titulo = s.header.substring(0, colonIdx).trim();
+        // Convertir a sentence case para evitar todo en mayúsculas
+        const rawVal = s.header.substring(colonIdx + 1).trim();
+        valorInline = rawVal.charAt(0).toUpperCase() + rawVal.slice(1).toLowerCase()
+          .replace(/\b(palta|lúcuma|mandarina|uva|caqui|limón|toronja|hass|fuerte|okitsu|río|hoja|fruto|tallo|raíz|leve|moderado|grave)\b/gi, m=>m.charAt(0).toUpperCase()+m.slice(1));
+      }
       const contenido = formatearTexto(s.body.join('\n')).trim();
       html += `<div class="diag-card" style="background:${bg};border-color:${bd}">
-        <div class="diag-card-title" style="color:${tc}">${s.header}</div>
+        <div class="diag-card-title" style="color:${tc}">${titulo}</div>
+        ${valorInline ? `<div style="font-size:14px;font-weight:500;color:var(--texto);margin-bottom:${contenido?'8px':'0'};line-height:1.4">${valorInline}</div>` : ''}
         ${contenido ? `<div class="diag-content">${contenido}</div>` : ''}
       </div>`;
     }
@@ -952,7 +1010,7 @@ function renderTratamiento(header, body, bg, bd, tc) {
     <div style="display:flex;gap:6px;margin-bottom:12px">
       ${opts.map((o,i)=>`<button class="trat-tab-btn" id="${tid}-t${i}"
         style="border-color:${o.bc};background:${i===0?o.bc:'white'};color:${i===0?'white':o.bc}"
-        onclick="selTab('${tid}',${i},${JSON.stringify(opts.map(x=>x.bc))},${JSON.stringify(opts.map(x=>x.bg2))})">${o.label}</button>`).join('')}
+        onclick="selTab('${tid}',${i})">${o.label}</button>`).join('')}
     </div>
     ${opts.map((o,i)=>`<div id="${tid}-c${i}" style="display:${i===0?'block':'none'};background:white;border:1px solid ${o.bc}40;border-radius:10px;padding:12px">
       <div class="diag-content">${formatearTextoProducto(o.texto)}</div>
@@ -961,29 +1019,67 @@ function renderTratamiento(header, body, bg, bd, tc) {
 }
 
 function formatearTextoProducto(t) {
-  return (t||'')
-    .replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>')
-    .replace(/^(Producto|Eficacia|Dosis por 2000|Precio|Costo total|Opinión IA):\s*(.+)$/gm,
-      (_,k,v)=>`<div style="display:flex;gap:8px;padding:4px 0;border-bottom:1px solid #f0f0ec;font-size:13px">
-        <span style="font-weight:600;min-width:90px;color:var(--texto2);flex-shrink:0">${k}</span>
-        <span>${v}</span></div>`)
-    .replace(/\n+/g,'');
+  const campos = ['Producto','Eficacia','Dosis por','Precio referencial','Costo producto','Costo mano de obra','Costo total','Opinión IA'];
+  const iconos = {'Producto':'🧴','Eficacia':'📊','Dosis por':'⚗️','Precio referencial':'💰','Costo producto':'💰','Costo mano de obra':'👷','Costo total':'💵','Opinión IA':'🤖'};
+  const colores = {'Costo total':'font-weight:700;color:var(--verde)','Opinión IA':'color:#5E35B1;font-style:italic'};
+  let s = (t||'').replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>').replace(/#+/g,'').replace(/\*+/g,'');
+  const regex = new RegExp(`^(${campos.map(c=>c.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')}):\\s*(.+)$`,'gm');
+  s = s.replace(regex,(_,k,v)=>{
+    const ic=iconos[k]||'';
+    const st=colores[k]||'';
+    return `<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid #f0f0ec;font-size:13px;align-items:flex-start">
+      <span style="flex-shrink:0;width:20px;text-align:center">${ic}</span>
+      <span style="font-weight:600;min-width:110px;color:var(--texto2);flex-shrink:0;font-size:12px">${k}</span>
+      <span style="${st}">${v}</span></div>`;
+  });
+  return s.replace(/\n+/g,'');
 }
 
-function selTab(tid, idx, colors, bgs) {
-  colors.forEach((_,i)=>{
-    const t = document.getElementById(`${tid}-t${i}`);
-    const c = document.getElementById(`${tid}-c${i}`);
-    if (t) { t.style.background = i===idx ? colors[i] : 'white'; t.style.color = i===idx ? 'white' : colors[i]; }
-    if (c) c.style.display = i===idx ? 'block' : 'none';
-  });
+function selTab(tid, idx) {
+  const colors = ['#3B6D11','#854F0B','#A32D2D'];
+  for(let i=0;i<3;i++){
+    const t=document.getElementById(tid+'-t'+i);
+    const c=document.getElementById(tid+'-c'+i);
+    if(t){t.style.background=i===idx?colors[i]:'white';t.style.color=i===idx?'white':colors[i];}
+    if(c)c.style.display=i===idx?'block':'none';
+  }
 }
 
 // ── FEEDBACK DE DIAGNÓSTICO ───────────────────────────────────────────────
 function guardarFeedback(id, tipo, btn) {
   if (tipo === 'editar') {
     const ed = document.getElementById('fb-edit-'+id);
-    if (ed) ed.style.display = ed.style.display==='none' ? 'block' : 'none';
+    if (!ed) return;
+    if (ed.style.display !== 'none') { ed.style.display='none'; return; }
+    const entrada = historialIA.find(h=>h.id===id) || {};
+    ed.innerHTML = `
+      <div style="background:#f9f9f7;border-radius:10px;padding:12px;margin-top:4px">
+        <div style="font-size:11px;font-weight:700;color:var(--texto2);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px">Corregir diagnóstico</div>
+        <div style="display:grid;gap:8px">
+          <div>
+            <div style="font-size:11px;color:var(--texto2);margin-bottom:3px">🌿 Cultivo real</div>
+            <input id="fb-cultivo-${id}" class="form-input" value="${entrada.cultivo||''}" style="font-size:13px">
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--texto2);margin-bottom:3px">🔍 Problema / plaga real</div>
+            <input id="fb-problema-${id}" class="form-input" placeholder="Ej: Arañita roja — adulto 12%, huevo 8%" style="font-size:13px" value="${entrada.problema&&entrada.problema!=='Ver diagnóstico'?entrada.problema:''}">
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--texto2);margin-bottom:3px">🚨 Severidad real</div>
+            <select id="fb-sev-${id}" class="form-input" style="font-size:13px">
+              <option ${entrada.severidad==='Leve'?'selected':''}>Leve</option>
+              <option ${entrada.severidad==='Moderado'?'selected':''}>Moderado</option>
+              <option ${entrada.severidad==='Grave'?'selected':''}>Grave</option>
+            </select>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--texto2);margin-bottom:3px">📝 Observación adicional</div>
+            <input id="fb-obs-${id}" class="form-input" placeholder="Ej: foto sin zoom, confundió con deficiencia" style="font-size:13px">
+          </div>
+        </div>
+        <button onclick="guardarFeedbackTexto(${id})" style="margin-top:12px;width:100%;padding:10px;background:var(--verde);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Guardar corrección</button>
+      </div>`;
+    ed.style.display = 'block';
     return;
   }
   const idx = historialIA.findIndex(h=>h.id===id);
@@ -994,11 +1090,20 @@ function guardarFeedback(id, tipo, btn) {
 }
 
 function guardarFeedbackTexto(id) {
-  const txt = document.getElementById('fb-texto-'+id)?.value;
-  if (!txt) return;
+  const cultivo = document.getElementById('fb-cultivo-'+id)?.value||'';
+  const problema = document.getElementById('fb-problema-'+id)?.value||'';
+  const sev = document.getElementById('fb-sev-'+id)?.value||'';
+  const obs = document.getElementById('fb-obs-'+id)?.value||'';
   const idx = historialIA.findIndex(h=>h.id===id);
-  if (idx>=0) { historialIA[idx].feedback='editado'; historialIA[idx].correccion=txt; localStorage.setItem('historialIA',JSON.stringify(historialIA)); }
-  document.getElementById('fb-edit-'+id).innerHTML = '<div style="color:var(--amarillo);font-weight:600;font-size:13px">✏️ Corrección guardada — gracias</div>';
+  if (idx>=0) {
+    historialIA[idx].feedback='editado';
+    if(cultivo) historialIA[idx].cultivoCorregido=cultivo;
+    if(problema) historialIA[idx].problemaCorregido=problema;
+    if(sev) historialIA[idx].severidadCorregida=sev;
+    if(obs) historialIA[idx].observacion=obs;
+    localStorage.setItem('historialIA',JSON.stringify(historialIA));
+  }
+  document.getElementById('fb-edit-'+id).innerHTML = '<div style="color:var(--amarillo);font-weight:600;font-size:13px;padding:10px 0">✏️ Corrección guardada — gracias Nelson</div>';
 }
 
 // ── PANTALLA EXCEL ────────────────────────────────────────────────────────
