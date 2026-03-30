@@ -309,13 +309,25 @@ ${alertas.join('\n')}`;
     const loteId = req.body.loteId || _li;
     const loteCultivo = req.body.loteCultivo || _lc;
     const loteHa = req.body.loteHa || _lha || null;
+    const sueloInfo = req.body.sueloInfo || null;
     const cultivoConfirmado = loteCultivo || null;
     const cultivoNombre = cultivoConfirmado || identificarCultivo(cultivoRaw) || 'Cultivo del Fundo Ishizawa';
     const fenologia = estadoFenologico(cultivoConfirmado || cultivoRaw);
 
+    const sueloTexto = sueloInfo ? `
+ANÁLISIS DE SUELO DEL LOTE (datos reales de laboratorio — úsalos para el diagnóstico nutricional):
+${sueloInfo.ph    ? `• pH: ${sueloInfo.ph} ${parseFloat(sueloInfo.ph)<5.5?'(ácido — limita absorción Fe, Mn, Zn)':parseFloat(sueloInfo.ph)>7.5?'(alcalino — limita absorción Fe, P, micronutrientes)':'(rango adecuado)'}` : ''}
+${sueloInfo.ce    ? `• CE: ${sueloInfo.ce} mS/cm ${parseFloat(sueloInfo.ce)>2?'(salinidad alta — riesgo de toxicidad)':parseFloat(sueloInfo.ce)>1?'(salinidad moderada)':'(normal)'}` : ''}
+${sueloInfo.mo    ? `• Materia orgánica: ${sueloInfo.mo}% ${parseFloat(sueloInfo.mo)<1.5?'(baja — mejorar con compost)':parseFloat(sueloInfo.mo)>4?'(alta)':'(media)'}` : ''}
+${sueloInfo.n     ? `• N disponible: ${sueloInfo.n} ppm ${parseFloat(sueloInfo.n)<30?'(deficiente)':parseFloat(sueloInfo.n)>80?'(alto)':'(adecuado)'}` : ''}
+${sueloInfo.p     ? `• P disponible: ${sueloInfo.p} ppm ${parseFloat(sueloInfo.p)<10?'(deficiente)':'(adecuado)'}` : ''}
+${sueloInfo.k     ? `• K disponible: ${sueloInfo.k} ppm ${parseFloat(sueloInfo.k)<100?'(deficiente)':'(adecuado)'}` : ''}
+${sueloInfo.obs   ? `• Observaciones: ${sueloInfo.obs}` : ''}
+${sueloInfo.fecha ? `• Fecha análisis: ${sueloInfo.fecha}` : ''}` : '';
+
     const contextoLote = cultivoConfirmado
-      ? `CULTIVO CONFIRMADO POR EL USUARIO (lote ${loteId}): ${cultivoConfirmado}. NO intentes identificar el cultivo — ya se sabe que es ${cultivoConfirmado}. Enfócate SOLO en diagnosticar el problema fitosanitario o nutricional visible.`
-      : `El usuario no seleccionó lote. Identifica el cultivo visualmente usando las características descritas abajo.`;
+      ? `CULTIVO CONFIRMADO POR EL USUARIO (lote ${loteId}): ${cultivoConfirmado}. NO intentes identificar el cultivo — ya se sabe que es ${cultivoConfirmado}. Enfócate SOLO en diagnosticar el problema fitosanitario o nutricional visible.${sueloTexto}`
+      : `El usuario no seleccionó lote. Identifica el cultivo visualmente usando las características descritas abajo.${sueloTexto}`;
 
     const apiBio = [
       todasEnf.length

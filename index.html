@@ -191,6 +191,7 @@ const RIEGO = {
 let monitoreoData = JSON.parse(localStorage.getItem('monitoreo')||'{}');
 let excelData = JSON.parse(localStorage.getItem('excelData')||'{}');
 let historialIA = JSON.parse(localStorage.getItem('historialIA')||'[]');
+let sueloData = JSON.parse(localStorage.getItem('sueloData')||'{}');
 let currentLote = null;
 let chartInicio = null;
 
@@ -442,9 +443,10 @@ async function analizar(b64, mime, cultivoManual) {
     const ctrl = new AbortController();
     const tid = setTimeout(()=>ctrl.abort(), 120000); // 2 min timeout
     // Usar array de imágenes si hay más de una
+    const suelolote = loteSeleccionado ? (sueloData[loteSeleccionado] || sueloData['general'] || null) : null;
     const bodyPayload = _imagenesEnvio.length > 1
-      ? {images: _imagenesEnvio, loteId: loteSeleccionado, loteCultivo: cultivoConfirmado, loteHa: lote?.ha || ''}
-      : {image: b64, mediaType: mime, loteId: loteSeleccionado, loteCultivo: cultivoConfirmado, loteHa: lote?.ha || ''};
+      ? {images: _imagenesEnvio, loteId: loteSeleccionado, loteCultivo: cultivoConfirmado, loteHa: lote?.ha || '', sueloInfo: suelolote}
+      : {image: b64, mediaType: mime, loteId: loteSeleccionado, loteCultivo: cultivoConfirmado, loteHa: lote?.ha || '', sueloInfo: suelolote};
     const res = await fetch(SERVER + '/analyze', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
@@ -1110,6 +1112,8 @@ function guardarFeedbackTexto(id) {
 function renderExcel() {
   const total = Object.values(excelData).reduce((s,a)=>s+a.length,0);
   const feedback = historialIA.filter(h=>h.feedback);
+  const sueloGuardados = Object.keys(sueloData);
+
   document.getElementById('s-excel').innerHTML = `
     <div class="card">
       <div class="card-title">Subir historial de plagas (Excel)</div>
@@ -1120,23 +1124,126 @@ function renderExcel() {
       </label>
       ${total ? `<div style="margin-top:10px;font-size:13px;color:var(--verde);font-weight:500">✓ ${total} registros cargados en ${Object.keys(excelData).length} lotes</div>` : ''}
     </div>
+
+    <div class="card" style="border:1px solid #7B1FA2">
+      <div class="card-title" style="color:#6A1B9A">🧪 Análisis de Suelo por Lote</div>
+      <p style="font-size:13px;color:var(--texto2);margin-bottom:12px">
+        Ingresa los resultados de tu análisis de laboratorio. La IA los usará automáticamente al diagnosticar cada lote.
+      </p>
+
+      <div style="margin-bottom:10px">
+        <label class="form-label">Lote</label>
+        <select id="suelo-lote" class="form-input" style="font-size:13px">
+          <option value="general">General (aplica a todos)</option>
+          ${LOTES.map(l=>`<option value="${l.id}" ${sueloData[l.id]?'':''}>${l.nombre} — ${l.cultivo}</option>`).join('')}
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <div>
+          <label class="form-label">pH</label>
+          <input id="suelo-ph" class="form-input" type="number" step="0.1" min="0" max="14" placeholder="Ej: 6.8">
+        </div>
+        <div>
+          <label class="form-label">CE (mS/cm)</label>
+          <input id="suelo-ce" class="form-input" type="number" step="0.01" placeholder="Ej: 1.2">
+        </div>
+        <div>
+          <label class="form-label">Materia orgánica (%)</label>
+          <input id="suelo-mo" class="form-input" type="number" step="0.1" placeholder="Ej: 2.5">
+        </div>
+        <div>
+          <label class="form-label">N disponible (ppm)</label>
+          <input id="suelo-n" class="form-input" type="number" placeholder="Ej: 45">
+        </div>
+        <div>
+          <label class="form-label">P disponible (ppm)</label>
+          <input id="suelo-p" class="form-input" type="number" placeholder="Ej: 22">
+        </div>
+        <div>
+          <label class="form-label">K disponible (ppm)</label>
+          <input id="suelo-k" class="form-input" type="number" placeholder="Ej: 180">
+        </div>
+      </div>
+      <div>
+        <label class="form-label">Textura / observaciones del laboratorio</label>
+        <input id="suelo-obs" class="form-input" placeholder="Ej: Franco arenoso, ligera salinidad" style="font-size:13px">
+      </div>
+      <button onclick="guardarSuelo()" class="btn-primary" style="border-radius:10px;margin-top:12px;background:#7B1FA2">
+        💾 Guardar análisis de suelo
+      </button>
+
+      ${sueloGuardados.length ? `
+      <div style="margin-top:14px;border-top:1px solid var(--borde);padding-top:12px">
+        <div style="font-size:11px;font-weight:700;color:var(--texto2);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Análisis guardados</div>
+        ${sueloGuardados.map(id=>{
+          const d=sueloData[id];
+          const nombre = id==='general'?'General':LOTES.find(l=>l.id===id)?.nombre||id;
+          return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--borde)">
+            <div>
+              <div style="font-size:13px;font-weight:500">${nombre}</div>
+              <div style="font-size:11px;color:var(--texto2)">
+                ${d.ph?'pH '+d.ph:''} ${d.ce?'· CE '+d.ce:''} ${d.mo?'· MO '+d.mo+'%':''}
+              </div>
+            </div>
+            <button onclick="cargarSuelo('${id}')" style="font-size:11px;padding:4px 10px;background:var(--verde-claro);color:var(--verde);border:1px solid var(--verde);border-radius:6px;cursor:pointer">Editar</button>
+          </div>`;
+        }).join('')}
+      </div>` : ''}
+    </div>
+
     <div class="card">
       <div class="card-title">Exportar historial de análisis IA</div>
-      <p style="font-size:13px;color:var(--texto2);margin-bottom:12px">${historialIA.length} análisis guardados — exporta a Excel para tus registros de campo.</p>
+      <p style="font-size:13px;color:var(--texto2);margin-bottom:12px">${historialIA.length} análisis guardados</p>
       <button class="btn-primary" style="border-radius:10px" onclick="exportarHistorial()">📥 Exportar a Excel</button>
     </div>
+
     ${feedback.length ? `<div class="card">
-      <div class="card-title">Diagnósticos con feedback tuyo (${feedback.length})</div>
+      <div class="card-title">Correcciones guardadas (${feedback.length})</div>
       ${feedback.slice(0,10).map(h=>`<div class="plaga-row">
         <div style="flex:1">
-          <div class="plaga-nombre">${h.lote||''} · ${h.cultivo||''}</div>
-          <div style="font-size:11px;color:var(--texto2)">${h.fecha} · ${h.problema||''}</div>
-          ${h.correccion ? `<div style="font-size:12px;color:var(--amarillo);margin-top:2px">Corrección: ${h.correccion}</div>` : ''}
+          <div class="plaga-nombre">${h.lote||''} · ${h.cultivoCorregido||h.cultivo||''}</div>
+          <div style="font-size:11px;color:var(--texto2)">${h.fecha} · ${h.problemaCorregido||h.problema||''}</div>
+          ${h.observacion?`<div style="font-size:12px;color:var(--amarillo);margin-top:2px">${h.observacion}</div>`:''}
         </div>
         <span style="font-size:18px">${h.feedback==='acertado'?'✅':h.feedback==='errado'?'❌':'✏️'}</span>
       </div>`).join('')}
     </div>` : ''}
   `;
+}
+
+function guardarSuelo() {
+  const loteId = document.getElementById('suelo-lote').value;
+  const d = {
+    ph:  document.getElementById('suelo-ph').value,
+    ce:  document.getElementById('suelo-ce').value,
+    mo:  document.getElementById('suelo-mo').value,
+    n:   document.getElementById('suelo-n').value,
+    p:   document.getElementById('suelo-p').value,
+    k:   document.getElementById('suelo-k').value,
+    obs: document.getElementById('suelo-obs').value,
+    fecha: new Date().toLocaleDateString('es-PE')
+  };
+  // Solo guardar campos con valor
+  Object.keys(d).forEach(k=>{ if(!d[k]) delete d[k]; });
+  if(!Object.keys(d).filter(k=>k!=='fecha').length) { alert('Ingresa al menos un valor'); return; }
+  sueloData[loteId] = d;
+  localStorage.setItem('sueloData', JSON.stringify(sueloData));
+  const nombre = loteId==='general'?'todos los lotes':LOTES.find(l=>l.id===loteId)?.nombre||loteId;
+  alert(`✅ Análisis de suelo guardado para ${nombre}`);
+  renderExcel();
+}
+
+function cargarSuelo(loteId) {
+  const d = sueloData[loteId]||{};
+  document.getElementById('suelo-lote').value = loteId;
+  document.getElementById('suelo-ph').value = d.ph||'';
+  document.getElementById('suelo-ce').value = d.ce||'';
+  document.getElementById('suelo-mo').value = d.mo||'';
+  document.getElementById('suelo-n').value  = d.n||'';
+  document.getElementById('suelo-p').value  = d.p||'';
+  document.getElementById('suelo-k').value  = d.k||'';
+  document.getElementById('suelo-obs').value = d.obs||'';
 }
 
 renderIA();
