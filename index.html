@@ -47,7 +47,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .drop-icon{font-size:52px;margin-bottom:12px}
 .drop-title{font-size:17px;font-weight:600;margin-bottom:6px}
 .drop-sub{font-size:13px;color:var(--texto2);line-height:1.5}
-.preview{width:100%;max-height:500px;object-fit:contain;border-radius:12px;margin-bottom:14px;display:block;background:#000}
+.preview{width:100%;max-height:500px;object-fit:cover;border-radius:12px;margin-bottom:14px;display:block}
 .loading{text-align:center;padding:32px;background:white;border-radius:14px;border:1px solid var(--borde);margin-bottom:12px}
 .spinner{width:44px;height:44px;border:3px solid var(--verde-claro);border-top-color:var(--verde);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -90,6 +90,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .error-box{background:var(--rojo-claro);border:1px solid var(--rojo);border-radius:12px;padding:14px;margin-bottom:12px;font-size:13px;color:var(--rojo)}
 .config-box{background:var(--amarillo-claro);border:1px solid #e0c080;border-radius:12px;padding:14px;margin-bottom:14px}
 .config-box p{font-size:13px;color:var(--amarillo);margin-bottom:8px}
+.diag-card{border-radius:12px;padding:14px;margin-bottom:10px;border-width:1px;border-style:solid}
+.diag-card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px}
+.diag-content{font-size:13px;line-height:1.75;color:var(--texto)}
+.diag-content strong{font-weight:600}
+.diag-content em{font-style:italic;color:var(--texto2)}
+.diag-item{padding:3px 0 3px 10px;border-left:3px solid currentColor;margin:4px 0;font-size:13px}
+.diag-paso{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px solid rgba(0,0,0,0.07)}
+.diag-paso:last-child{border-bottom:none}
+.diag-paso-n{background:currentColor;color:white;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px}
+.trat-tab-btn{flex:1;padding:8px 4px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:2px solid;transition:all 0.2s;text-align:center}
+.feedback-bar{display:flex;gap:8px;margin-top:4px;margin-bottom:8px}
+.fb-btn{flex:1;padding:11px 6px;border-radius:10px;border:1.5px solid;font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all 0.2s;background:white}
+.fb-btn:hover{opacity:0.85}
 </style>
 </head>
 <body>
@@ -104,6 +117,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="s-lotes" class="screen"></div>
 <div id="s-alertas" class="screen"></div>
 <div id="s-detalle" class="screen"></div>
+<div id="s-excel" class="screen"></div>
 
 <nav class="nav">
   <button class="navbtn active" onclick="go('ia')">
@@ -117,6 +131,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <button class="navbtn" onclick="go('lotes')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
     Lotes
+  </button>
+  <button class="navbtn" onclick="go('excel')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+    Excel
   </button>
   <button class="navbtn" onclick="go('alertas')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
@@ -180,12 +198,13 @@ function go(name) {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));
   document.getElementById('s-'+name).classList.add('active');
-  const idx = ['ia','dashboard','lotes','alertas'].indexOf(name);
+  const idx = ['ia','dashboard','lotes','excel','alertas'].indexOf(name);
   if(idx>=0) document.querySelectorAll('.navbtn')[idx].classList.add('active');
   if(name==='ia') renderIA();
   if(name==='dashboard') renderDashboard();
   if(name==='lotes') renderLotes();
   if(name==='alertas') renderAlertas();
+  if(name==='excel') renderExcel();
 }
 
 function getEstado(loteId) {
@@ -212,12 +231,12 @@ function renderIA() {
         ✓ ${LOTES.find(l=>l.id===loteSeleccionado)?.cultivo} — Plagas frecuentes: ${LOTES.find(l=>l.id===loteSeleccionado)?.plagas.slice(0,3).join(', ')}
       </div>` : ''}
     </div>
-    <div class="drop-area" id="drop-area" ondragover="ev(event,'drag')" ondragleave="ev(event,'')" ondrop="drop(event)">
-      <input type="file" id="file-input" accept="image/*,video/*" onchange="handleFile(this.files[0])">
+    <input type="file" id="file-input" accept="image/*,video/*" style="display:none" onchange="handleFile(this.files[0])">
+    <label for="file-input" class="drop-area" id="drop-area" ondragover="ev(event,'drag')" ondragleave="ev(event,'')" ondrop="drop(event)">
       <div class="drop-icon">📷</div>
-      <div class="drop-title">Arrastra foto o video aquí</div>
-      <div class="drop-sub">O toca para abrir galería / cámara<br>Funciona con fotos de WhatsApp<br><small style="color:var(--verde);font-weight:500">✓ plant.id · crop.health · insect.id · Claude Vision</small></div>
-    </div>
+      <div class="drop-title">Toca aquí para subir foto</div>
+      <div class="drop-sub">Galería, cámara o fotos de WhatsApp<br><small style="color:var(--verde);font-weight:500">✓ plant.id · crop.health · insect.id · Claude Vision</small></div>
+    </label>
     <div id="ia-resultado"></div>
     ${historialIA.length?`<div class="card">
       <div class="card-title">Historial de análisis (${historialIA.length})</div>
@@ -369,15 +388,13 @@ function handleVideo(file) {
 }
 
 function showPreview(src) {
+  // Reemplazar el label con un div simple para que no re-abra el picker
   const da = document.getElementById('drop-area');
-  da.removeAttribute('onclick');
-  da.removeAttribute('ondragover');
-  da.removeAttribute('ondragleave');
-  da.removeAttribute('ondrop');
-  da.style.padding = '0';
-  da.style.border = 'none';
-  da.style.cursor = 'default';
-  da.innerHTML = `<img src="${src}" class="preview" style="margin:0;border-radius:10px">`;
+  const div = document.createElement('div');
+  div.id = 'drop-area';
+  div.style.cssText = 'padding:0;border:none;background:transparent';
+  div.innerHTML = `<img src="${src}" class="preview" style="margin:0;border-radius:10px">`;
+  da.replaceWith(div);
 }
 
 function showPreviewAdicional(src, n) {
@@ -426,8 +443,8 @@ async function analizar(b64, mime, cultivoManual) {
     const tid = setTimeout(()=>ctrl.abort(), 120000); // 2 min timeout
     // Usar array de imágenes si hay más de una
     const bodyPayload = _imagenesEnvio.length > 1
-      ? {images: _imagenesEnvio, loteId: loteSeleccionado, loteCultivo: cultivoConfirmado}
-      : {image: b64, mediaType: mime, loteId: loteSeleccionado, loteCultivo: cultivoConfirmado};
+      ? {images: _imagenesEnvio, loteId: loteSeleccionado, loteCultivo: cultivoConfirmado, loteHa: lote?.ha || ''}
+      : {image: b64, mediaType: mime, loteId: loteSeleccionado, loteCultivo: cultivoConfirmado, loteHa: lote?.ha || ''};
     const res = await fetch(SERVER + '/analyze', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
@@ -468,11 +485,12 @@ async function analizar(b64, mime, cultivoManual) {
     if(historialIA.length>200) historialIA.pop();
     localStorage.setItem('historialIA', JSON.stringify(historialIA));
 
+    const entradaId = entrada.id;
     document.getElementById('ia-resultado').innerHTML = `
       <div class="resultado">
         <div class="resultado-header">
           <div style="flex:1">
-            ${lote?`<div style="font-size:11px;color:var(--verde);font-weight:600;margin-bottom:2px">${lote.nombre} · ${lote.cultivo} · ${lote.ha} há</div>`:''}
+            ${lote?`<div style="font-size:11px;color:var(--verde);font-weight:600;margin-bottom:2px">${lote.nombre} · ${lote.cultivo} · ${lote.ha} has</div>`:''}
             <div style="font-size:15px;font-weight:600">${cultivo}</div>
             <div style="font-size:12px;color:var(--texto2)">${problema}</div>
           </div>
@@ -486,24 +504,34 @@ async function analizar(b64, mime, cultivoManual) {
             <div class="plaga-pct">${e.prob}%</div>
           </div>`).join('')}
         </div>` : ''}
-        <div class="resultado-body">
-          <div class="res-texto">${texto}</div>
+        <div class="resultado-body" style="padding:12px 14px">
+          ${parsearResultado(texto)}
         </div>
       </div>
       ${data.recomendacionFoto && !data.recomendacionFoto.toLowerCase().includes('no es necesaria') && !data.recomendacionFoto.toLowerCase().includes('diagnóstico claro') ? `
-      <div style="background:var(--amarillo-claro);border:1px solid var(--amarillo);border-radius:10px;padding:10px 14px;margin-bottom:8px">
-        <div style="font-size:11px;font-weight:600;color:var(--amarillo);margin-bottom:4px">📷 FOTO RECOMENDADA PARA MEJOR DIAGNÓSTICO</div>
-        <div style="font-size:12px;color:var(--texto)">${data.recomendacionFoto}</div>
-        <label style="display:inline-block;margin-top:8px;padding:7px 14px;background:var(--verde);color:white;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+      <div style="background:var(--amarillo-claro);border:1px solid var(--amarillo);border-radius:12px;padding:12px 14px;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--amarillo);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px">📷 Foto recomendada para mejor diagnóstico</div>
+        <div style="font-size:13px;color:var(--texto)">${data.recomendacionFoto}</div>
+        <label style="display:inline-block;margin-top:10px;padding:8px 16px;background:var(--verde);color:white;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
           ➕ Agregar esa foto
           <input type="file" accept="image/*" style="display:none" onchange="handleFile(this.files[0], true)">
         </label>
       </div>` : `
-      <div style="background:var(--verde-claro);border:1px solid var(--verde);border-radius:10px;padding:8px 14px;margin-bottom:8px;font-size:12px;color:var(--verde)">
+      <div style="background:var(--verde-claro);border:1px solid var(--verde);border-radius:10px;padding:8px 14px;margin-bottom:10px;font-size:12px;color:var(--verde);font-weight:500">
         ✓ ${data.recomendacionFoto || 'Foto suficiente para el diagnóstico'}
       </div>`}
-      <button class="btn-secondary" style="border-radius:10px;margin-bottom:8px" onclick="_imagenesEnvio=[];document.getElementById('fotos-adicionales')?.remove();renderIA()">📷 Analizar otra foto</button>
-      <button class="btn-secondary" style="border-radius:10px;margin-bottom:8px;font-size:12px" onclick="exportarHistorial()">📥 Exportar historial a Excel</button>
+      <div style="background:white;border:1px solid var(--borde);border-radius:12px;padding:12px 14px;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--texto2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">¿El diagnóstico fue correcto?</div>
+        <div class="feedback-bar">
+          <button class="fb-btn" style="border-color:var(--verde);color:var(--verde)" onclick="guardarFeedback(${entradaId},'acertado',this)">✅ Acertado</button>
+          <button class="fb-btn" style="border-color:var(--amarillo);color:var(--amarillo)" onclick="guardarFeedback(${entradaId},'editar',this)">✏️ Editar</button>
+          <button class="fb-btn" style="border-color:var(--rojo);color:var(--rojo)" onclick="guardarFeedback(${entradaId},'errado',this)">❌ Errado</button>
+        </div>
+        <div id="fb-edit-${entradaId}" style="display:none;margin-top:8px">
+          <input id="fb-texto-${entradaId}" class="form-input" placeholder="¿Cuál era el problema real?" style="font-size:13px;margin-bottom:8px">
+          <button onclick="guardarFeedbackTexto(${entradaId})" style="padding:8px 16px;background:var(--verde);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Guardar corrección</button>
+        </div>
+      </div>
       ${!loteSeleccionado && data.cultivoConfianza < 0.7 ? `
       <div class="card" style="border:1px solid var(--amarillo);background:var(--amarillo-claro)">
         <div style="font-size:12px;font-weight:600;color:var(--amarillo);margin-bottom:10px">
@@ -518,6 +546,8 @@ async function analizar(b64, mime, cultivoManual) {
             ${c.icono} ${c.label}</button>`).join('')}
         </div>
       </div>` : ''}
+      <button class="btn-secondary" style="border-radius:10px;margin-bottom:8px" onclick="_imagenesEnvio=[];document.getElementById('fotos-adicionales')?.remove();renderIA()">📷 Analizar otra foto</button>
+      <button class="btn-secondary" style="border-radius:10px;margin-bottom:8px;font-size:12px" onclick="exportarHistorial()">📥 Exportar historial a Excel</button>
     `;
   } catch(err) {
     document.getElementById('ia-resultado').innerHTML = `
@@ -834,6 +864,176 @@ function renderAlertas() {
 }
 
 function marcarRiego(id){ localStorage.setItem('riego_'+id,new Date().toISOString()); renderAlertas(); }
+
+// ── PARSEO VISUAL DEL DIAGNÓSTICO ─────────────────────────────────────────
+function formatearTexto(t) {
+  return (t||'')
+    .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*([^*\n]+)\*/g, '<em>$1</em>')
+    .replace(/^---+\s*$/gm, '')
+    .replace(/^• (.+)$/gm, '<div class="diag-item" style="color:var(--verde)">• $1</div>')
+    .replace(/^- (.+)$/gm, '<div class="diag-item" style="color:var(--texto2)">– $1</div>')
+    .replace(/^(Paso \d+):\s*(.+)$/gm, (_,n,txt)=>`<div class="diag-paso"><div class="diag-paso-n" style="color:var(--verde)">${n.replace('Paso ','')}</div><div style="flex:1;font-size:13px">${txt}</div></div>`)
+    .replace(/\n\n+/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+}
+
+function parsearResultado(texto) {
+  const defs = {
+    '🌿':{ bg:'var(--verde-claro)', bd:'var(--verde)', tc:'var(--verde)' },
+    '🔍':{ bg:'#E3F2FD', bd:'#1565C0', tc:'#1565C0' },
+    '📍':{ bg:'var(--gris)', bd:'var(--borde)', tc:'var(--texto2)' },
+    '🚨':{ bg:'var(--rojo-claro)', bd:'var(--rojo)', tc:'var(--rojo)' },
+    '📊':{ bg:'var(--amarillo-claro)', bd:'var(--amarillo)', tc:'var(--amarillo)' },
+    '🌱':{ bg:'#E8F5E9', bd:'#388E3C', tc:'#2E7D32' },
+    '🧬':{ bg:'#EDE7F6', bd:'#7B1FA2', tc:'#6A1B9A' },
+    '💊':{ bg:'#FFF8E1', bd:'#F57F17', tc:'#E65100' },
+    '⏰':{ bg:'#ECEFF1', bd:'#607D8B', tc:'#455A64' },
+    '🛡️':{ bg:'var(--verde-claro)', bd:'var(--verde-med)', tc:'var(--verde)' },
+    '🔎':{ bg:'#FFF3E0', bd:'#BF360C', tc:'#BF360C' },
+    '⚡':{ bg:'var(--rojo-claro)', bd:'var(--rojo)', tc:'var(--rojo)' },
+  };
+  const emojis = Object.keys(defs);
+
+  const lineas = texto.split('\n');
+  const secciones = [];
+  let cur = null;
+
+  for (const ln of lineas) {
+    const trim = ln.trim();
+    const found = emojis.find(e => trim.startsWith(e));
+    if (found) {
+      if (cur) secciones.push(cur);
+      cur = { emoji: found, header: trim, def: defs[found], body: [] };
+    } else if (cur && trim !== '---') {
+      cur.body.push(ln);
+    }
+  }
+  if (cur) secciones.push(cur);
+
+  let html = '';
+  for (const s of secciones) {
+    if (s.emoji === '📷') continue; // se muestra fuera
+    const { bg, bd, tc } = s.def;
+    if (s.emoji === '💊') {
+      html += renderTratamiento(s.header, s.body.join('\n'), bg, bd, tc);
+    } else {
+      const contenido = formatearTexto(s.body.join('\n')).trim();
+      html += `<div class="diag-card" style="background:${bg};border-color:${bd}">
+        <div class="diag-card-title" style="color:${tc}">${s.header}</div>
+        ${contenido ? `<div class="diag-content">${contenido}</div>` : ''}
+      </div>`;
+    }
+  }
+  return html || `<div class="diag-content" style="white-space:pre-line">${texto}</div>`;
+}
+
+function renderTratamiento(header, body, bg, bd, tc) {
+  const opt1 = body.match(/🌿 OPCI[ÓO]N[\s\S]*?ORGÁNICA[^\n]*([\s\S]*?)(?=⚖️ OPCI|🧪 OPCI|$)/i);
+  const opt2 = body.match(/⚖️ OPCI[ÓO]N[\s\S]*?BALANCEADA[^\n]*([\s\S]*?)(?=🧪 OPCI|$)/i);
+  const opt3 = body.match(/🧪 OPCI[ÓO]N[\s\S]*?QU[ÍI]MICA[^\n]*([\s\S]*?)$/i);
+
+  const opts = [
+    { label:'🌿 Orgánica', texto: opt1?.[1]||'', bc:'#3B6D11', bg2:'#EAF3DE' },
+    { label:'⚖️ Balanceada', texto: opt2?.[1]||'', bc:'#854F0B', bg2:'#FAEEDA' },
+    { label:'🧪 Química', texto: opt3?.[1]||'', bc:'#A32D2D', bg2:'#FCEBEB' },
+  ].filter(o => o.texto.trim());
+
+  if (!opts.length) {
+    return `<div class="diag-card" style="background:${bg};border-color:${bd}">
+      <div class="diag-card-title" style="color:${tc}">${header}</div>
+      <div class="diag-content">${formatearTexto(body)}</div>
+    </div>`;
+  }
+
+  const tid = 'trat' + Date.now();
+  return `<div class="diag-card" style="background:${bg};border-color:${bd}">
+    <div class="diag-card-title" style="color:${tc}">${header}</div>
+    <div style="display:flex;gap:6px;margin-bottom:12px">
+      ${opts.map((o,i)=>`<button class="trat-tab-btn" id="${tid}-t${i}"
+        style="border-color:${o.bc};background:${i===0?o.bc:'white'};color:${i===0?'white':o.bc}"
+        onclick="selTab('${tid}',${i},${JSON.stringify(opts.map(x=>x.bc))},${JSON.stringify(opts.map(x=>x.bg2))})">${o.label}</button>`).join('')}
+    </div>
+    ${opts.map((o,i)=>`<div id="${tid}-c${i}" style="display:${i===0?'block':'none'};background:white;border:1px solid ${o.bc}40;border-radius:10px;padding:12px">
+      <div class="diag-content">${formatearTextoProducto(o.texto)}</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function formatearTextoProducto(t) {
+  return (t||'')
+    .replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>')
+    .replace(/^(Producto|Eficacia|Dosis por 2000|Precio|Costo total|Opinión IA):\s*(.+)$/gm,
+      (_,k,v)=>`<div style="display:flex;gap:8px;padding:4px 0;border-bottom:1px solid #f0f0ec;font-size:13px">
+        <span style="font-weight:600;min-width:90px;color:var(--texto2);flex-shrink:0">${k}</span>
+        <span>${v}</span></div>`)
+    .replace(/\n+/g,'');
+}
+
+function selTab(tid, idx, colors, bgs) {
+  colors.forEach((_,i)=>{
+    const t = document.getElementById(`${tid}-t${i}`);
+    const c = document.getElementById(`${tid}-c${i}`);
+    if (t) { t.style.background = i===idx ? colors[i] : 'white'; t.style.color = i===idx ? 'white' : colors[i]; }
+    if (c) c.style.display = i===idx ? 'block' : 'none';
+  });
+}
+
+// ── FEEDBACK DE DIAGNÓSTICO ───────────────────────────────────────────────
+function guardarFeedback(id, tipo, btn) {
+  if (tipo === 'editar') {
+    const ed = document.getElementById('fb-edit-'+id);
+    if (ed) ed.style.display = ed.style.display==='none' ? 'block' : 'none';
+    return;
+  }
+  const idx = historialIA.findIndex(h=>h.id===id);
+  if (idx>=0) { historialIA[idx].feedback = tipo; localStorage.setItem('historialIA',JSON.stringify(historialIA)); }
+  btn.closest('.feedback-bar').innerHTML = tipo==='acertado'
+    ? '<div style="color:var(--verde);font-weight:600;font-size:13px">✅ Diagnóstico confirmado — gracias</div>'
+    : '<div style="color:var(--rojo);font-weight:600;font-size:13px">❌ Marcado como errado — se tomará en cuenta</div>';
+}
+
+function guardarFeedbackTexto(id) {
+  const txt = document.getElementById('fb-texto-'+id)?.value;
+  if (!txt) return;
+  const idx = historialIA.findIndex(h=>h.id===id);
+  if (idx>=0) { historialIA[idx].feedback='editado'; historialIA[idx].correccion=txt; localStorage.setItem('historialIA',JSON.stringify(historialIA)); }
+  document.getElementById('fb-edit-'+id).innerHTML = '<div style="color:var(--amarillo);font-weight:600;font-size:13px">✏️ Corrección guardada — gracias</div>';
+}
+
+// ── PANTALLA EXCEL ────────────────────────────────────────────────────────
+function renderExcel() {
+  const total = Object.values(excelData).reduce((s,a)=>s+a.length,0);
+  const feedback = historialIA.filter(h=>h.feedback);
+  document.getElementById('s-excel').innerHTML = `
+    <div class="card">
+      <div class="card-title">Subir historial de plagas (Excel)</div>
+      <p style="font-size:13px;color:var(--texto2);margin-bottom:12px">Importa tu Excel de evaluaciones fitosanitarias. Cada hoja debe llamarse LOTE1, LOTE7, etc.</p>
+      <label class="import-btn">
+        <input type="file" accept=".xlsx,.xls" onchange="importExcel(this)">
+        📊 Seleccionar archivo Excel
+      </label>
+      ${total ? `<div style="margin-top:10px;font-size:13px;color:var(--verde);font-weight:500">✓ ${total} registros cargados en ${Object.keys(excelData).length} lotes</div>` : ''}
+    </div>
+    <div class="card">
+      <div class="card-title">Exportar historial de análisis IA</div>
+      <p style="font-size:13px;color:var(--texto2);margin-bottom:12px">${historialIA.length} análisis guardados — exporta a Excel para tus registros de campo.</p>
+      <button class="btn-primary" style="border-radius:10px" onclick="exportarHistorial()">📥 Exportar a Excel</button>
+    </div>
+    ${feedback.length ? `<div class="card">
+      <div class="card-title">Diagnósticos con feedback tuyo (${feedback.length})</div>
+      ${feedback.slice(0,10).map(h=>`<div class="plaga-row">
+        <div style="flex:1">
+          <div class="plaga-nombre">${h.lote||''} · ${h.cultivo||''}</div>
+          <div style="font-size:11px;color:var(--texto2)">${h.fecha} · ${h.problema||''}</div>
+          ${h.correccion ? `<div style="font-size:12px;color:var(--amarillo);margin-top:2px">Corrección: ${h.correccion}</div>` : ''}
+        </div>
+        <span style="font-size:18px">${h.feedback==='acertado'?'✅':h.feedback==='errado'?'❌':'✏️'}</span>
+      </div>`).join('')}
+    </div>` : ''}
+  `;
+}
+
 renderIA();
 </script>
 </body>

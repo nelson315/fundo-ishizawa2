@@ -105,7 +105,7 @@ function identificarCultivo(nombre) {
 
 app.post('/analyze', async (req, res) => {
   try {
-    const { image, mediaType, images: imagesArr, loteId: _li, loteCultivo: _lc } = req.body;
+    const { image, mediaType, images: imagesArr, loteId: _li, loteCultivo: _lc, loteHa: _lha } = req.body;
     // Soporte multi-foto: array de {data, mediaType} O foto única legacy
     const images = (imagesArr && imagesArr.length)
       ? imagesArr
@@ -308,6 +308,7 @@ ${alertas.join('\n')}`;
     // Si el usuario seleccionó el lote, ese cultivo es DEFINITIVO — no adivinar
     const loteId = req.body.loteId || _li;
     const loteCultivo = req.body.loteCultivo || _lc;
+    const loteHa = req.body.loteHa || _lha || null;
     const cultivoConfirmado = loteCultivo || null;
     const cultivoNombre = cultivoConfirmado || identificarCultivo(cultivoRaw) || 'Cultivo del Fundo Ishizawa';
     const fenologia = estadoFenologico(cultivoConfirmado || cultivoRaw);
@@ -401,31 +402,56 @@ Analiza la imagen con VISIÓN EXPERTA y responde EXACTAMENTE en este formato (em
 🧬 ANÁLISIS NUTRICIONAL VISUAL:
 [Evalúa el estado nutricional observando: color de hojas (verde oscuro=N ok, amarillo=N defic, verde pálido=Mg/Fe defic), necrosis de bordes (K/Ca defic), manchas internervales (Mg defic), hojas pequeñas (Zn/B defic). Indica deficiencias o excesos con valores de referencia en palto: N 1.8-2.5%, P 0.1-0.3%, K 0.75-2%, Ca 1-2%, Mg 0.3-0.8%, Fe 60-200ppm, Zn 30-100ppm, B 20-60ppm, Mn 50-200ppm. Si la nutrición parece normal, dilo claramente.]
 
-💊 TRATAMIENTO PARA FUNDO COMERCIAL (cientos de árboles):
-Paso 1: [acción inmediata]
-Paso 2: [producto principal + dosis exacta ml/L o g/L]
-Paso 3: [volumen caldo: paltos 800-1200 L/ha, cítricos 600-800 L/ha, uvas 400-600 L/ha]
-[Poda sanitaria: desinfectar tijeras en lejía 5% entre árbol y árbol]
+📊 NIVEL DE INFESTACIÓN (basado en la foto):
+Estimado visual: [X]% del tejido visible afectado (si no es determinable por tamaño de plaga, indicar: "no cuantificable sin zoom extremo — ver recomendación de foto")
+• Si infestación menor a 10%: [acción ligera — monitorear, aplicar solo si avanza]
+• Si infestación entre 10-30%: [acción moderada — iniciar tratamiento esta semana]
+• Si infestación mayor a 30%: [acción urgente — tratar de inmediato, puede afectar producción]
 
-🧪 PRODUCTOS DISPONIBLES EN PERÚ:
-- [Nombre comercial] — [ingrediente activo] — [dosis] — S/[precio]/litro o kg
-- [Alternativa 1] — [dosis]
-- [Alternativa 2] — [dosis]
+⚠️ ADVERTENCIA DE FOTO: Si la plaga es de tamaño pequeño (ácaros, huevos, trips, ninfas) y la foto no tiene suficiente zoom para verlas claramente, NO inventes ni forces un diagnóstico de plaga pequeña. Indica claramente: "Para confirmar presencia de [plaga] en estado [huevo/ninfa] se necesita foto con zoom extremo o lupa. Con mejor resolución podría determinarse el estado exacto de la plaga."
 
-🛒 INSUMOS PARA 1 HECTÁREA:
-[lista con cantidades exactas y costo total estimado en soles]
+💊 TRATAMIENTO — ${loteId ? 'Lote ' + loteId : 'Lote'} ${loteHa ? '(' + loteHa + ' has)' : ''} — Bomba Jacto 2000 L:
+
+🌿 OPCIÓN 1 — ORGÁNICA:
+Producto: [nombre comercial] ([ingrediente activo])
+Eficacia: [X]% contra [problema] — [mecanismo en 3 palabras]
+Dosis por 2000 L (Jacto): [X] kg o L total
+Precio referencial: S/[XX] por kg o L
+Costo total aplicación: S/[XX]
+Opinión IA: [ventaja principal y cuándo usar — 1 oración]
+
+⚖️ OPCIÓN 2 — BALANCEADA:
+Producto: [nombre comercial] ([ingrediente activo])
+Eficacia: [X]% contra [problema] — [mecanismo en 3 palabras]
+Dosis por 2000 L (Jacto): [X] kg o L total
+Precio referencial: S/[XX] por kg o L
+Costo total aplicación: S/[XX]
+Opinión IA: [ventaja principal y cuándo usar — 1 oración]
+
+🧪 OPCIÓN 3 — QUÍMICA:
+Producto: [nombre comercial] ([ingrediente activo])
+Eficacia: [X]% contra [problema] — [mecanismo en 3 palabras]
+Dosis por 2000 L (Jacto): [X] kg o L total
+Precio referencial: S/[XX] por kg o L
+Costo total aplicación: S/[XX]
+Opinión IA: [cuándo usar — indicar si hay riesgo de resistencia o fitotoxicidad — 1 oración]
 
 ⏰ MOMENTO DE APLICACIÓN:
-[hora del día, temperatura máxima, humedad relativa ideal, frecuencia, días antes/después de lluvia]
+[hora del día, temperatura ideal, humedad ideal, frecuencia, período de carencia]
 
 🛡️ PREVENCIÓN PRÓXIMAS 4 SEMANAS:
 • [medida 1 específica para este cultivo y problema]
 • [medida 2]
 • [medida 3]
 
-⚡ URGENCIA: [Crítica — actuar HOY / Alta — 3 días / Moderada — 7 días / Baja — puede esperar] — [razón concreta]
+🔎 DIAGNÓSTICO DIFERENCIAL:
+Diagnóstico principal: [X] — certeza [alta/media/baja]
+Podría también ser: [alternativa] si [síntoma diferenciador clave]
+Para confirmar en campo: [acción práctica específica: lupa en envés / buscar tela fina / revisar brotes / etc.]
 
-📷 RECOMENDACIÓN DE FOTO: [En 1 línea: ¿la foto es suficiente para diagnóstico certero? Si no, qué foto adicional ayudaría: "foto del envés de la hoja" / "primer plano del insecto" / "foto de la planta completa" / "foto más nítida" / "foto del tallo" / "NO es necesaria foto adicional — diagnóstico claro". Si hay varias fotos, evalúa si juntas son suficientes.]`;
+⚡ URGENCIA: [Crítica — programar esta semana / Alta — próxima aplicación / Moderada — monitorear / Baja — preventivo] — [razón concreta]
+
+📷 RECOMENDACIÓN DE FOTO: [En 1 línea: ¿la foto es suficiente para diagnóstico certero? Si no, qué foto adicional ayudaría: "foto del envés con zoom extremo — se podría ver estado de la plaga (huevo/ninfa/adulto)" / "primer plano del insecto con lupa" / "foto de la planta completa" / "foto más nítida" / "NO es necesaria foto adicional — diagnóstico claro". Si hay varias fotos, evalúa si juntas son suficientes.]`;
 
         // Construir contenido multi-imagen para Claude
         const claudeContent = [];
@@ -440,7 +466,7 @@ Paso 3: [volumen caldo: paltos 800-1200 L/ha, cítricos 600-800 L/ha, uvas 400-6
           headers:{'x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01','content-type':'application/json'},
           body:JSON.stringify({
             model:'claude-haiku-4-5-20251001',
-            max_tokens:1600,
+            max_tokens:2800,
             messages:[{role:'user', content: claudeContent}]
           })
         });
