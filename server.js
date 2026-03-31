@@ -418,6 +418,14 @@ DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS NARANJAS/ROJIZAS CON BORDES DEFINI
 • Diferencia clave: frotar el envés con papel blanco → si quedan puntitos rojos = arañita; si no hay nada = nutricional/fúngico.
 • Si la foto muestra manchas con bordes definidos en palta y la APIs dice arañita roja, evalúa con criterio propio — las APIs de detección de plagas son malas detectando deficiencias nutricionales.
 
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS AMARILLAS ENTRE NERVADURAS EN PALTA:
+• Si ves MANCHAS AMARILLAS O AMARILLO-VERDOSAS BRILLANTES entre las nervaduras, con las nervaduras manteniéndose verdes → PRIMERA SOSPECHA: DEFICIENCIA DE MAGNESIO (Mg). NO arañita roja.
+• Deficiencia de Mg en palta: clorosis interveinal en hojas maduras/intermedias, las nervaduras permanecen verdes, el tejido entre ellas se torna amarillo brillante, sin puntitos ni telas.
+• Deficiencia de Fe: similar pero aparece en hojas JÓVENES/nuevas (brotes), clorosis más uniforme y pálida.
+• Deficiencia de Zn: manchas amarillas irregulares + hojas pequeñas y deformadas.
+• Arañita roja: NUNCA produce manchas amarillas intervenales — produce bronceado difuso con puntitos diminutos y tela en envés.
+• Si las APIs dicen arañita y la foto muestra clorosis interveinal → ignorar el resultado de las APIs, diagnosticar deficiencia nutricional.
+
 DIAGNÓSTICO DIFERENCIAL CRÍTICO — POLVO BLANCO/GRISÁCEO EN HOJAS O TALLOS:
 • Si ves POLVO BLANCO o CENICIENTO en hojas/tallos/brotes → es OIDIO (Erysiphe/Oidium sp.), NO arañita
 • Oidio en lúcuma: recubrimiento pulverulento blanco-grisáceo, especialmente en haz y tallos tiernos — MUY COMÚN en Lote 7
