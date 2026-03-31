@@ -503,6 +503,23 @@ DIAGNÓSTICO DIFERENCIAL CRÍTICO — AMPOLLAS O ABULTAMIENTOS AMARILLO-VERDES E
 • Arañita roja en vid: produce bronceado/plateado difuso en toda la hoja, NUNCA ampollas abultadas.
 • Control ambos: Azufre mojable (Thiovit) 3 g/L o Abamectina 0.5 ml/L al inicio de brotación. Repetir a los 14 días. Para acariosis severa en brotes: Hexitiazox 0.5 ml/L.
 
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — HOJAS ENROLLADAS CON SEDA O PARCHE MARRÓN EN FRUTO CON TELARAÑA (ARGYROTAENIA):
+• Si ves en palta BROTES CON HOJAS PEGADAS/ENROLLADAS CON HILOS DE SEDA BLANCOS y hojas nuevas de color rojizo/marrón distorsionadas → es ARGYROTAENIA sp. (polilla enrolladora). La larva vive dentro del enrollado y come el tejido tierno.
+• En FRUTOS: PARCHE MARRÓN OSCURO IRREGULAR en la piel del fruto, con HILOS DE SEDA BLANCOS visibles sobre o alrededor del parche necrótico → también es Argyrotaenia. La larva raspa la superficie del fruto dejando tejido muerto.
+• En FLORES: racimos florales con seda y flores pegadas entre sí, flores dañadas y caídas.
+• No confundir: Botrytis = flores negras sin seda; Trips = russeting difuso sin seda; Lasiodiplodia = cancro en rama con goma, no en fruto verde.
+• Señal clave en todos los casos: HILOS DE SEDA BLANCOS visibles + tejido dañado = Argyrotaenia.
+• Control: Clorpirifos 1.5 ml/L o Spinosad 0.3 ml/L o Bacillus thuringiensis 2 g/L. Aplicar al inicio de brotación y en cuajado. Mojar bien brotes y frutos pequeños.
+
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — PUNTITOS BLANCOS EN FRUTOS PEQUEÑOS DE PALTA + CAÍDA DE FRUTOS (CHINCHE DEL PALTO):
+• Si ves en frutos pequeños de palta (0.5-3cm) PUNTITOS O MANCHAS BLANCAS/CEROSAS dispersas en la piel, frutos que caen prematuramente sin razón aparente, o flores con pequeñas manchas blancas → es DAGBERTUS MINENSIS (chinche del palto / mirídeo).
+• Dagbertus minensis es un insecto chupador pequeño (5-7mm), verde/marrón, difícil de ver. Inyecta saliva tóxica al fruto pequeño causando puntos blancos y caída prematura.
+• Daño principal: caída masiva de frutos pequeños durante cuajado. Puede provocar pérdidas de producción del 30-60% si no se controla.
+• No confundir: Botrytis = flores negras secas; Trips = russeting marrón suberizado; Argyrotaenia = seda visible.
+• EN BROTES: hojas jóvenes con múltiples PUNTITOS NECRÓTICOS MARRONES dispersos, hojas deformadas/distorsionadas con manchas amarillo-marrón irregulares por las picaduras. Brotes con aspecto quemado/sucio.
+• Señal clave: frutos pequeños cayendo + puntos blancos cerosos en piel = Dagbertus en fruto. Brotes con puntitos marrones dispersos en hojas nuevas = Dagbertus en brote.
+• Control: Imidacloprid 0.3 ml/L o Clorpirifos 1.5 ml/L o Thiamethoxam 0.2 g/L. Aplicar al inicio del cuajado y en brotación. Repetir cada 10 días. Aplicar al atardecer (insecto activo de noche).
+
 DIAGNÓSTICO DIFERENCIAL CRÍTICO — BOLSAS/CESTOS COLGANTES EN RAMAS DE PALTA:
 • Si ves en ramas de palta BOLSAS O CESTOS CONSTRUIDOS CON TROZOS DE HOJAS, PALITOS Y SEDA, colgando de las ramas → es BICHO DEL CESTO (Oiketicus kirbyi / canastillo). La larva vive dentro del cesto y come las hojas circundantes.
 • El cesto es inconfundible: estructura alargada (3-8cm) forrada de fragmentos vegetales pegados con seda, cuelga inmóvil de las ramas. Dentro hay una oruga.
