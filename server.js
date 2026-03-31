@@ -189,6 +189,7 @@ app.post('/analyze', async (req, res) => {
     let inatObsInfo = '';
     let agrioInfo = '';
     let roboflowInfo = '';
+    let openaiInfo = '';
     let analisisNutricional = '';
 
     // --- Clima actual (Open-Meteo - gratis, sin API key) ---
@@ -472,7 +473,6 @@ Sé preciso y directo. Si no hay problema, dilo claramente.`}
     }
 
     // --- GPT-4 Vision (OpenAI) — tercer testigo IA ---
-    let openaiInfo = '';
     if(OPENAI_KEY) {
       try {
         const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {
