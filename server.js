@@ -503,6 +503,19 @@ DIAGNÓSTICO DIFERENCIAL CRÍTICO — AMPOLLAS O ABULTAMIENTOS AMARILLO-VERDES E
 • Arañita roja en vid: produce bronceado/plateado difuso en toda la hoja, NUNCA ampollas abultadas.
 • Control ambos: Azufre mojable (Thiovit) 3 g/L o Abamectina 0.5 ml/L al inicio de brotación. Repetir a los 14 días. Para acariosis severa en brotes: Hexitiazox 0.5 ml/L.
 
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — BOLSAS/CESTOS COLGANTES EN RAMAS DE PALTA:
+• Si ves en ramas de palta BOLSAS O CESTOS CONSTRUIDOS CON TROZOS DE HOJAS, PALITOS Y SEDA, colgando de las ramas → es BICHO DEL CESTO (Oiketicus kirbyi / canastillo). La larva vive dentro del cesto y come las hojas circundantes.
+• El cesto es inconfundible: estructura alargada (3-8cm) forrada de fragmentos vegetales pegados con seda, cuelga inmóvil de las ramas. Dentro hay una oruga.
+• Daño: defoliación severa si hay muchos cestos. Una sola larva consume bastante follaje.
+• Control: recolección manual de cestos (destruir). Si infestación alta: Clorpirifos 1.5 ml/L o Bacillus thuringiensis (Dipel) 1-2 g/L en estado larval temprano.
+
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — ARAÑITA MARRÓN EN PALTA (diferente a arañita roja):
+• En palta, la araña más común NO es Tetranychus urticae (arañita roja) sino OLIGONYCHUS PUNICAE (arañita marrón de la palta).
+• Oligonychus punicae: vive en el HAZ de las hojas (no en el envés), produce bronceado marrón-rojizo con puntitos oscuros en el haz, sin telas visibles. Color más marrón-oscuro que la arañita roja.
+• Tetranychus urticae (arañita roja): vive en el ENVÉS, produce puntitos amarillos/plateados + telas finas en envés.
+• En palta: si hay bronceado marrón en el HAZ sin telas → sospechar Oligonychus punicae primero.
+• Control ambas: Abamectina 0.5 ml/L + Aceite agrícola 5 ml/L. Mojar bien el haz (para Oligonychus) y el envés (para Tetranychus).
+
 REGLA CRÍTICA GLOBAL — PROHIBICIÓN DE ARAÑITA ROJA POR DEFECTO:
 • NUNCA diagnosticar arañita roja si la foto muestra: manchas definidas con bordes, ampollas/abultamientos, galerías serpenteantes, manchas intervenales, necrosis en puntas/bordes, costra uniforme, o perforaciones.
 • Arañita roja SOLO se diagnostica si se ve: bronceado difuso uniforme con puntitos finos en toda la hoja, y/o telas finas en el envés.
