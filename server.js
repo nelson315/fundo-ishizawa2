@@ -495,11 +495,13 @@ REGLA GENERAL DEFICIENCIAS vs PLAGAS EN PALTA:
 • Si las APIs dicen arañita/plaga pero el patrón es de los descritos arriba → ignorar APIs, diagnosticar deficiencia
 
 DIAGNÓSTICO DIFERENCIAL CRÍTICO — AMPOLLAS O ABULTAMIENTOS AMARILLO-VERDES EN HOJAS DE VID/UVA:
-• Si ves en hojas de vid/uva AMPOLLAS REDONDEADAS ABULTADAS de color AMARILLO-VERDE en el haz, con el tejido levantado formando protuberancias irregulares → es ERINOSIS DE LA VID (Colomerus vitis / ácaro erinoso). NO arañita roja, NO deficiencia.
-• La erinosis es inconfundible: el haz muestra ampollas o verrugas verdes/amarillas abultadas. El envés de esas ampollas tiene un FIELTRO BLANCO O ROSADO (erineum = pelusa densa de pelos epidérmicos anormales).
-• El ácaro Colomerus vitis es microscópico — no se ve en la foto. El diagnóstico es por los síntomas de la hoja, no por ver el ácaro.
+• Si ves en hojas de vid/uva AMPOLLAS REDONDEADAS ABULTADAS de color AMARILLO-VERDE en el haz → puede ser ERINOSIS o ACARIOSIS. Distinguir así:
+
+• ERINOSIS (Colomerus vitis): ampollas en el haz + FIELTRO BLANCO O ROSADO en el envés debajo de cada ampolla (erineum = pelusa densa). Afecta hojas de cualquier edad.
+• ACARIOSIS (Calepitrimerus vitis): ampollas similares pero SIN fieltro en el envés. Afecta principalmente BROTES TIERNOS Y HOJAS JÓVENES. Puede causar deformación y acortamiento de entrenudos en el brote nuevo.
+• En ambos casos: ácaro microscópico, NO se ve en la foto. Diagnóstico por síntomas de la hoja.
 • Arañita roja en vid: produce bronceado/plateado difuso en toda la hoja, NUNCA ampollas abultadas.
-• Control erinosis: Azufre mojable (Thiovit) 3 g/L o Abamectina 0.5 ml/L al inicio de brotación. Repetir a los 14 días.
+• Control ambos: Azufre mojable (Thiovit) 3 g/L o Abamectina 0.5 ml/L al inicio de brotación. Repetir a los 14 días. Para acariosis severa en brotes: Hexitiazox 0.5 ml/L.
 
 REGLA CRÍTICA GLOBAL — PROHIBICIÓN DE ARAÑITA ROJA POR DEFECTO:
 • NUNCA diagnosticar arañita roja si la foto muestra: manchas definidas con bordes, ampollas/abultamientos, galerías serpenteantes, manchas intervenales, necrosis en puntas/bordes, costra uniforme, o perforaciones.
