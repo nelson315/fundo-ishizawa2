@@ -444,9 +444,13 @@ async function analizar(b64, mime, cultivoManual) {
     const tid = setTimeout(()=>ctrl.abort(), 120000); // 2 min timeout
     // Usar array de imágenes si hay más de una
     const suelolote = loteSeleccionado ? (sueloData[loteSeleccionado] || sueloData['general'] || null) : null;
+    const correcciones_previas = historialIA.filter(h=>h.feedback==='editado'||h.feedback==='errado').slice(0,15).map(h=>({
+      fecha: h.fecha||'', lote: h.lote||'', cultivo: h.cultivoCorregido||h.cultivo||'',
+      problema_detectado: h.problema||'', problema_real: h.problemaCorregido||'', observacion: h.observacion||''
+    }));
     const bodyPayload = _imagenesEnvio.length > 1
-      ? {images: _imagenesEnvio, loteId: loteSeleccionado, loteCultivo: cultivoConfirmado, loteHa: lote?.ha || '', sueloInfo: suelolote}
-      : {image: b64, mediaType: mime, loteId: loteSeleccionado, loteCultivo: cultivoConfirmado, loteHa: lote?.ha || '', sueloInfo: suelolote};
+      ? {images: _imagenesEnvio, loteId: loteSeleccionado, loteCultivo: cultivoConfirmado, loteHa: lote?.ha || '', sueloInfo: suelolote, correcciones_previas}
+      : {image: b64, mediaType: mime, loteId: loteSeleccionado, loteCultivo: cultivoConfirmado, loteHa: lote?.ha || '', sueloInfo: suelolote, correcciones_previas};
     const res = await fetch(SERVER + '/analyze', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
@@ -1086,9 +1090,14 @@ function guardarFeedback(id, tipo, btn) {
   }
   const idx = historialIA.findIndex(h=>h.id===id);
   if (idx>=0) { historialIA[idx].feedback = tipo; localStorage.setItem('historialIA',JSON.stringify(historialIA)); }
-  btn.closest('.feedback-bar').innerHTML = tipo==='acertado'
-    ? '<div style="color:var(--verde);font-weight:600;font-size:13px">✅ Diagnóstico confirmado — gracias</div>'
-    : '<div style="color:var(--rojo);font-weight:600;font-size:13px">❌ Marcado como errado — se tomará en cuenta</div>';
+  if (tipo === 'acertado') {
+    const h = historialIA[idx] || {};
+    fetch('https://fundo-ishizawa2-1.onrender.com/feedback', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ tipo:'acertado', lote: h.lote||'', cultivo: h.cultivo||'', problema_detectado: h.problema||'', fecha: h.fecha||'' }) });
+    btn.closest('.feedback-bar').innerHTML = '<div style="color:var(--verde);font-weight:600;font-size:13px">✅ Perfecto, gracias por confirmar — el sistema aprende de cada diagnóstico correcto</div>';
+  } else {
+    btn.closest('.feedback-bar').innerHTML = '<div style="color:var(--rojo);font-weight:600;font-size:13px">❌ Marcado como errado — completa la corrección abajo</div>';
+  }
 }
 
 function guardarFeedbackTexto(id) {
@@ -1097,6 +1106,7 @@ function guardarFeedbackTexto(id) {
   const sev = document.getElementById('fb-sev-'+id)?.value||'';
   const obs = document.getElementById('fb-obs-'+id)?.value||'';
   const idx = historialIA.findIndex(h=>h.id===id);
+  const h = idx>=0 ? historialIA[idx] : {};
   if (idx>=0) {
     historialIA[idx].feedback='editado';
     if(cultivo) historialIA[idx].cultivoCorregido=cultivo;
@@ -1105,7 +1115,9 @@ function guardarFeedbackTexto(id) {
     if(obs) historialIA[idx].observacion=obs;
     localStorage.setItem('historialIA',JSON.stringify(historialIA));
   }
-  document.getElementById('fb-edit-'+id).innerHTML = '<div style="color:var(--amarillo);font-weight:600;font-size:13px;padding:10px 0">✏️ Corrección guardada — gracias Nelson</div>';
+  fetch('https://fundo-ishizawa2-1.onrender.com/feedback', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ tipo:'correccion', lote: h.lote||'', cultivo: cultivo||h.cultivo||'', problema_detectado: h.problema||'', problema_real: problema, severidad: sev, observacion: obs, fecha: h.fecha||'' }) });
+  document.getElementById('fb-edit-'+id).innerHTML = '<div style="color:var(--verde);font-weight:600;font-size:13px;padding:10px 0">✅ ¡Muchas gracias por la corrección, Nelson! Esto es muy valioso — el sistema va a aprender de este caso para mejorar los próximos diagnósticos.</div>';
 }
 
 // ── PANTALLA EXCEL ────────────────────────────────────────────────────────

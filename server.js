@@ -21,6 +21,9 @@ const GEMINI_KEY     = process.env.GEMINI_KEY     || '';
 const FUNDO_LAT = -11.4521;
 const FUNDO_LON = -77.1235;
 
+// Correcciones del administrador (memoria de la sesión + persistidas por cliente)
+const correccionesMemoria = [];
+
 // Base de conocimiento fitosanitario para el Fundo Ishizawa
 const TRATAMIENTOS = {
   'powdery mildew':      { nombre:'Oidio / Cenicilla (Erysiphe sp.)', tratamiento:'Paso 1: Suspender riegos por aspersión.\nPaso 2: Aplicar Azufre mojable (Thiovit Jet) 3 g/L o Trifloxystrobin 0.3 ml/L.\nPaso 3: Volumen de caldo: paltos 1000 L/ha, cítricos 700 L/ha, uvas 500 L/ha.\nRepetir cada 10-12 días. Aplicar en horas frescas (6-9am).', productos:'• Thiovit Jet 80 WG — S/25-35/kg — dosis 3 g/L\n• Kumulus DF — S/20-28/kg — dosis 2.5 g/L\n• Flint 50 WG (Trifloxystrobin) — S/180-220/kg — dosis 0.3 g/L', compras:'Para 1 ha palto (1000 L caldo): Thiovit Jet 3 kg = S/90-105', urgencia:'Moderada — actuar en 5 días' },
@@ -103,9 +106,22 @@ function identificarCultivo(nombre) {
   return nombre || 'Cultivo no determinado';
 }
 
+app.post('/feedback', (req, res) => {
+  try {
+    const { lote, cultivo, problema_detectado, problema_real, severidad, observacion, tipo, fecha } = req.body || {};
+    if (!tipo) return res.json({ ok: false, error: 'tipo requerido' });
+    correccionesMemoria.unshift({ fecha: fecha || new Date().toISOString().slice(0,10), lote, cultivo, problema_detectado, problema_real, severidad, observacion, tipo });
+    if (correccionesMemoria.length > 40) correccionesMemoria.pop();
+    console.log(`[FEEDBACK] ${tipo} — Lote ${lote} — ${problema_real || problema_detectado}`);
+    res.json({ ok: true, mensaje: '¡Gracias por la corrección! Esto ayuda a mejorar el sistema.' });
+  } catch(err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 app.post('/analyze', async (req, res) => {
   try {
-    const { image, mediaType, images: imagesArr, loteId: _li, loteCultivo: _lc, loteHa: _lha } = req.body;
+    const { image, mediaType, images: imagesArr, loteId: _li, loteCultivo: _lc, loteHa: _lha, correcciones_previas } = req.body;
     // Soporte multi-foto: array de {data, mediaType} O foto única legacy
     const images = (imagesArr && imagesArr.length)
       ? imagesArr
@@ -455,6 +471,17 @@ GUÍA VISUAL DE CULTIVOS:
 • CAQUI: hojas ovales 10-15cm, nervadura muy marcada, frutos naranjas esféricos
 • MANZANA: hojas 4-8cm, bordes SERRADOS/dentados
 • TORONJA/LIMÓN: similar a mandarina, más grande o con espinas
+
+CORRECCIONES DEL ADMINISTRADOR (casos reales corregidos en este fundo — MÁXIMA PRIORIDAD sobre las APIs):
+${(() => {
+  const todas = [...(correcciones_previas || []), ...correccionesMemoria].slice(0, 15);
+  if (!todas.length) return '• Sin correcciones registradas aún.';
+  return todas.map(c => {
+    let linea = `• ${c.fecha || ''} Lote ${c.lote || '?'} (${c.cultivo || '?'}): el sistema dijo "${c.problema_detectado || '?'}" — REAL: "${c.problema_real || c.problema_detectado || '?'}"`;
+    if (c.observacion) linea += ` — Obs: ${c.observacion}`;
+    return linea;
+  }).join('\n');
+})()}
 
 DATOS DE APIs ESPECIALIZADAS:
 ${apiBio}
