@@ -17,6 +17,8 @@ const PLANTNET_KEY   = process.env.PLANTNET_KEY   || '';
 const INAT_TOKEN     = process.env.INAT_TOKEN     || '';
 const AGRIO_KEY      = process.env.AGRIO_KEY      || '';
 const GEMINI_KEY     = process.env.GEMINI_KEY     || '';
+const ROBOFLOW_KEY   = process.env.ROBOFLOW_KEY   || '';
+const ROBOFLOW_MODEL = process.env.ROBOFLOW_MODEL || ''; // formato: workspace/project/version — ej: mi-workspace/pest-detection/1
 // Coordenadas exactas del Fundo Ishizawa - Huayán, Huaral, Lima, Perú
 const FUNDO_LAT = -11.4521;
 const FUNDO_LON = -77.1235;
@@ -185,6 +187,7 @@ app.post('/analyze', async (req, res) => {
     let inatInfo = '';
     let inatObsInfo = '';
     let agrioInfo = '';
+    let roboflowInfo = '';
     let analisisNutricional = '';
 
     // --- Clima actual (Open-Meteo - gratis, sin API key) ---
@@ -252,6 +255,31 @@ app.post('/analyze', async (req, res) => {
         if(insultsResults.length) console.log('insect.id OK:', insultsResults.map(e=>e.name+' '+Math.round(e.probability*100)+'%').join(', '));
       }
     } catch(e) { console.log('insect.id error:', e.message); }
+
+    // --- YOLO / Roboflow — detección de objetos (plagas, lesiones) ---
+    if(ROBOFLOW_KEY && ROBOFLOW_MODEL) {
+      try {
+        const rfRes = await fetch(
+          `https://detect.roboflow.com/${ROBOFLOW_MODEL}?api_key=${ROBOFLOW_KEY}&confidence=25&overlap=30`,
+          {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: primaryImage.data  // base64 directo
+          }
+        );
+        const rfData = await rfRes.json();
+        if(rfData?.predictions?.length) {
+          const detecciones = rfData.predictions
+            .sort((a, b) => b.confidence - a.confidence)
+            .slice(0, 5)
+            .map(p => `${p.class} (${(p.confidence * 100).toFixed(0)}%)`);
+          roboflowInfo = `YOLO/Roboflow detectó: ${detecciones.join(', ')}.`;
+          console.log('Roboflow YOLO OK:', roboflowInfo);
+        } else {
+          console.log('Roboflow YOLO: sin detecciones');
+        }
+      } catch(e) { console.log('Roboflow error:', e.message); }
+    }
 
     // --- [4] Pl@ntNet — identificación botánica de alta precisión ---
     if(PLANTNET_KEY) {
@@ -400,6 +428,7 @@ ${sueloInfo.fecha ? `• Fecha análisis: ${sueloInfo.fecha}` : ''}` : '';
         ? `crop.health + plant.id: ${todasEnf.map(e=>`${e.name} (${(e.probability*100).toFixed(0)}%)`).join(', ')}.`
         : `crop.health + plant.id: sin enfermedades con alta certeza — analiza visualmente.`,
       insultsResults.length ? `insect.id: ${insultsResults.map(e=>`${e.name} (${(e.probability*100).toFixed(0)}%)`).join(', ')}.` : '',
+      roboflowInfo,
       plantnetInfo,
       inatInfo,
       agrioInfo,
@@ -854,7 +883,8 @@ app.get('/', (req,res) => res.json({
     'iNaturalist':   !!INAT_TOKEN,
     'Agrio':         !!AGRIO_KEY,
     'Sharp/NDVI':    true,
-    'Open-Meteo':    true
+    'Open-Meteo':    true,
+    'YOLO/Roboflow': !!(ROBOFLOW_KEY && ROBOFLOW_MODEL)
   }
 }));
 
