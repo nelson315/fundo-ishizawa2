@@ -411,6 +411,13 @@ PLAGAS ENDÉMICAS ZONA HUAYÁN/HUARAL — siempre considerar:
 • Arañita roja (Tetranychus urticae) — produce PUNTEADO AMARILLO/BRONCEADO en hojas, no polvo blanco
 • Mosca blanca / Aleurotrachelus — muy común en palto y cítricos
 
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS NARANJAS/ROJIZAS CON BORDES DEFINIDOS EN PALTA:
+• Si ves MANCHAS REDONDAS o IRREGULARES con CENTRO NARANJA-ROJIZO y halo amarillo en hojas intermedias/viejas de palta → PRIMERA SOSPECHA: DEFICIENCIA DE CALCIO (Ca). NO arañita roja.
+• Deficiencia de Ca en palta: manchas con bordes claros y definidos, color naranja-ocre, sin patrón de puntitos finos, sin telas en envés. Aparece en hojas maduras. Se agrava con exceso de K o Mg que bloquea absorción.
+• Arañita roja: produce BRONCEADO DIFUSO con miles de puntitos diminutos distribuidos uniformemente en toda la hoja, tela fina en envés — NUNCA manchas redondas aisladas con bordes definidos.
+• Diferencia clave: frotar el envés con papel blanco → si quedan puntitos rojos = arañita; si no hay nada = nutricional/fúngico.
+• Si la foto muestra manchas con bordes definidos en palta y la APIs dice arañita roja, evalúa con criterio propio — las APIs de detección de plagas son malas detectando deficiencias nutricionales.
+
 DIAGNÓSTICO DIFERENCIAL CRÍTICO — POLVO BLANCO/GRISÁCEO EN HOJAS O TALLOS:
 • Si ves POLVO BLANCO o CENICIENTO en hojas/tallos/brotes → es OIDIO (Erysiphe/Oidium sp.), NO arañita
 • Oidio en lúcuma: recubrimiento pulverulento blanco-grisáceo, especialmente en haz y tallos tiernos — MUY COMÚN en Lote 7
