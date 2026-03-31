@@ -489,7 +489,7 @@ REGLAS FUNDAMENTALES — SEGUIR SIEMPRE:
 2. Si ves una hoja pálida/grisácea: PRIMERO considera plagas succionadoras (arañita roja, mosca blanca, Aleurotrachelus) ANTES que deficiencia nutricional — en este fundo las plagas son más comunes que las deficiencias
 3. Si sospechas plaga pero la foto no tiene suficiente zoom para confirmar, pide foto más cercana — NO inventes un diagnóstico de plaga que no puedes ver
 4. Si el daño es en FRUTO DE PALTA — seguir esta tabla de prioridades EN ORDEN, la primera que coincida es el diagnóstico:
-   PASO 1: ¿Hay zona DECOLORADA GRANDE (blanca, amarilla, naranja, amarillo-verde) que cubre >15% del fruto? → SUNBLOTCH VIROIDE. Fin.
+   PASO 1: ¿Hay alguna zona DECOLORADA (blanca, amarilla, naranja, amarillo-verde, crema) en el fruto — ya sea una FRANJA ANGOSTA, RAYA, MANCHA O ZONA AMPLIA — sobre la piel verde? → SUNBLOTCH VIROIDE. Fin. (El Sunblotch puede ser una raya amarilla delgada desde el pedúnculo hasta abajo, una mancha grande, o una explosión amarilla — cualquier decoloración amarilla/blanca/naranja en fruto verde = Sunblotch).
    PASO 2: ¿Hay manchas MARRONES/NEGRAS/MORADAS GRANDES irregulares que cubren >10% del fruto? → ANTRACNOSIS. Fin.
    PASO 3: ¿Hay costra marrón suberizada rugosa que cubre la piel? → DAÑO POR TRIPS (russeting). Fin.
    PASO 4: ¿Hay hilos de seda + parche marrón? → ARGYROTAENIA. Fin.
