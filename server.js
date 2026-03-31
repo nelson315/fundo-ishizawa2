@@ -442,6 +442,14 @@ DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS AMARILLAS ENTRE NERVADURAS EN PALT
 • Arañita roja: NUNCA produce manchas amarillas intervenales — produce bronceado difuso con puntitos diminutos y tela en envés.
 • Si las APIs dicen arañita y la foto muestra clorosis interveinal → ignorar el resultado de las APIs, diagnosticar deficiencia nutricional.
 
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — DAÑO EN FRUTO DE PALTA: RUSSETING / COSTRA MARRÓN / PUNTITOS PLATEADOS:
+• Si ves en fruto de palta una ZONA MARRÓN SUBERIZADA (corchosa, opaca, rugosa) que cubre parte o todo el fruto → es daño por TRIPS (Scirtothrips perseae / trips de la palta). No es antracnosis, no es quemadura.
+• En frutos pequeños/jóvenes: puntitos plateados o grisáceos dispersos en la piel = raspado de trips al alimentarse. Daño temprano antes de suberización.
+• El russeting (costra marrón) aparece porque la piel cicatriza el raspado del trips formando tejido corchoso. El fruto puede estar sano por dentro pero pierde valor comercial totalmente.
+• Trips también afecta flores y brotes tiernos — revisa si hay flores con manchas plateadas o brotes deformados.
+• Control: Spinosad 0.3 ml/L o Abamectina 0.5 ml/L en frutos de 0.5 a 3cm de diámetro (ventana crítica). Después de ese tamaño el daño ya está hecho. Aplicar de madrugada (6-7am, cuando trips están activos). Repetir cada 7 días por 3 aplicaciones.
+• IMPORTANTE: el russeting en fruto de palta = trips. Las APIs de detección de enfermedades lo confunden frecuentemente con antracnosis o quemadura solar.
+
 DIAGNÓSTICO DIFERENCIAL CRÍTICO — COSTRA MARRÓN/GRIS QUE CUBRE HOJAS, FRUTOS O RAMAS:
 • Si ves MILES DE PUNTITOS O ESCAMAS PEQUEÑAS MARRONES/GRISES/BEIGE cubrir uniformemente el envés de hojas, la superficie del fruto o la corteza de ramas → es QUERESA FIORINIA (Fiorinia theae / escama armada), NO oidio, NO fumagina, NO suciedad.
 • La queresa fiorinia se distingue: escamas pequeñas (1-2mm), alargadas, de color marrón-grisáceo, muy juntas formando una costra densa. Afecta hojas (envés), frutos (toda la piel) y ramas.
