@@ -485,6 +485,13 @@ DIAGNÓSTICO DIFERENCIAL CRÍTICO — COSTRA MARRÓN/GRIS QUE CUBRE HOJAS, FRUTO
 • Control: Aceite agrícola 1.5% + Clorpirifos 1.5 ml/L, o Spirotetramat (Movento) 0.75 ml/L. Mojar bien envés y ramas. Repetir a los 21 días.
 • MUY IMPORTANTE: si la foto muestra fruto o rama con aspecto de "costra gris-marrón uniforme" → diagnosticar queresa fiorinia primero.
 
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — PUNTITOS GRISES/BLANCOS REDONDOS EN FRUTO O HOJA (QUERESA REDONDA):
+• Si ves ESCAMAS PEQUEÑAS REDONDAS/CIRCULARES (1-2mm) de color gris-blanquecino o marrón claro dispersas sobre frutos de palta o cítricos, o en el haz/envés de hojas con decoloración amarilla en los puntos de ataque → es HEMIBERLESIA (Hemiberlesia lataniae / queresa latania) o QUERESA REDONDA.
+• Diferencia con Fiorinia: Fiorinia tiene escamas alargadas/ovaladas y forma costras densas. Hemiberlesia tiene escamas redondas más separadas, aspecto de "sarna" o "piel de sapo" en el fruto.
+• En hojas: cada escama deja un punto amarillo-blanquecino en el tejido por succión de savia. El envés de la hoja puede tener las escamas directamente visibles.
+• Afecta: palta, mandarina, naranja, limón. Muy polífaga.
+• Control: igual que Fiorinia — Aceite agrícola 1.5% + Clorpirifos 1.5 ml/L, o Spirotetramat (Movento) 0.75 ml/L. Mojar bien toda la superficie del fruto y envés de hojas.
+
 DIAGNÓSTICO DIFERENCIAL CRÍTICO — GALERÍAS/CAMINOS SERPENTEANTES EN HOJAS DE CÍTRICOS:
 • Si ves GALERÍAS SINUOSAS, CAMINOS EN FORMA DE S O ESPIRAL, LÍNEAS BRILLANTES/PLATEADAS que serpentean dentro del tejido de la hoja → es MINADOR DE LOS CÍTRICOS (Phyllocnistis citrella), NO oidio, NO arañita.
 • El minador excava túneles dentro del mesófilo dejando un rastro plateado/transparente ondulante muy característico. A veces se ve la larva pequeña amarilla al final del túnel.
