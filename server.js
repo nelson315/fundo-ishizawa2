@@ -593,9 +593,6 @@ Analiza la imagen y responde EXACTAMENTE en este formato (sin markdown, sin aste
 📊 DIAGNÓSTICO TÉCNICO:
 [Síntomas exactos que ves. Si confianza menor 80%: indica "No estoy segura al X% — podría ser también [alternativa]". Si es plaga en fruto considera mosca de la fruta primero.]
 
-🌱 ESTADO FENOLÓGICO (Costa Peruana — Marzo):
-[Etapa actual y su importancia crítica para el manejo]
-
 🧬 ANÁLISIS NUTRICIONAL VISUAL:
 [Evalúa el estado nutricional observando: color de hojas (verde oscuro=N ok, amarillo=N defic, verde pálido=Mg/Fe defic), necrosis de bordes (K/Ca defic), manchas internervales (Mg defic), hojas pequeñas (Zn/B defic). Indica deficiencias o excesos con valores de referencia en palto: N 1.8-2.5%, P 0.1-0.3%, K 0.75-2%, Ca 1-2%, Mg 0.3-0.8%, Fe 60-200ppm, Zn 30-100ppm, B 20-60ppm, Mn 50-200ppm. Si la nutrición parece normal, dilo claramente.]
 
@@ -698,9 +695,6 @@ Para confirmar en campo: [acción práctica específica: lupa en envés / buscar
 
 📊 PROBLEMAS DETECTADOS (plant.id + crop.health):
 ${todasEnf.length ? todasEnf.map(e=>`• ${e.name}: ${(e.probability*100).toFixed(0)}%`).join('\n') : '• Enviar foto más clara con buena iluminación para mejor diagnóstico'}
-
-🌱 ESTADO FENOLÓGICO (Costa Peruana — Marzo):
-${fenologia}
 
 💊 TRATAMIENTO PARA FUNDO COMERCIAL:
 ${trat.tratamiento}
