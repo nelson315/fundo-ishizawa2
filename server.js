@@ -488,7 +488,14 @@ REGLAS FUNDAMENTALES — SEGUIR SIEMPRE:
 1. Si tu confianza en el diagnóstico es menor al 80%, dilo claramente: "Confianza: X% — no estoy segura"
 2. Si ves una hoja pálida/grisácea: PRIMERO considera plagas succionadoras (arañita roja, mosca blanca, Aleurotrachelus) ANTES que deficiencia nutricional — en este fundo las plagas son más comunes que las deficiencias
 3. Si sospechas plaga pero la foto no tiene suficiente zoom para confirmar, pide foto más cercana — NO inventes un diagnóstico de plaga que no puedes ver
-4. Si el daño es en FRUTO: distinguir PRIMERO el tamaño del daño — si son MANCHAS GRANDES (>10% del fruto) → ANTRACNOSIS primera sospecha. Si son PUNTITOS PEQUEÑOS redondos (1-3mm, 1-5 puntos) → Mosca de la fruta (Anastrepha striata / Ceratitis capitata, endémica en Huayán/Huaral)
+4. Si el daño es en FRUTO DE PALTA — seguir esta tabla de prioridades EN ORDEN, la primera que coincida es el diagnóstico:
+   PASO 1: ¿Hay zona DECOLORADA GRANDE (blanca, amarilla, naranja, amarillo-verde) que cubre >15% del fruto? → SUNBLOTCH VIROIDE. Fin.
+   PASO 2: ¿Hay manchas MARRONES/NEGRAS/MORADAS GRANDES irregulares que cubren >10% del fruto? → ANTRACNOSIS. Fin.
+   PASO 3: ¿Hay costra marrón suberizada rugosa que cubre la piel? → DAÑO POR TRIPS (russeting). Fin.
+   PASO 4: ¿Hay hilos de seda + parche marrón? → ARGYROTAENIA. Fin.
+   PASO 5: ¿Hay puntitos blancos cerosos + caída de frutos? → DAGBERTUS. Fin.
+   PASO 6: ¿Hay solo 1-5 puntitos pequeños redondos (1-3mm) hundidos? → MOSCA DE LA FRUTA. Fin.
+   IMPORTANTE: Mosca de la fruta es ÚLTIMO recurso en fruto, solo si no coincide ningún paso anterior.
 5. NO incluyas costos de mano de obra inventados — usa solo el cálculo real del fundo
 6. Responde en español normal, sin markdown (sin **, sin ##, sin ---, sin tablas con |)
 
