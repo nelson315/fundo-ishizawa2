@@ -442,6 +442,27 @@ DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS AMARILLAS ENTRE NERVADURAS EN PALT
 • Arañita roja: NUNCA produce manchas amarillas intervenales — produce bronceado difuso con puntitos diminutos y tela en envés.
 • Si las APIs dicen arañita y la foto muestra clorosis interveinal → ignorar el resultado de las APIs, diagnosticar deficiencia nutricional.
 
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — FLORES NECROSADAS/OSCURAS QUE CAEN SIN CUAJAR EN PALTA:
+• Si ves FLORES DE PALTA MARRONES/NEGRAS, MARCHITAS, QUE SE SECAN SIN CUAJAR, con posible pelusa gris en condiciones húmedas → es BOTRYTIS CINEREA (moho gris / podredumbre gris).
+• Botrytis ataca la inflorescencia completa: flores individuales se oscurecen, mueren y caen. Los frutos recién cuajados (0.5-1cm) también pueden necrosarse y caer.
+• En fotos: racimos de flores con la mayoría oscuras, marrones o negras, sin cuajar. En días húmedos: pelusa gris ceniza visible sobre las flores muertas = esporulación de Botrytis.
+• No confundir con: caída normal de flores (siempre cae el 95% de flores en palta — es normal), quema por calor (flores pálidas/blanquecinas, no oscuras), trips en flores (puntitos plateados, flores deformadas pero no negras).
+• CRÍTICO: Botrytis en floración = pérdida directa de producción. Actuar en 48 horas.
+• Control: Iprodione 1.5 g/L o Fenhexamide (Teldor) 1 g/L o Pyrimethanil 1 ml/L. Aplicar al inicio de floración y repetir a los 7 días. Con lluvia o neblina: repetir cada 5 días. Mojar bien toda la inflorescencia.
+• Condiciones de riesgo: neblina, llovizna (garúa), humedad relativa >85%, temperaturas 15-22°C — condiciones típicas de Huayán/Huaral en invierno.
+
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS ACEITOSAS/GRASIENTAS AMARILLAS EN HOJAS DE CÍTRICOS:
+• Si ves en hojas de mandarina/cítrico una MANCHA AMARILLA DE ASPECTO ACEITOSO U OLEOSO en el haz, con el envés correspondiente de color marrón-chocolate con aspecto granuloso/polvoriento → es MANCHA GRASIENTA (Mycosphaerella citri / Stenella citri-grisea).
+• La mancha grasienta es muy característica: en el haz la zona parece "mojada" o con aceite (amarillo-verdoso traslúcido). En el envés hay una masa de esporas marrón-negras. La hoja termina cayendo prematuramente.
+• En hojas avanzadas: toda la hoja se amarilla con manchas marrones irregulares esparcidas, luego cae. Causa defoliación severa en años húmedos.
+• No confundir con: deficiencia de Mg (clorosis interveinal sin mancha aceitosa), antracnosis (manchas secas con bordes definidos), toxicidad de boro (manchas marrones en bordes y puntas de hojas viejas — diferente distribución).
+• Control: Cobre hidróxido 2 g/L o Clorotalonil 2 g/L preventivo desde brotación. Si hay infección activa: Azoxystrobin 0.5 ml/L. Aplicar en época de lluvias o alta humedad.
+
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS VERDE OLIVA / VELVET EN FRUTOS Y HOJAS DE CÍTRICOS:
+• Si ves en frutos o hojas de cítrico MANCHAS DE COLOR VERDE OLIVA, MARRÓN OSCURO o NEGRO con aspecto ATERCIOPELADO/POLVORIENTO (como terciopelo o fieltro) → es CLADOSPORIUM (Cladosporium sp.) o FUMAGINA secundaria.
+• Cladosporium en cítricos: manchas oscuras aterciopeladas sobre la piel del fruto, no confundir con fumagina (fumagina es negra-brillante y se limpia fácilmente; Cladosporium es integrado al tejido, no se limpia).
+• Control: Cobre 2 g/L o Mancozeb 2 g/L. Mejorar ventilación del canopeo.
+
 DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS REDONDAS CON ANILLOS CONCÉNTRICOS EN HOJAS (OJO DE BUEY):
 • Si ves MANCHAS CIRCULARES/OVALADAS MARRONES con ANILLOS CONCÉNTRICOS visibles dentro (como una diana o tiro al blanco), con halo amarillo alrededor, en hojas de papa o tomate → es ALTERNARIA SOLANI (tizón temprano / early blight).
 • Las manchas de Alternaria son muy características: tienen textura zonada como anillos dentro del círculo marrón, bordes bien definidos, pueden juntarse en infestaciones severas.
