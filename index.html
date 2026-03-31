@@ -423,7 +423,7 @@ async function analizar(b64, mime, cultivoManual) {
     <div class="loading">
       <div class="spinner"></div>
       <div style="font-weight:500">Analizando ${cultivoConfirmado ? cultivoConfirmado : 'imagen'}...</div>
-      <div class="loading-step" id="loading-step">Consultando 8 APIs: plant.id · crop.health · insect.id · YOLO · Pl@ntNet · Claude · Gemini · Sharp...</div>
+      <div class="loading-step" id="loading-step">Consultando 9 APIs: plant.id · crop.health · insect.id · YOLO · Pl@ntNet · Claude · Gemini · GPT-4 · Sharp...</div>
     </div>`;
 
   try {
@@ -439,7 +439,7 @@ async function analizar(b64, mime, cultivoManual) {
       document.getElementById('loading-step').textContent = '⏳ Servidor iniciando (Render Free, ~40s)... por favor espera';
       await new Promise(r => setTimeout(r, 30000));
     }
-    document.getElementById('loading-step').textContent = 'Procesando con 8 APIs especializadas (puede tardar 30-60s)...';
+    document.getElementById('loading-step').textContent = 'Procesando con 9 APIs especializadas (puede tardar 30-60s)...';
     const ctrl = new AbortController();
     const tid = setTimeout(()=>ctrl.abort(), 120000); // 2 min timeout
     // Usar array de imágenes si hay más de una

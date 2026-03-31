@@ -17,6 +17,7 @@ const PLANTNET_KEY   = process.env.PLANTNET_KEY   || '';
 const INAT_TOKEN     = process.env.INAT_TOKEN     || '';
 const AGRIO_KEY      = process.env.AGRIO_KEY      || '';
 const GEMINI_KEY     = process.env.GEMINI_KEY     || '';
+const OPENAI_KEY     = process.env.OPENAI_KEY     || '';
 const ROBOFLOW_KEY   = process.env.ROBOFLOW_KEY   || '';
 const ROBOFLOW_MODEL = process.env.ROBOFLOW_MODEL || ''; // formato: workspace/project/version — ej: mi-workspace/pest-detection/1
 // Coordenadas exactas del Fundo Ishizawa - Huayán, Huaral, Lima, Perú
@@ -429,6 +430,7 @@ ${sueloInfo.fecha ? `• Fecha análisis: ${sueloInfo.fecha}` : ''}` : '';
         : `crop.health + plant.id: sin enfermedades con alta certeza — analiza visualmente.`,
       insultsResults.length ? `insect.id: ${insultsResults.map(e=>`${e.name} (${(e.probability*100).toFixed(0)}%)`).join(', ')}.` : '',
       roboflowInfo,
+      openaiInfo,
       plantnetInfo,
       inatInfo,
       agrioInfo,
@@ -467,6 +469,40 @@ Sé preciso y directo. Si no hay problema, dilo claramente.`}
           console.log('Gemini OK:', gText.substring(0,100));
         }
       } catch(e) { console.log('Gemini error:', e.message); }
+    }
+
+    // --- GPT-4 Vision (OpenAI) — tercer testigo IA ---
+    let openaiInfo = '';
+    if(OPENAI_KEY) {
+      try {
+        const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json', 'Authorization': `Bearer ${OPENAI_KEY}`},
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            max_tokens: 300,
+            messages: [{
+              role: 'user',
+              content: [
+                ...images.map(img => ({
+                  type: 'image_url',
+                  image_url: { url: `data:${img.mediaType};base64,${img.data}`, detail: 'low' }
+                })),
+                { type: 'text', text: `Eres experto en fitopatología de cultivos peruanos. Analiza la foto y responde en 3 líneas en español:
+1. ¿Qué cultivo es? (palta, mandarina, uva, lúcuma, etc.)
+2. ¿Qué problema fitosanitario o nutricional ves? Nombre científico + síntomas.
+3. ¿Qué tan urgente es? Sé preciso. Si no hay problema claro, dilo.` }
+              ]
+            }]
+          })
+        });
+        const od = await openaiRes.json();
+        const oText = od?.choices?.[0]?.message?.content || '';
+        if(oText) {
+          openaiInfo = `GPT-4 VISION (tercer testigo IA):\n${oText.trim()}`;
+          console.log('OpenAI OK:', oText.substring(0,100));
+        }
+      } catch(e) { console.log('OpenAI error:', e.message); }
     }
 
     // --- Claude Vision (modelo actual) ---
@@ -928,7 +964,8 @@ app.get('/', (req,res) => res.json({
     'Agrio':         !!AGRIO_KEY,
     'Sharp/NDVI':    true,
     'Open-Meteo':    true,
-    'YOLO/Roboflow': !!(ROBOFLOW_KEY && ROBOFLOW_MODEL)
+    'YOLO/Roboflow': !!(ROBOFLOW_KEY && ROBOFLOW_MODEL),
+    'GPT-4 Vision':  !!OPENAI_KEY
   }
 }));
 
