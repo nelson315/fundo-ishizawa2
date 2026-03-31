@@ -485,7 +485,7 @@ Sé preciso y directo. Si no hay problema, dilo claramente.`}
         const prompt = `Eres un agrónomo peruano experto trabajando CON el administrador del Fundo Ishizawa (Huayán, Huaral, Lima). Trabajamos en equipo: tú analizas la foto y él confirma en campo.
 
 REGLAS FUNDAMENTALES — SEGUIR SIEMPRE:
-1. Si tu confianza en el diagnóstico es menor al 80%, dilo claramente: "Confianza: X% — no estoy segura"
+1. Si tu confianza en el diagnóstico es menor al 70%, NO recomiendes ningún tratamiento ni producto. Solo di: "Diagnóstico no concluyente (confianza X%) — se necesita muestra al laboratorio fitopatológico o foto más cercana para confirmar antes de actuar." NO inventes tratamientos cuando no estás segura.
 2. Si ves una hoja pálida/grisácea: PRIMERO considera plagas succionadoras (arañita roja, mosca blanca, Aleurotrachelus) ANTES que deficiencia nutricional — en este fundo las plagas son más comunes que las deficiencias
 3. Si sospechas plaga pero la foto no tiene suficiente zoom para confirmar, pide foto más cercana — NO inventes un diagnóstico de plaga que no puedes ver
 4. Si el daño es en FRUTO DE PALTA — seguir esta tabla de prioridades EN ORDEN, la primera que coincida es el diagnóstico:
@@ -866,36 +866,26 @@ Para confirmar en campo: [acción práctica específica: lupa en envés / buscar
       }
     }
 
-    // Fallback: diagnóstico desde base de conocimiento si Claude falla
+    // Fallback: solo si Claude falla completamente
     if (!resultado) {
       const principal = todasEnf[0];
-      const trat = buscarTratamiento(principal?.name || '');
       const prob = principal?.probability || 0;
-      severidad = prob > 0.55 ? 'Grave' : prob > 0.25 ? 'Moderado' : prob > 0 ? 'Leve' : 'Moderado';
+      severidad = 'Moderado';
       resultado = `🌿 CULTIVO IDENTIFICADO: ${cultivoNombre}
-🔍 PROBLEMA PRINCIPAL: ${trat.nombre}
-🚨 SEVERIDAD: ${severidad}${principal ? ' — ' + (prob*100).toFixed(0) + '% probabilidad' : ''}
+🔍 PROBLEMA PRINCIPAL: Diagnóstico no concluyente — confianza insuficiente
+🚨 SEVERIDAD: No determinada
 
-📊 PROBLEMAS DETECTADOS (plant.id + crop.health):
-${todasEnf.length ? todasEnf.map(e=>`• ${e.name}: ${(e.probability*100).toFixed(0)}%`).join('\n') : '• Enviar foto más clara con buena iluminación para mejor diagnóstico'}
+📊 SEÑALES DETECTADAS POR APIs:
+${todasEnf.length ? todasEnf.map(e=>`• ${e.name}: ${(e.probability*100).toFixed(0)}%`).join('\n') : '• No se detectaron señales claras'}
 
-💊 TRATAMIENTO PARA FUNDO COMERCIAL:
-${trat.tratamiento}
+⚠️ NO SE RECOMIENDA NINGÚN TRATAMIENTO SIN DIAGNÓSTICO CONFIRMADO.
 
-🧪 PRODUCTOS DISPONIBLES EN PERÚ:
-${trat.productos}
+Próximos pasos:
+1. Tomar muestras físicas y enviar a laboratorio fitopatológico (SENASA o universidad agraria).
+2. Tomar fotos más cercanas con buena iluminación, mostrando el envés de la hoja o el detalle del fruto.
+3. Consultar con el agrónomo de campo antes de aplicar cualquier producto.
 
-🛒 INSUMOS PARA 1 HECTÁREA:
-${trat.compras}
-
-⏰ MOMENTO DE APLICACIÓN:
-Aplicar en horas frescas: 6:00-9:00 AM o después de las 5:00 PM.
-Temperatura ideal: menor a 28°C. No aplicar con viento fuerte (>15 km/h).
-
-🛡️ PREVENCIÓN PRÓXIMAS 4 SEMANAS:
-• Monitoreo semanal: revisar 10 plantas por lote, registrar incidencia.
-• Rotar grupos químicos para evitar resistencia.
-• Aplicar solo si hay diagnóstico confirmado.
+⚡ URGENCIA: Consultar agrónomo antes de actuar.
 
 ⚡ URGENCIA: ${trat.urgencia}`;
     }
