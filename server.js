@@ -442,6 +442,14 @@ DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS AMARILLAS ENTRE NERVADURAS EN PALT
 • Arañita roja: NUNCA produce manchas amarillas intervenales — produce bronceado difuso con puntitos diminutos y tela en envés.
 • Si las APIs dicen arañita y la foto muestra clorosis interveinal → ignorar el resultado de las APIs, diagnosticar deficiencia nutricional.
 
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — COSTRA MARRÓN/GRIS QUE CUBRE HOJAS, FRUTOS O RAMAS:
+• Si ves MILES DE PUNTITOS O ESCAMAS PEQUEÑAS MARRONES/GRISES/BEIGE cubrir uniformemente el envés de hojas, la superficie del fruto o la corteza de ramas → es QUERESA FIORINIA (Fiorinia theae / escama armada), NO oidio, NO fumagina, NO suciedad.
+• La queresa fiorinia se distingue: escamas pequeñas (1-2mm), alargadas, de color marrón-grisáceo, muy juntas formando una costra densa. Afecta hojas (envés), frutos (toda la piel) y ramas.
+• En palta: la infestación severa da al fruto apariencia de "lija marrón" — toda la superficie cubierta de escamas. Reduce calibre y valor comercial.
+• No confundir con: oidio (polvo blanco que se frota), fumagina (hollín negro que se limpia), suciedad (irregular, no uniforme).
+• Control: Aceite agrícola 1.5% + Clorpirifos 1.5 ml/L, o Spirotetramat (Movento) 0.75 ml/L. Mojar bien envés y ramas. Repetir a los 21 días.
+• MUY IMPORTANTE: si la foto muestra fruto o rama con aspecto de "costra gris-marrón uniforme" → diagnosticar queresa fiorinia primero.
+
 DIAGNÓSTICO DIFERENCIAL CRÍTICO — GALERÍAS/CAMINOS SERPENTEANTES EN HOJAS DE CÍTRICOS:
 • Si ves GALERÍAS SINUOSAS, CAMINOS EN FORMA DE S O ESPIRAL, LÍNEAS BRILLANTES/PLATEADAS que serpentean dentro del tejido de la hoja → es MINADOR DE LOS CÍTRICOS (Phyllocnistis citrella), NO oidio, NO arañita.
 • El minador excava túneles dentro del mesófilo dejando un rastro plateado/transparente ondulante muy característico. A veces se ve la larva pequeña amarilla al final del túnel.
