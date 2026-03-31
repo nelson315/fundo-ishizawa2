@@ -24,6 +24,38 @@ const FUNDO_LON = -77.1235;
 // Correcciones del administrador (memoria de la sesión + persistidas por cliente)
 const correccionesMemoria = [];
 
+// Calendario fenológico real del Fundo Ishizawa (leído del cuadro oficial)
+// Índices: 0=ENE, 1=FEB, 2=MAR, 3=ABR, 4=MAY, 5=JUN, 6=JUL, 7=AGO, 8=SET, 9=OCT, 10=NOV, 11=DIC
+const FENOLOGIA_LOTES = {
+  '1':   ['Desarrollo fruto','Cosecha','Cosecha','Post-Cosecha','Desarrollo fruto','Desarrollo fruto','Desarrollo fruto','Poda','Desarrollo fruto','Floración','Cuajado','Desarrollo fruto'],
+  '2':   ['Desarrollo fruto','Desarrollo fruto','Desarrollo fruto','Cosecha','Cosecha','Cosecha','Cosecha','Poda','Floración','Floración','Cuajado','Desarrollo fruto'],
+  '3':   ['Desarrollo fruto','Desarrollo fruto','Desarrollo fruto','Cosecha','Cosecha','Cosecha','Cosecha','Poda','Floración','Floración','Cuajado','Desarrollo fruto'],
+  '3A':  ['Desarrollo fruto','Cosecha','Cosecha','Cosecha','Post-Cosecha','Desarrollo fruto','Poda','Desarrollo fruto','Floración','Cuajado','Desarrollo fruto','Desarrollo fruto'],
+  '4':   ['Desarrollo fruto','Desarrollo fruto','Cosecha','Cosecha','Cuajado','Cuajado','Desarrollo fruto','Desarrollo fruto','Desarrollo fruto','Maduración','Maduración','Desarrollo fruto'],
+  '5':   ['Desarrollo fruto','Cosecha','Cosecha','Cosecha','Post-Cosecha','Desarrollo fruto','Poda','Desarrollo fruto','Floración','Cuajado','Desarrollo fruto','Desarrollo fruto'],
+  '6':   ['Desarrollo fruto','Cosecha','Cosecha','Cosecha','Post-Cosecha','Desarrollo fruto','Poda','Desarrollo fruto','Floración','Cuajado','Desarrollo fruto','Desarrollo fruto'],
+  '7':   ['Desarrollo fruto','Desarrollo fruto','Cosecha','Cosecha','Cuajado','Cuajado','Desarrollo fruto','Desarrollo fruto','Desarrollo fruto','Maduración','Maduración','Desarrollo fruto'],
+  '8':   ['Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento'],
+  '9':   ['Maduración','Maduración','Desarrollo fruto','Desarrollo fruto','Desarrollo fruto','Floración','Floración','Cuajado','Cuajado','Desarrollo fruto','Maduración','Maduración'],
+  '9A':  ['Desarrollo fruto','Desarrollo fruto','Desarrollo fruto','Maduración','Maduración','Post-Cosecha','Desarrollo fruto','Desarrollo fruto','Desarrollo fruto','Desarrollo fruto','Desarrollo fruto','Cuajado'],
+  '10':  ['Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento'],
+  '11':  ['Maduración','Maduración','Desarrollo fruto','Desarrollo fruto','Desarrollo fruto','Floración','Floración','Cuajado','Cuajado','Desarrollo fruto','Maduración','Maduración'],
+  '12':  ['Maduración','Maduración','Desarrollo fruto','Desarrollo fruto','Desarrollo fruto','Floración','Floración','Cuajado','Cuajado','Desarrollo fruto','Maduración','Maduración'],
+  '13':  ['Desarrollo fruto','Cosecha','Cosecha','Post-Cosecha','Desarrollo fruto','Desarrollo fruto','Desarrollo fruto','Poda','Desarrollo fruto','Floración','Cuajado','Desarrollo fruto'],
+  '14':  ['Desarrollo fruto','Cosecha','Cosecha','Cosecha','Post-Cosecha','Desarrollo fruto','Poda','Desarrollo fruto','Floración','Cuajado','Desarrollo fruto','Desarrollo fruto'],
+  '15':  ['Desarrollo fruto','Cosecha','Cosecha','Cosecha','Post-Cosecha','Desarrollo fruto','Poda','Desarrollo fruto','Floración','Cuajado','Desarrollo fruto','Desarrollo fruto'],
+  '18':  ['Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento'],
+};
+
+function getFenologiaLote(loteId) {
+  if (!loteId) return null;
+  const key = String(loteId).toUpperCase().replace('LOTE','').trim();
+  const cal = FENOLOGIA_LOTES[key];
+  if (!cal) return null;
+  const mes = new Date().getMonth(); // 0=ENE
+  return cal[mes];
+}
+
 // Base de conocimiento fitosanitario para el Fundo Ishizawa
 const TRATAMIENTOS = {
   'powdery mildew':      { nombre:'Oidio / Cenicilla (Erysiphe sp.)', tratamiento:'Paso 1: Suspender riegos por aspersión.\nPaso 2: Aplicar Azufre mojable (Thiovit Jet) 3 g/L o Trifloxystrobin 0.3 ml/L.\nPaso 3: Volumen de caldo: paltos 1000 L/ha, cítricos 700 L/ha, uvas 500 L/ha.\nRepetir cada 10-12 días. Aplicar en horas frescas (6-9am).', productos:'• Thiovit Jet 80 WG — S/25-35/kg — dosis 3 g/L\n• Kumulus DF — S/20-28/kg — dosis 2.5 g/L\n• Flint 50 WG (Trifloxystrobin) — S/180-220/kg — dosis 0.3 g/L', compras:'Para 1 ha palto (1000 L caldo): Thiovit Jet 3 kg = S/90-105', urgencia:'Moderada — actuar en 5 días' },
@@ -328,7 +360,7 @@ ${alertas.join('\n')}`;
     const sueloInfo = req.body.sueloInfo || null;
     const cultivoConfirmado = loteCultivo || null;
     const cultivoNombre = cultivoConfirmado || identificarCultivo(cultivoRaw) || 'Cultivo del Fundo Ishizawa';
-    const fenologia = estadoFenologico(cultivoConfirmado || cultivoRaw);
+    const fenologiaReal = getFenologiaLote(loteId);
 
     const sueloTexto = sueloInfo ? `
 ANÁLISIS DE SUELO DEL LOTE (datos reales de laboratorio — úsalos para el diagnóstico nutricional):
@@ -341,8 +373,12 @@ ${sueloInfo.k     ? `• K disponible: ${sueloInfo.k} ppm ${parseFloat(sueloInfo
 ${sueloInfo.obs   ? `• Observaciones: ${sueloInfo.obs}` : ''}
 ${sueloInfo.fecha ? `• Fecha análisis: ${sueloInfo.fecha}` : ''}` : '';
 
+    const fenologiaTexto = fenologiaReal
+      ? `\nESTADO FENOLÓGICO REAL DEL LOTE (calendario oficial del fundo — NO detectar visualmente): Lote ${loteId} en ${new Date().toLocaleString('es-PE',{month:'long'})} = ${fenologiaReal.toUpperCase()}. Usa esto para ajustar el diagnóstico y tratamiento.`
+      : '';
+
     const contextoLote = cultivoConfirmado
-      ? `CULTIVO CONFIRMADO POR EL USUARIO (lote ${loteId}): ${cultivoConfirmado}. NO intentes identificar el cultivo — ya se sabe que es ${cultivoConfirmado}. Enfócate SOLO en diagnosticar el problema fitosanitario o nutricional visible.${sueloTexto}`
+      ? `CULTIVO CONFIRMADO POR EL USUARIO (lote ${loteId}): ${cultivoConfirmado}. NO intentes identificar el cultivo — ya se sabe que es ${cultivoConfirmado}. Enfócate SOLO en diagnosticar el problema fitosanitario o nutricional visible.${fenologiaTexto}${sueloTexto}`
       : `El usuario no seleccionó lote. Identifica el cultivo visualmente usando las características descritas abajo.${sueloTexto}`;
 
     const apiBio = [
