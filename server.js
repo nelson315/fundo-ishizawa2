@@ -140,12 +140,26 @@ function identificarCultivo(nombre) {
 
 app.post('/feedback', (req, res) => {
   try {
-    const { lote, cultivo, problema_detectado, problema_real, severidad, observacion, tipo, fecha } = req.body || {};
+    const { lote, cultivo, problema_detectado, problema_real, severidad, observacion, tipo, fecha, fenologia_correcta, mes } = req.body || {};
     if (!tipo) return res.json({ ok: false, error: 'tipo requerido' });
-    correccionesMemoria.unshift({ fecha: fecha || new Date().toISOString().slice(0,10), lote, cultivo, problema_detectado, problema_real, severidad, observacion, tipo });
+
+    // Si viene corrección de estado fenológico, actualizar tabla en memoria
+    if (fenologia_correcta && lote) {
+      const key = String(lote).toUpperCase().replace('LOTE','').trim();
+      const mesIdx = mes !== undefined ? Number(mes) : new Date().getMonth();
+      if (FENOLOGIA_LOTES[key] && mesIdx >= 0 && mesIdx <= 11) {
+        FENOLOGIA_LOTES[key][mesIdx] = fenologia_correcta;
+        console.log(`[FENOLOGIA] Lote ${key} mes ${mesIdx} actualizado a: ${fenologia_correcta}`);
+      }
+    }
+
+    correccionesMemoria.unshift({ fecha: fecha || new Date().toISOString().slice(0,10), lote, cultivo, problema_detectado, problema_real, severidad, observacion, tipo, fenologia_correcta });
     if (correccionesMemoria.length > 40) correccionesMemoria.pop();
     console.log(`[FEEDBACK] ${tipo} — Lote ${lote} — ${problema_real || problema_detectado}`);
-    res.json({ ok: true, mensaje: '¡Gracias por la corrección! Esto ayuda a mejorar el sistema.' });
+
+    let mensaje = '¡Muchas gracias por la corrección! Esto es muy valioso para mejorar el sistema.';
+    if (fenologia_correcta) mensaje = `¡Gracias! Estado fenológico del Lote ${lote} actualizado a "${fenologia_correcta}". El sistema ya lo tendrá en cuenta.`;
+    res.json({ ok: true, mensaje });
   } catch(err) {
     res.status(500).json({ ok: false, error: err.message });
   }
@@ -764,7 +778,7 @@ Temperatura ideal: menor a 28°C. No aplicar con viento fuerte (>15 km/h).
     const cultivoConfianza = cultivoConfirmado ? 1.0 :
       (cropResults[0]?.probability || plantResults[0]?.probability || 0);
 
-    res.json({resultado, cultivo:cultivoFinal, enfermedades:todasEnf, severidad, saludable:false, cultivoConfianza, recomendacionFoto, fotosRecibidas: images.length});
+    res.json({resultado, cultivo:cultivoFinal, enfermedades:todasEnf, severidad, saludable:false, cultivoConfianza, recomendacionFoto, fotosRecibidas: images.length, fenologia: fenologiaReal || null});
 
   } catch(err) {
     console.error('Error /analyze:', err.message);

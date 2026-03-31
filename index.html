@@ -485,7 +485,8 @@ async function analizar(b64, mime, cultivoManual) {
       problema,
       severidad: sev,
       enfermedades: enfermedadesDetectadas,
-      diagnosticoCompleto: texto
+      diagnosticoCompleto: texto,
+      fenologia: data.fenologia || ''
     };
     historialIA.unshift(entrada);
     if(historialIA.length>200) historialIA.pop();
@@ -1082,6 +1083,21 @@ function guardarFeedback(id, tipo, btn) {
             <div style="font-size:11px;color:var(--texto2);margin-bottom:3px">📝 Observación adicional</div>
             <input id="fb-obs-${id}" class="form-input" placeholder="Ej: foto sin zoom, confundió con deficiencia" style="font-size:13px">
           </div>
+          <div style="background:#fff8e1;border:1px solid #ffc107;border-radius:8px;padding:10px">
+            <div style="font-size:11px;color:#b8860b;font-weight:700;margin-bottom:6px">🌱 ¿El estado fenológico estaba errado?</div>
+            <div style="font-size:11px;color:var(--texto2);margin-bottom:6px">Estado que usó el sistema: <b>${entrada.fenologia||'No detectado'}</b> — Lote ${entrada.lote||''}</div>
+            <select id="fb-fenologia-${id}" class="form-input" style="font-size:13px">
+              <option value="">— Era correcto, no corregir —</option>
+              <option>Desarrollo fruto</option>
+              <option>Floración</option>
+              <option>Cuajado</option>
+              <option>Maduración</option>
+              <option>Cosecha</option>
+              <option>Post-Cosecha</option>
+              <option>Poda</option>
+              <option>Mantenimiento</option>
+            </select>
+          </div>
         </div>
         <button onclick="guardarFeedbackTexto(${id})" style="margin-top:12px;width:100%;padding:10px;background:var(--verde);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Guardar corrección</button>
       </div>`;
@@ -1105,6 +1121,7 @@ function guardarFeedbackTexto(id) {
   const problema = document.getElementById('fb-problema-'+id)?.value||'';
   const sev = document.getElementById('fb-sev-'+id)?.value||'';
   const obs = document.getElementById('fb-obs-'+id)?.value||'';
+  const fenologiaCorrecta = document.getElementById('fb-fenologia-'+id)?.value||'';
   const idx = historialIA.findIndex(h=>h.id===id);
   const h = idx>=0 ? historialIA[idx] : {};
   if (idx>=0) {
@@ -1113,11 +1130,15 @@ function guardarFeedbackTexto(id) {
     if(problema) historialIA[idx].problemaCorregido=problema;
     if(sev) historialIA[idx].severidadCorregida=sev;
     if(obs) historialIA[idx].observacion=obs;
+    if(fenologiaCorrecta) historialIA[idx].fenologiaCorregida=fenologiaCorrecta;
     localStorage.setItem('historialIA',JSON.stringify(historialIA));
   }
+  const mes = new Date().getMonth();
   fetch('https://fundo-ishizawa2-1.onrender.com/feedback', { method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ tipo:'correccion', lote: h.lote||'', cultivo: cultivo||h.cultivo||'', problema_detectado: h.problema||'', problema_real: problema, severidad: sev, observacion: obs, fecha: h.fecha||'' }) });
-  document.getElementById('fb-edit-'+id).innerHTML = '<div style="color:var(--verde);font-weight:600;font-size:13px;padding:10px 0">✅ ¡Muchas gracias por la corrección, Nelson! Esto es muy valioso — el sistema va a aprender de este caso para mejorar los próximos diagnósticos.</div>';
+    body: JSON.stringify({ tipo:'correccion', lote: h.lote||'', cultivo: cultivo||h.cultivo||'', problema_detectado: h.problema||'', problema_real: problema, severidad: sev, observacion: obs, fecha: h.fecha||'', fenologia_correcta: fenologiaCorrecta||'', mes }) });
+  let msg = '✅ ¡Muchas gracias por la corrección! El sistema aprenderá de este caso.';
+  if (fenologiaCorrecta) msg = `✅ ¡Gracias! Estado fenológico del Lote ${h.lote||''} actualizado a "${fenologiaCorrecta}". El sistema ya lo usará en los próximos diagnósticos de este lote.`;
+  document.getElementById('fb-edit-'+id).innerHTML = `<div style="color:var(--verde);font-weight:600;font-size:13px;padding:10px 0">${msg}</div>`;
 }
 
 // ── PANTALLA EXCEL ────────────────────────────────────────────────────────
