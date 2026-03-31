@@ -442,6 +442,14 @@ DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS AMARILLAS ENTRE NERVADURAS EN PALT
 • Arañita roja: NUNCA produce manchas amarillas intervenales — produce bronceado difuso con puntitos diminutos y tela en envés.
 • Si las APIs dicen arañita y la foto muestra clorosis interveinal → ignorar el resultado de las APIs, diagnosticar deficiencia nutricional.
 
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — GALERÍAS/CAMINOS SERPENTEANTES EN HOJAS DE CÍTRICOS:
+• Si ves GALERÍAS SINUOSAS, CAMINOS EN FORMA DE S O ESPIRAL, LÍNEAS BRILLANTES/PLATEADAS que serpentean dentro del tejido de la hoja → es MINADOR DE LOS CÍTRICOS (Phyllocnistis citrella), NO oidio, NO arañita.
+• El minador excava túneles dentro del mesófilo dejando un rastro plateado/transparente ondulante muy característico. A veces se ve la larva pequeña amarilla al final del túnel.
+• MUY COMÚN en mandarina, limón, naranja y toronja en Huayán — atacan principalmente brotes tiernos y hojas jóvenes.
+• Daño severo enrolla y distorsiona la hoja. Facilita entrada de bacterias (cancro cítrico).
+• Si las APIs dicen OIDIO pero la foto muestra galerías serpenteantes → ignorar resultado de APIs, diagnosticar MINADOR.
+• Control: Spinosad 0.3 ml/L o Clorpirifos 1.5 ml/L en brotes nuevos. Aplicar cuando brotes tienen menos de 2cm.
+
 DIAGNÓSTICO DIFERENCIAL CRÍTICO — POLVO BLANCO/GRISÁCEO EN HOJAS O TALLOS:
 • Si ves POLVO BLANCO o CENICIENTO en hojas/tallos/brotes → es OIDIO (Erysiphe/Oidium sp.), NO arañita
 • Oidio en lúcuma: recubrimiento pulverulento blanco-grisáceo, especialmente en haz y tallos tiernos — MUY COMÚN en Lote 7
