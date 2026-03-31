@@ -700,6 +700,13 @@ DIAGNÓSTICO DIFERENCIAL CRÍTICO — SUNBLOTCH (VIROIDE) EN FRUTO DE PALTA:
 • Manejo: NO hay tratamiento curativo. Marcar el árbol afectado. Desinfectar herramientas con hipoclorito 5% entre árbol y árbol. Evaluar si conviene retirar el árbol para evitar propagación por injertos futuros. Avisar a SENASA si la incidencia es alta.
 • URGENCIA: Alta — no por el árbol actual (ya infectado) sino para evitar propagación al podar o injertar.
 
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS OSCURAS EN FRUTO DE MANDARINA/CÍTRICOS:
+• ALTERNARIA (Alternaria alternata): PUNTOS/MANCHAS CIRCULARES OSCURAS (3-15mm) BIEN DEFINIDAS, color marrón oscuro o negro, bordes nítidos, ligeramente hundidas, distribuidas por toda la superficie del fruto. MUY COMÚN en mandarina Okitsu y otras variedades en Huayán. A veces tienen halo amarillo alrededor.
+• ANTRACNOSIS en cítrico (Colletotrichum): manchas más grandes, irregulares, húmedas, aspecto de podredumbre blanda — diferente a los puntos bien definidos de Alternaria.
+• MOSCA DE LA FRUTA en cítrico: puntito muy pequeño (1-2mm) con mancha hundida y a veces exudado. Mucho más pequeño que Alternaria.
+• REGLA CLAVE en mandarina: manchas circulares oscuras bien definidas de 3-15mm = ALTERNARIA, no Antracnosis ni Mosca.
+• Control Alternaria en cítricos: Difenoconazol (Score) 0.3 ml/L o Azoxystrobin 0.5 ml/L. Aplicar preventivo en inicio de engrosamiento de fruto.
+
 DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS OSCURAS EN FRUTO DE PALTA (ANTRACNOSIS vs MOSCA DE LA FRUTA):
 • ANTRACNOSIS (Colletotrichum gloeosporioides): MANCHAS GRANDES MARRONES/NEGRAS/MORADAS IRREGULARES que cubren zonas amplias del fruto. Las manchas son difusas, con bordes irregulares, superficie hundida o arrugada. Pueden cubrir 20-80% del fruto. Color varía de marrón claro a negro-morado. MUY COMÚN en frutos Hass y Fuerte próximos a cosecha.
 • REGLA ABSOLUTA: Si el fruto tiene MANCHAS QUE CUBREN MÁS DEL 10% DE SU SUPERFICIE → es ANTRACNOSIS. NUNCA es Mosca de la fruta si la mancha es grande.
