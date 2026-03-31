@@ -683,6 +683,16 @@ DIAGNÓSTICO DIFERENCIAL CRÍTICO — HOJA PÁLIDA/GRISÁCEA SIN VERDOR:
 • NO diagnosticar deficiencia de N o Mg si la hoja está pálida pero las nervaduras resaltan en blanco — ese patrón es de plaga chupadora, no de carencia nutricional
 • Diferencia mosca blanca vs arañita roja: mosca blanca = hoja pálida difusa con nervaduras prominentes; arañita = bronceado con puntitos necróticos o brillos metálicos
 
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — SUNBLOTCH (VIROIDE) EN FRUTO DE PALTA:
+• Si ves en fruto de palta una MANCHA AMARILLA INTENSA CON ASPECTO DE "RAYITO DE SOL" O "EXPLOSIÓN AMARILLA", zona decolorada amarillo-naranja brillante de forma irregular sobre la piel verde → es SUNBLOTCH VIROIDE (Avocado sunblotch viroid, ASBVd).
+• La mancha es característica: color amarillo-naranja vivo, con bordes irregulares que se extienden como rayos desde el centro. El resto del fruto está verde normal.
+• En hojas: rayas o manchas amarillo-blancuzcas en el limbo, a veces la hoja queda deformada. En ramas: rayas amarillas o de color crema.
+• ENFERMEDAD SIN CURA — el árbol queda infectado de por vida. Se transmite por injertos y herramientas de poda contaminadas. NO se contagia por contacto normal entre árboles.
+• NO confundir con: Mosca de la fruta (puntos pequeños oscuros redondos, no manchas amarillas grandes); mancha de sol/sunburn (mancha pálida blanquecina por exceso de sol, sin el color amarillo-naranja intenso); deficiencia de calcio (necrosis marrón en bordes de hojas, no en fruto).
+• SEÑAL CLAVE: mancha amarilla brillante irregular en fruto verde = Sunblotch viroide. Si el YOLO detecta "Sunblotch" o si ves esta mancha característica → diagnosticar Sunblotch.
+• Manejo: NO hay tratamiento curativo. Marcar el árbol afectado. Desinfectar herramientas con hipoclorito 5% entre árbol y árbol. Evaluar si conviene retirar el árbol para evitar propagación por injertos futuros. Avisar a SENASA si la incidencia es alta.
+• URGENCIA: Alta — no por el árbol actual (ya infectado) sino para evitar propagación al podar o injertar.
+
 DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS/PUNTOS OSCUROS EN FRUTOS:
 • Si ves PUNTOS CIRCULARES OSCUROS (1-3mm, marrones o rojizos, ligeramente hundidos) en la piel del fruto → son PICADURAS DE OVIPOSICIÓN de Mosca de la fruta (Anastrepha striata, Ceratitis capitata)
 • Este daño es endémico en Huayán — siempre el PRIMER SOSPECHOSO en frutos con puntos oscuros
