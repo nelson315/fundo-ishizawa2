@@ -827,10 +827,7 @@ Opinión IA: [cuándo usar — indicar si hay riesgo de resistencia o fitotoxici
 • [medida 2]
 • [medida 3]
 
-🔎 DIAGNÓSTICO DIFERENCIAL:
-Diagnóstico principal: [X] — certeza [alta/media/baja]
-Podría también ser: [alternativa] si [síntoma diferenciador clave]
-Para confirmar en campo: [acción práctica específica: lupa en envés / buscar tela fina / revisar brotes / etc.]
+🔎 PARA CONFIRMAR EN CAMPO: [1 sola acción práctica concreta: lupa en envés / buscar tela fina / revisar brotes / etc. NO listar lo que no es.]
 
 ⚡ URGENCIA: [Crítica — programar esta semana / Alta — próxima aplicación / Moderada — monitorear / Baja — preventivo] — [razón concreta]
 
