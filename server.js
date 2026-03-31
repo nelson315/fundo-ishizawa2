@@ -734,6 +734,31 @@ ${apiBio}
 
 Mes actual: Marzo 2026.
 
+PROTOCOLO DE TRIBUNAL — ANTES DE DIAGNOSTICAR, EJECUTA ESTOS 4 PASOS:
+
+PASO A — VERIFICAR CULTIVO:
+• ¿Pl@ntNet o las APIs confirman el cultivo del lote? Si NO coinciden → reducir peso de modelos especializados en ese cultivo.
+• Si el cultivo está confirmado por lote seleccionado → ignorar identificación visual de cultivo, enfocarse solo en el problema.
+
+PASO B — REGLA DE CONSENSO (contar fuentes que coinciden):
+• 3 o más fuentes dicen lo mismo → confianza ALTA (85-95%), veredicto firme.
+• 2 fuentes coinciden → confianza MEDIA (65-80%), indicar diagnóstico probable.
+• Solo 1 fuente lo dice → confianza BAJA, marcar como "sospecha — confirmar en campo".
+• Fuentes contradicen entre sí + foto poco clara → declarar "NO CONCLUYENTE — se necesita mejor foto".
+• Tu análisis visual de la imagen cuenta como 1 fuente más.
+
+PASO C — REGLA CLIMÁTICA (usar datos de Open-Meteo):
+• Humedad >80% + síntomas foliares (manchas, necrosis, polvillo) → subir 15% probabilidad de hongo.
+• Temperatura >28°C + bronceado en hojas → subir probabilidad de arañita roja.
+• Sin condiciones compatibles con la enfermedad sospechada → bajar confianza y mencionarlo.
+
+PASO D — REGLA NUTRICIONAL vs PATOLÓGICA:
+• Patrón UNIFORME y SIMÉTRICO en varias hojas de la misma edad → pensar deficiencia nutricional primero.
+• Daño LOCALIZADO, IRREGULAR, en hojas de distintas edades → pensar plaga o enfermedad primero.
+• Patrón en zonas expuestas al sol → pensar quemadura solar o estrés abiótico.
+
+DESPUÉS de ejecutar los 4 pasos, emite el veredicto final.
+
 Analiza la imagen y responde EXACTAMENTE en este formato (sin markdown, sin asteriscos, sin ##):
 
 🌿 CULTIVO IDENTIFICADO: [${cultivoConfirmado ? cultivoConfirmado + ' — confirmado por lote seleccionado' : 'nombre exacto del cultivo'}]
@@ -741,8 +766,15 @@ Analiza la imagen y responde EXACTAMENTE en este formato (sin markdown, sin aste
 📍 PARTE AFECTADA: [hoja / tallo / raíz / fruto / planta completa]
 🚨 SEVERIDAD: [Leve / Moderado / Grave] — [% área afectada estimado]
 
+⚖️ VEREDICTO DEL TRIBUNAL:
+Fuentes que coinciden: [lista cuáles APIs/análisis apuntan al mismo diagnóstico]
+Fuentes en contra: [si alguna API dice algo diferente, indicarla]
+Consenso: [FIRME / PROBABLE / SOSPECHA / NO CONCLUYENTE]
+Razón climática: [cómo el clima actual apoya o contradice el diagnóstico]
+Patrón nutricional vs patológico: [uniforme=nutrición / localizado=plaga-enfermedad]
+
 📊 DIAGNÓSTICO TÉCNICO:
-[Síntomas exactos que ves. Si confianza menor 80%: indica "No estoy segura al X% — podría ser también [alternativa]". Si es plaga en fruto considera mosca de la fruta primero.]
+[Síntomas exactos que ves. Si consenso es NO CONCLUYENTE: indicar qué foto adicional se necesita.]
 
 🧬 ANÁLISIS NUTRICIONAL VISUAL:
 [Evalúa el estado nutricional observando: color de hojas (verde oscuro=N ok, amarillo=N defic, verde pálido=Mg/Fe defic), necrosis de bordes (K/Ca defic), manchas internervales (Mg defic), hojas pequeñas (Zn/B defic). Indica deficiencias o excesos con valores de referencia en palto: N 1.8-2.5%, P 0.1-0.3%, K 0.75-2%, Ca 1-2%, Mg 0.3-0.8%, Fe 60-200ppm, Zn 30-100ppm, B 20-60ppm, Mn 50-200ppm. Si la nutrición parece normal, dilo claramente.]
