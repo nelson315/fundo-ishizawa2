@@ -453,6 +453,34 @@ DIAGNÓSTICO DIFERENCIAL CRÍTICO — FLORES NECROSADAS/OSCURAS QUE CAEN SIN CUA
 • Control: Iprodione 1.5 g/L o Fenhexamide (Teldor) 1 g/L o Pyrimethanil 1 ml/L. Aplicar al inicio de floración y repetir a los 7 días. Con lluvia o neblina: repetir cada 5 días. Mojar bien toda la inflorescencia.
 • Condiciones de riesgo: neblina, llovizna (garúa), humedad relativa >85%, temperaturas 15-22°C — condiciones típicas de Huayán/Huaral en invierno.
 
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — CANCROS CON GOMA EN RAMAS/TRONCO DE PALTA (LASIODIPLODIA):
+• Si ves en ramas o tronco de palta LESIONES/CANCROS HUNDIDOS OSCUROS con EXUDACIÓN GOMOSA (goma ámbar, blanquecina o marrón que sale del tejido), y las ramas mueren de la punta hacia adentro → es LASIODIPLODIA THEOBROMAE (muerte regresiva / cancrosis).
+• Síntomas progresivos: 1) exudación gomosa en rama, 2) corteza oscurecida/hundida, 3) madera interna marrón si se corta la rama, 4) rama completa se seca y muere (muerte regresiva), 5) avanza hacia el tronco si no se controla.
+• Factores de riesgo: heridas de poda sin sellado, estrés hídrico, temperaturas >28°C (verano costeño), daño de granizo, mancha de sol — cualquier herida es puerta de entrada.
+• URGENTE — puede matar ramas grandes en 2-3 semanas en verano.
+• Control: 1) Podar la rama afectada 20cm por debajo del cancro, quemar material podado. 2) Desinfectar tijeras con hipoclorito al 5% entre árbol y árbol. 3) Aplicar pasta cúprica (Cobre + aceite) en heridas de poda. 4) Pulverizar Carbendazim 1 g/L o Tiofanato metil 1 g/L sobre tronco y ramas principales.
+• Prevención: NUNCA podar en verano (dic-marzo). Podar solo en invierno (jun-ago). Sellar todas las heridas inmediatamente.
+
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS AMARILLAS/BLANCAS IRREGULARES EN HOJAS O FRUTO POR EXCESO DE SOL (MANCHA DE SOL):
+• Si ves en hojas de palta una ZONA DECOLORADA AMARILLA-NARANJA-BLANQUECINA con bordes irregulares que sigue el lado expuesto al sol (cara superior de hojas externas) → es MANCHA DE SOL (quemadura solar / sunburn), NO enfermedad.
+• En frutos: mancha plana amarillo-verde o blanquecina en el lado expuesto directamente al sol. La piel queda decolorada pero el fruto puede estar sano por dentro si el daño es leve.
+• No confundir con: deficiencia de P (zona naranja en punta), deficiencia de Ca (necrosis desde borde), Lasiodiplodia (en ramas no hojas).
+• Riesgo importante: las manchas de sol son puerta de entrada para Lasiodiplodia y Colletotrichum. Si hay mancha de sol + goma = sospechar Lasiodiplodia secundaria.
+• Prevención: mallas de sombra 30-40%, riego oportuno en verano, aplicar calcio foliar que fortalece la pared celular.
+
+DEFICIENCIAS NUTRICIONALES EN MANDARINA/CÍTRICOS — GUÍA VISUAL:
+
+DEF. NITRÓGENO (N) en cítricos: Hojas AMARILLAS UNIFORMES en toda la lámina, empezando por hojas VIEJAS. Toda la planta pierde color verde gradualmente. Frutos pequeños y con poca acidez. El amarillamiento es parejo — no hay contraste nervadura/tejido. Aplicar: urea 5 g/L foliar o fertilización edáfica con nitrógeno.
+
+DEF. MAGNESIO (Mg) en cítricos: CLOROSIS INTERVEINAL SIMÉTRICA en hojas viejas — nervaduras verdes, tejido amarillo entre ellas. El patrón es SIMÉTRICO (mismo color en ambos lados de la nervadura central). Aplicar: sulfato de magnesio 3 g/L foliar.
+
+DEF. HIERRO (Fe) en cítricos: CLOROSIS INTERVEINAL en hojas JÓVENES/NUEVAS (brotes recientes) — contrario al Mg que afecta hojas viejas. Las hojas nuevas salen amarillo intenso con nervaduras verdes. Típico en suelos con pH >7 que bloquean absorción de Fe. Aplicar: quelato de hierro (Fe-EDTA) 1-2 g/L foliar o corrección de pH del suelo.
+
+ALERTA CRÍTICA — HLB (HUANGLONGBING) vs DEFICIENCIA DE Mg EN CÍTRICOS:
+• HLB (greening de los cítricos) es la enfermedad más devastadora — sin cura, árbol muere. En Perú está en cuarentena pero presente en algunas zonas.
+• Diferencia clave: Mg = clorosis interveinal SIMÉTRICA (igual en ambos lados de la hoja). HLB = moteado ASIMÉTRICO (un lado de la hoja más amarillo que el otro, irregular, "mapa").
+• Si sospechas HLB: NO aplicar tratamiento solo, avisar inmediatamente a SENASA.
+
 DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS ACEITOSAS/GRASIENTAS AMARILLAS EN HOJAS DE CÍTRICOS:
 • Si ves en hojas de mandarina/cítrico una MANCHA AMARILLA DE ASPECTO ACEITOSO U OLEOSO en el haz, con el envés correspondiente de color marrón-chocolate con aspecto granuloso/polvoriento → es MANCHA GRASIENTA (Mycosphaerella citri / Stenella citri-grisea).
 • La mancha grasienta es muy característica: en el haz la zona parece "mojada" o con aceite (amarillo-verdoso traslúcido). En el envés hay una masa de esporas marrón-negras. La hoja termina cayendo prematuramente.
