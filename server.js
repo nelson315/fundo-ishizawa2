@@ -427,20 +427,22 @@ PLAGAS ENDÉMICAS ZONA HUAYÁN/HUARAL — siempre considerar:
 • Arañita roja (Tetranychus urticae) — produce PUNTEADO AMARILLO/BRONCEADO en hojas, no polvo blanco
 • Mosca blanca / Aleurotrachelus — muy común en palto y cítricos
 
-DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS NARANJAS/ROJIZAS CON BORDES DEFINIDOS EN PALTA:
-• Si ves MANCHAS REDONDAS o IRREGULARES con CENTRO NARANJA-ROJIZO y halo amarillo en hojas intermedias/viejas de palta → PRIMERA SOSPECHA: DEFICIENCIA DE CALCIO (Ca). NO arañita roja.
-• Deficiencia de Ca en palta: manchas con bordes claros y definidos, color naranja-ocre, sin patrón de puntitos finos, sin telas en envés. Aparece en hojas maduras. Se agrava con exceso de K o Mg que bloquea absorción.
-• Arañita roja: produce BRONCEADO DIFUSO con miles de puntitos diminutos distribuidos uniformemente en toda la hoja, tela fina en envés — NUNCA manchas redondas aisladas con bordes definidos.
-• Diferencia clave: frotar el envés con papel blanco → si quedan puntitos rojos = arañita; si no hay nada = nutricional/fúngico.
-• Si la foto muestra manchas con bordes definidos en palta y la APIs dice arañita roja, evalúa con criterio propio — las APIs de detección de plagas son malas detectando deficiencias nutricionales.
+DEFICIENCIAS NUTRICIONALES EN PALTA — GUÍA VISUAL COMPLETA (máxima prioridad sobre APIs):
 
-DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS AMARILLAS ENTRE NERVADURAS EN PALTA:
-• Si ves MANCHAS AMARILLAS O AMARILLO-VERDOSAS BRILLANTES entre las nervaduras, con las nervaduras manteniéndose verdes → PRIMERA SOSPECHA: DEFICIENCIA DE MAGNESIO (Mg). NO arañita roja.
-• Deficiencia de Mg en palta: clorosis interveinal en hojas maduras/intermedias, las nervaduras permanecen verdes, el tejido entre ellas se torna amarillo brillante, sin puntitos ni telas.
-• Deficiencia de Fe: similar pero aparece en hojas JÓVENES/nuevas (brotes), clorosis más uniforme y pálida.
-• Deficiencia de Zn: manchas amarillas irregulares + hojas pequeñas y deformadas.
-• Arañita roja: NUNCA produce manchas amarillas intervenales — produce bronceado difuso con puntitos diminutos y tela en envés.
-• Si las APIs dicen arañita y la foto muestra clorosis interveinal → ignorar el resultado de las APIs, diagnosticar deficiencia nutricional.
+DEF. CALCIO (Ca): Necrosis en PUNTA y BORDE de hojas jóvenes/intermedias, zona marrón-negra que avanza desde el ápice. En casos avanzados: gran área necrótica marrón con halo amarillo. Las nervaduras se mantienen verdes. Sin puntitos, sin telas.
+
+DEF. MAGNESIO (Mg): CLOROSIS INTERVEINAL en hojas maduras — manchas amarillas/naranja-amarillo entre nervaduras, las nervaduras permanecen verdes formando un patrón de "espina de pez" amarilla sobre verde. Muy vistoso. Hojas de tamaño normal.
+
+DEF. FÓSFORO (P): Zona NARANJA-ROJIZA intensa en la PUNTA o borde de la hoja, con el resto de la hoja verde. La zona naranja tiene bordes bien definidos. Aparece en hojas intermedias/viejas. Color más anaranjado-rojo que la necrosis de Ca.
+
+DEF. BORO (B): PERFORACIONES o manchas rojas/marrones REDONDAS dispersas en la hoja (como agujeros de bala), hoja puede quedar deforme/arrugada. En fruto: superficie con VERRUGAS O PROTUBERANCIAS, fruto deformado, piel irregular con bultos. Muy específico.
+
+DEF. ZINC (Zn): Hojas PEQUEÑAS, ANGOSTAS, AMARILLENTAS agrupadas en ROSETA en los brotes apicales (hojas nuevas muy pequeñas y apiñadas). Entrenudos cortos. Frutos pequeños y redondos (en Hass: forma redondeada en vez de periforme). Diferente a Mg que da hojas normales con clorosis.
+
+REGLA GENERAL DEFICIENCIAS vs PLAGAS EN PALTA:
+• Arañita roja: bronceado difuso con miles de puntitos, NUNCA manchas definidas ni perforaciones
+• Si hay patrón simétrico, en hojas de cierta edad, sin insectos visibles → deficiencia nutricional
+• Si las APIs dicen arañita/plaga pero el patrón es de los descritos arriba → ignorar APIs, diagnosticar deficiencia
 
 DIAGNÓSTICO DIFERENCIAL CRÍTICO — FLORES NECROSADAS/OSCURAS QUE CAEN SIN CUAJAR EN PALTA:
 • Si ves FLORES DE PALTA MARRONES/NEGRAS, MARCHITAS, QUE SE SECAN SIN CUAJAR, con posible pelusa gris en condiciones húmedas → es BOTRYTIS CINEREA (moho gris / podredumbre gris).
