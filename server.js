@@ -601,6 +601,16 @@ DIAGNÓSTICO DIFERENCIAL CRÍTICO — DAÑO EN FRUTO DE PALTA: RUSSETING / COSTR
 • Control: Spinosad 0.3 ml/L o Abamectina 0.5 ml/L en frutos de 0.5 a 3cm de diámetro (ventana crítica). Después de ese tamaño el daño ya está hecho. Aplicar de madrugada (6-7am, cuando trips están activos). Repetir cada 7 días por 3 aplicaciones.
 • IMPORTANTE: el russeting en fruto de palta = trips. Las APIs de detección de enfermedades lo confunden frecuentemente con antracnosis o quemadura solar.
 
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — MASAS BLANCAS ALGODONOSAS QUE CUBREN RAMAS (COCHINILLA ESPINOSA):
+• Si ves en ramas y tallos de palta una COBERTURA BLANCA ALGODONOSA/CEROSA DENSA que envuelve completamente la rama → es COCHINILLA ESPINOSA o COCHINILLA COCOTERO (Nipsecoccus nipae). Las colonias forman una capa blanca esponjosa continua sobre la rama.
+• Diferente a mosca blanca (que está en el envés de hojas). Diferente a oidio (que es polvo en hojas). Esta es una masa blanca gruesa y compacta que recubre ramas enteras.
+• Control: Aceite agrícola 1.5% + Imidacloprid 0.5 ml/L. Mojar bien todas las ramas afectadas.
+
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — ESCAMAS REDONDAS MARRONES CON HALO CLARO EN HOJA (COCHINILLA PIRIFORME):
+• Si ves en el haz o envés de hojas de palta ESCAMAS REDONDAS/OVALADAS (3-5mm) de color MARRÓN-ROJIZO con un halo blanquecino a su alrededor, dispersas en la lámina → es COCHINILLA PIRIFORME (Protopulvinaria pyriformis).
+• La cochinilla piriforme es más grande que las queresas armadas, forma suave/céreo, color marrón-anaranjado. Cada escama puede dejar una pequeña necrosis circular en el tejido de la hoja donde chupa.
+• Control: Aceite agrícola 1% + Spirotetramat (Movento) 0.75 ml/L o Imidacloprid 0.3 ml/L.
+
 DIAGNÓSTICO DIFERENCIAL CRÍTICO — COSTRA MARRÓN/GRIS QUE CUBRE HOJAS, FRUTOS O RAMAS:
 • Si ves MILES DE PUNTITOS O ESCAMAS PEQUEÑAS MARRONES/GRISES/BEIGE cubrir uniformemente el envés de hojas, la superficie del fruto o la corteza de ramas → es QUERESA FIORINIA (Fiorinia theae / escama armada), NO oidio, NO fumagina, NO suciedad.
 • La queresa fiorinia se distingue: escamas pequeñas (1-2mm), alargadas, de color marrón-grisáceo, muy juntas formando una costra densa. Afecta hojas (envés), frutos (toda la piel) y ramas.
