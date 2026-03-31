@@ -494,6 +494,18 @@ REGLA GENERAL DEFICIENCIAS vs PLAGAS EN PALTA:
 • Si hay patrón simétrico, en hojas de cierta edad, sin insectos visibles → deficiencia nutricional
 • Si las APIs dicen arañita/plaga pero el patrón es de los descritos arriba → ignorar APIs, diagnosticar deficiencia
 
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — AMPOLLAS O ABULTAMIENTOS AMARILLO-VERDES EN HOJAS DE VID/UVA:
+• Si ves en hojas de vid/uva AMPOLLAS REDONDEADAS ABULTADAS de color AMARILLO-VERDE en el haz, con el tejido levantado formando protuberancias irregulares → es ERINOSIS DE LA VID (Colomerus vitis / ácaro erinoso). NO arañita roja, NO deficiencia.
+• La erinosis es inconfundible: el haz muestra ampollas o verrugas verdes/amarillas abultadas. El envés de esas ampollas tiene un FIELTRO BLANCO O ROSADO (erineum = pelusa densa de pelos epidérmicos anormales).
+• El ácaro Colomerus vitis es microscópico — no se ve en la foto. El diagnóstico es por los síntomas de la hoja, no por ver el ácaro.
+• Arañita roja en vid: produce bronceado/plateado difuso en toda la hoja, NUNCA ampollas abultadas.
+• Control erinosis: Azufre mojable (Thiovit) 3 g/L o Abamectina 0.5 ml/L al inicio de brotación. Repetir a los 14 días.
+
+REGLA CRÍTICA GLOBAL — PROHIBICIÓN DE ARAÑITA ROJA POR DEFECTO:
+• NUNCA diagnosticar arañita roja si la foto muestra: manchas definidas con bordes, ampollas/abultamientos, galerías serpenteantes, manchas intervenales, necrosis en puntas/bordes, costra uniforme, o perforaciones.
+• Arañita roja SOLO se diagnostica si se ve: bronceado difuso uniforme con puntitos finos en toda la hoja, y/o telas finas en el envés.
+• Si las APIs dicen arañita roja pero el patrón visual no coincide → IGNORAR LAS APIs y diagnosticar el problema real visible.
+
 DIAGNÓSTICO DIFERENCIAL CRÍTICO — FLORES NECROSADAS/OSCURAS QUE CAEN SIN CUAJAR EN PALTA:
 • Si ves FLORES DE PALTA MARRONES/NEGRAS, MARCHITAS, QUE SE SECAN SIN CUAJAR, con posible pelusa gris en condiciones húmedas → es BOTRYTIS CINEREA (moho gris / podredumbre gris).
 • Botrytis ataca la inflorescencia completa: flores individuales se oscurecen, mueren y caen. Los frutos recién cuajados (0.5-1cm) también pueden necrosarse y caer.
