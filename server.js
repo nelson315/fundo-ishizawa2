@@ -442,6 +442,12 @@ DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS AMARILLAS ENTRE NERVADURAS EN PALT
 • Arañita roja: NUNCA produce manchas amarillas intervenales — produce bronceado difuso con puntitos diminutos y tela en envés.
 • Si las APIs dicen arañita y la foto muestra clorosis interveinal → ignorar el resultado de las APIs, diagnosticar deficiencia nutricional.
 
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS REDONDAS CON ANILLOS CONCÉNTRICOS EN HOJAS (OJO DE BUEY):
+• Si ves MANCHAS CIRCULARES/OVALADAS MARRONES con ANILLOS CONCÉNTRICOS visibles dentro (como una diana o tiro al blanco), con halo amarillo alrededor, en hojas de papa o tomate → es ALTERNARIA SOLANI (tizón temprano / early blight).
+• Las manchas de Alternaria son muy características: tienen textura zonada como anillos dentro del círculo marrón, bordes bien definidos, pueden juntarse en infestaciones severas.
+• No confundir con: mancha bacteriana (sin anillos, bordes acuosos), cercospora (manchas más pequeñas sin anillos definidos), deficiencia de K (necrosis de bordes, no manchas redondas).
+• Control: Mancozeb 2.5 g/L o Clorotalonil 2 g/L preventivo. Si ya hay infección: Azoxystrobin 0.5 ml/L + Mancozeb 1.5 g/L. Repetir cada 7-10 días. Eliminar hojas afectadas.
+
 DIAGNÓSTICO DIFERENCIAL CRÍTICO — DAÑO EN FRUTO DE PALTA: RUSSETING / COSTRA MARRÓN / PUNTITOS PLATEADOS:
 • Si ves en fruto de palta una ZONA MARRÓN SUBERIZADA (corchosa, opaca, rugosa) que cubre parte o todo el fruto → es daño por TRIPS (Scirtothrips perseae / trips de la palta). No es antracnosis, no es quemadura.
 • En frutos pequeños/jóvenes: puntitos plateados o grisáceos dispersos en la piel = raspado de trips al alimentarse. Daño temprano antes de suberización.
