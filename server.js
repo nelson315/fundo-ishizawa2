@@ -693,11 +693,12 @@ DIAGNÓSTICO DIFERENCIAL CRÍTICO — SUNBLOTCH (VIROIDE) EN FRUTO DE PALTA:
 • Manejo: NO hay tratamiento curativo. Marcar el árbol afectado. Desinfectar herramientas con hipoclorito 5% entre árbol y árbol. Evaluar si conviene retirar el árbol para evitar propagación por injertos futuros. Avisar a SENASA si la incidencia es alta.
 • URGENCIA: Alta — no por el árbol actual (ya infectado) sino para evitar propagación al podar o injertar.
 
-DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS/PUNTOS OSCUROS EN FRUTOS:
-• Si ves PUNTOS CIRCULARES OSCUROS (1-3mm, marrones o rojizos, ligeramente hundidos) en la piel del fruto → son PICADURAS DE OVIPOSICIÓN de Mosca de la fruta (Anastrepha striata, Ceratitis capitata)
-• Este daño es endémico en Huayán — siempre el PRIMER SOSPECHOSO en frutos con puntos oscuros
-• No confundir con antracnosis (manchas difusas, irregulares, con halo amarillo) ni con daño mecánico
-• Mosca de la fruta: 1-4 puntos pequeños redondos en piel = postura; el daño interno puede no verse externamente hasta descomposición
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS OSCURAS EN FRUTO DE PALTA (ANTRACNOSIS vs MOSCA DE LA FRUTA):
+• ANTRACNOSIS (Colletotrichum gloeosporioides): MANCHAS GRANDES MARRONES/NEGRAS IRREGULARES que cubren zonas amplias del fruto (5-15cm²), con bordes difusos, superficie hundida o arrugada, aspecto de podredumbre. Las manchas se unen formando áreas grandes. MUY COMÚN en frutos de palta próximos a cosecha o post-cosecha. ESTE ES EL DIAGNÓSTICO CORRECTO para frutos con grandes áreas marrones/negras.
+• MOSCA DE LA FRUTA (Anastrepha striata, Ceratitis capitata): PUNTOS PEQUEÑOS REDONDOS (1-3mm), ligeramente hundidos, color marrón-rojizo oscuro, generalmente 1-5 puntos separados. Son picaduras de oviposición. El fruto alrededor del punto está verde/normal.
+• DIFERENCIA CLAVE: Antracnosis = manchas GRANDES, irregulares, difusas, oscuras. Mosca de la fruta = puntitos PEQUEÑOS, redondos, separados.
+• Si el fruto tiene MANCHAS GRANDES MARRONES que cubren gran parte de la piel → ANTRACNOSIS, no mosca de la fruta.
+• Si el YOLO detecta "Anthracnose" → confirmar Antracnosis aunque las APIs digan otra cosa.
 
 ${contextoLote}
 
