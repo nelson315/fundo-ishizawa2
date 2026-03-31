@@ -694,11 +694,11 @@ DIAGNÓSTICO DIFERENCIAL CRÍTICO — SUNBLOTCH (VIROIDE) EN FRUTO DE PALTA:
 • URGENCIA: Alta — no por el árbol actual (ya infectado) sino para evitar propagación al podar o injertar.
 
 DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS OSCURAS EN FRUTO DE PALTA (ANTRACNOSIS vs MOSCA DE LA FRUTA):
-• ANTRACNOSIS (Colletotrichum gloeosporioides): MANCHAS GRANDES MARRONES/NEGRAS IRREGULARES que cubren zonas amplias del fruto (5-15cm²), con bordes difusos, superficie hundida o arrugada, aspecto de podredumbre. Las manchas se unen formando áreas grandes. MUY COMÚN en frutos de palta próximos a cosecha o post-cosecha. ESTE ES EL DIAGNÓSTICO CORRECTO para frutos con grandes áreas marrones/negras.
-• MOSCA DE LA FRUTA (Anastrepha striata, Ceratitis capitata): PUNTOS PEQUEÑOS REDONDOS (1-3mm), ligeramente hundidos, color marrón-rojizo oscuro, generalmente 1-5 puntos separados. Son picaduras de oviposición. El fruto alrededor del punto está verde/normal.
-• DIFERENCIA CLAVE: Antracnosis = manchas GRANDES, irregulares, difusas, oscuras. Mosca de la fruta = puntitos PEQUEÑOS, redondos, separados.
-• Si el fruto tiene MANCHAS GRANDES MARRONES que cubren gran parte de la piel → ANTRACNOSIS, no mosca de la fruta.
-• Si el YOLO detecta "Anthracnose" → confirmar Antracnosis aunque las APIs digan otra cosa.
+• ANTRACNOSIS (Colletotrichum gloeosporioides): MANCHAS GRANDES MARRONES/NEGRAS/MORADAS IRREGULARES que cubren zonas amplias del fruto. Las manchas son difusas, con bordes irregulares, superficie hundida o arrugada. Pueden cubrir 20-80% del fruto. Color varía de marrón claro a negro-morado. MUY COMÚN en frutos Hass y Fuerte próximos a cosecha.
+• REGLA ABSOLUTA: Si el fruto tiene MANCHAS QUE CUBREN MÁS DEL 10% DE SU SUPERFICIE → es ANTRACNOSIS. NUNCA es Mosca de la fruta si la mancha es grande.
+• MOSCA DE LA FRUTA (Anastrepha striata, Ceratitis capitata): SOLO son PUNTITOS MUY PEQUEÑOS (1-3mm), redondos, separados, generalmente 1-5 puntos en todo el fruto. El 95% del fruto está verde/normal alrededor.
+• PROHIBICIÓN: NO diagnosticar Mosca de la fruta si hay manchas grandes en el fruto. Manchas grandes = Antracnosis SIEMPRE.
+• Si el YOLO detecta "Anthracnose" → confirmar Antracnosis, ignorar otras APIs.
 
 ${contextoLote}
 
