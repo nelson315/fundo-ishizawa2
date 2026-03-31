@@ -502,7 +502,7 @@ DATOS DEL FUNDO — COSTOS REALES DE APLICACIÓN:
 • Costo total = costo producto + S/${costoMO} (NO agregar otros costos)
 
 PLAGAS ENDÉMICAS ZONA HUAYÁN/HUARAL — siempre considerar:
-• Mosca de la fruta (Anastrepha striata, Ceratitis capitata) — en TODOS los cultivos con fruto
+• Mosca de la fruta (Anastrepha striata, Ceratitis capitata) — SOLO si hay puntitos pequeños redondos (1-3mm) en la piel del fruto. NUNCA si hay manchas grandes.
 • Arañita roja (Tetranychus urticae) — produce PUNTEADO AMARILLO/BRONCEADO en hojas, no polvo blanco
 • Mosca blanca / Aleurotrachelus — muy común en palto y cítricos
 
