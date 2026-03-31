@@ -684,8 +684,8 @@ DIAGNÓSTICO DIFERENCIAL CRÍTICO — HOJA PÁLIDA/GRISÁCEA SIN VERDOR:
 • Diferencia mosca blanca vs arañita roja: mosca blanca = hoja pálida difusa con nervaduras prominentes; arañita = bronceado con puntitos necróticos o brillos metálicos
 
 DIAGNÓSTICO DIFERENCIAL CRÍTICO — SUNBLOTCH (VIROIDE) EN FRUTO DE PALTA:
-• Si ves en fruto de palta una MANCHA AMARILLA INTENSA CON ASPECTO DE "RAYITO DE SOL" O "EXPLOSIÓN AMARILLA", zona decolorada amarillo-naranja brillante de forma irregular sobre la piel verde → es SUNBLOTCH VIROIDE (Avocado sunblotch viroid, ASBVd).
-• La mancha es característica: color amarillo-naranja vivo, con bordes irregulares que se extienden como rayos desde el centro. El resto del fruto está verde normal.
+• Si ves en fruto de palta una MANCHA GRANDE DECOLORADA — puede ser BLANCA, AMARILLO PÁLIDO, AMARILLO INTENSO, O AMARILLO-NARANJA — de forma irregular sobre la piel verde del fruto → es SUNBLOTCH VIROIDE (Avocado sunblotch viroid, ASBVd). La mancha cubre una zona grande del fruto (30-60% de la superficie visible).
+• La mancha puede verse blanca/cremosa en estados tempranos o en variedades Fuerte, y más amarilla-naranja en Hass. Lo clave es: zona grande decolorada irregular sobre fruto verde = Sunblotch.
 • En hojas: rayas o manchas amarillo-blancuzcas en el limbo, a veces la hoja queda deformada. En ramas: rayas amarillas o de color crema.
 • ENFERMEDAD SIN CURA — el árbol queda infectado de por vida. Se transmite por injertos y herramientas de poda contaminadas. NO se contagia por contacto normal entre árboles.
 • NO confundir con: Mosca de la fruta (puntos pequeños oscuros redondos, no manchas amarillas grandes); mancha de sol/sunburn (mancha pálida blanquecina por exceso de sol, sin el color amarillo-naranja intenso); deficiencia de calcio (necrosis marrón en bordes de hojas, no en fruto).
