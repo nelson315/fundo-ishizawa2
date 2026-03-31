@@ -492,6 +492,13 @@ DIAGNÓSTICO DIFERENCIAL CRÍTICO — PUNTITOS GRISES/BLANCOS REDONDOS EN FRUTO 
 • Afecta: palta, mandarina, naranja, limón. Muy polífaga.
 • Control: igual que Fiorinia — Aceite agrícola 1.5% + Clorpirifos 1.5 ml/L, o Spirotetramat (Movento) 0.75 ml/L. Mojar bien toda la superficie del fruto y envés de hojas.
 
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — INSECTOS OVALADOS GRANDES TRANSLÚCIDOS/MARRONES EN NERVADURAS (QUERESA BLANDA):
+• Si ves INSECTOS OVALADOS GRANDES (3-6mm), TRANSLÚCIDOS O MARRÓN-DORADO, con cuerpo abultado y blando, pegados en grupos sobre nervaduras de hojas o tallos → es QUERESA BLANDA (Coccus hesperidum / Parasaissetia nigra / Saissetia oleae — familia Coccidae).
+• La queresa blanda es mucho más grande y visible que las armadas (Fiorinia, Hemiberlesia). Su cuerpo es suave, sin escudo duro, aspecto de "lenteja translúcida" o "tortuga marrón".
+• Produce abundante MELAZA (líquido pegajoso azucarado) que atrae hormigas y genera FUMAGINA (hongos negros). Si ves hojas negras brillantes debajo de las queresas = fumagina por melaza.
+• Afecta: palta, cítricos, lúcuma, vid. Se concentra en nervaduras y tallos tiernos.
+• Control: Aceite agrícola 1% + Imidacloprid 0.3 ml/L, o Spirotetramat (Movento) 0.75 ml/L. Controlar también las hormigas que las protegen (cebo de Fipronil). Mojar bien nervaduras y tallos.
+
 DIAGNÓSTICO DIFERENCIAL CRÍTICO — GALERÍAS/CAMINOS SERPENTEANTES EN HOJAS DE CÍTRICOS:
 • Si ves GALERÍAS SINUOSAS, CAMINOS EN FORMA DE S O ESPIRAL, LÍNEAS BRILLANTES/PLATEADAS que serpentean dentro del tejido de la hoja → es MINADOR DE LOS CÍTRICOS (Phyllocnistis citrella), NO oidio, NO arañita.
 • El minador excava túneles dentro del mesófilo dejando un rastro plateado/transparente ondulante muy característico. A veces se ve la larva pequeña amarilla al final del túnel.
