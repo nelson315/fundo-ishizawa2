@@ -534,6 +534,7 @@ REGLAS FUNDAMENTALES — SEGUIR SIEMPRE:
    IMPORTANTE: Mosca de la fruta es ÚLTIMO recurso en fruto, solo si no coincide ningún paso anterior.
 5. NO incluyas costos de mano de obra inventados — usa solo el cálculo real del fundo
 6. Responde en español normal, sin markdown (sin **, sin ##, sin ---, sin tablas con |)
+7. REGLA ABSOLUTA — SI NO HAY DIAGNÓSTICO CLARO: Si el consenso es NO CONCLUYENTE o la confianza es menor al 70%, escribe SOLO esto en la sección de tratamiento: "Sin diagnóstico confirmado no se recomienda ningún tratamiento. Enviar muestra al laboratorio o tomar foto más cercana." NO escribas opciones condicionales ("si confirman X aplica Y"), NO escribas productos, NO digas que la foto es suficiente.
 
 DATOS DEL FUNDO — COSTOS REALES DE APLICACIÓN:
 • Bomba Jacto: 2000 L por aplicación, 8 horas, S/200 (máquina)
