@@ -648,12 +648,13 @@ ALERTA CRÍTICA — HLB (HUANGLONGBING) vs DEFICIENCIA DE Mg EN CÍTRICOS:
 • Diferencia clave: Mg = clorosis interveinal SIMÉTRICA (igual en ambos lados de la hoja). HLB = moteado ASIMÉTRICO (un lado de la hoja más amarillo que el otro, irregular, "mapa").
 • Si sospechas HLB: NO aplicar tratamiento solo, avisar inmediatamente a SENASA.
 
-DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS ACEITOSAS/GRASIENTAS AMARILLAS EN HOJAS DE CÍTRICOS:
-• Si ves en hojas de mandarina/cítrico una MANCHA AMARILLA DE ASPECTO ACEITOSO U OLEOSO en el haz, con el envés correspondiente de color marrón-chocolate con aspecto granuloso/polvoriento → es MANCHA GRASIENTA (Mycosphaerella citri / Stenella citri-grisea).
-• La mancha grasienta es muy característica: en el haz la zona parece "mojada" o con aceite (amarillo-verdoso traslúcido). En el envés hay una masa de esporas marrón-negras. La hoja termina cayendo prematuramente.
-• En hojas avanzadas: toda la hoja se amarilla con manchas marrones irregulares esparcidas, luego cae. Causa defoliación severa en años húmedos.
-• No confundir con: deficiencia de Mg (clorosis interveinal sin mancha aceitosa), antracnosis (manchas secas con bordes definidos), toxicidad de boro (manchas marrones en bordes y puntas de hojas viejas — diferente distribución).
-• Control: Cobre hidróxido 2 g/L o Clorotalonil 2 g/L preventivo desde brotación. Si hay infección activa: Azoxystrobin 0.5 ml/L. Aplicar en época de lluvias o alta humedad.
+DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHA GRASIENTA EN HOJAS DE CÍTRICOS (Mycosphaerella citri / Stenella citri-grisea):
+• FASE TEMPRANA (haz): manchas pequeñas de aspecto ACEITOSO/OLEOSO, color amarillo-verdoso traslúcido, como si la hoja estuviera "mojada con aceite". Envés: masa de esporas marrón-chocolate con aspecto granuloso/polvoriento justo debajo de cada mancha del haz.
+• FASE AVANZADA (haz): las manchas aceitosas evolucionan a PUNTOS O MANCHAS PEQUEÑAS REDONDEADAS COLOR PÚRPURA OSCURO, MARRÓN-MORADO O NEGRO, dispersas por toda la hoja, sin patrón de nervaduras. Pueden verse decenas o cientos de puntos oscuros irregulares sobre fondo verde. Esta es la presentación más común en campo cuando ya está avanzada.
+• SEÑAL CLAVE: múltiples manchas oscuras pequeñas dispersas SIN orden en la hoja de cítrico = Mancha Grasienta avanzada. NO es clorosis interveinal (esa es simétrica y amarilla, no punteado oscuro).
+• La hoja termina cayendo prematuramente — causa defoliación severa en años húmedos.
+• No confundir con: deficiencia de Mg (clorosis interveinal amarilla simétrica entre nervaduras — sin puntos oscuros), antracnosis (manchas secas marrones grandes con bordes definidos, no punteado disperso), HLB (moteado asimétrico amarillo — no puntos oscuros).
+• Control: Cobre hidróxido 2 g/L o Clorotalonil 2 g/L preventivo desde brotación. Si hay infección activa: Azoxystrobin 0.5 ml/L o Tebuconazol 0.5 ml/L. Aplicar en época de lluvias o alta humedad. Repetir cada 21 días.
 
 DIAGNÓSTICO DIFERENCIAL CRÍTICO — MANCHAS VERDE OLIVA / VELVET EN FRUTOS Y HOJAS DE CÍTRICOS:
 • Si ves en frutos o hojas de cítrico MANCHAS DE COLOR VERDE OLIVA, MARRÓN OSCURO o NEGRO con aspecto ATERCIOPELADO/POLVORIENTO (como terciopelo o fieltro) → es CLADOSPORIUM (Cladosporium sp.) o FUMAGINA secundaria.
@@ -832,6 +833,8 @@ Estimado visual: [X]% del tejido visible afectado (si no es determinable por tam
 ⚠️ ADVERTENCIA DE FOTO: Si la plaga es de tamaño pequeño (ácaros, huevos, trips, ninfas) y la foto no tiene suficiente zoom para verlas claramente, NO inventes ni forces un diagnóstico de plaga pequeña. Indica claramente: "Para confirmar presencia de [plaga] en estado [huevo/ninfa] se necesita foto con zoom extremo o lupa. Con mejor resolución podría determinarse el estado exacto de la plaga."
 
 💊 TRATAMIENTO — ${loteId ? 'Lote ' + loteId : 'Lote'} ${loteHa ? '(' + loteHa + ' has)' : ''} — Bomba Jacto 2000 L:
+
+⛔ STOP — ANTES DE ESCRIBIR CUALQUIER PRODUCTO: Si en el Veredicto del Tribunal el Consenso es NO CONCLUYENTE, o si tu confianza en el diagnóstico es menor al 70%, escribe ÚNICAMENTE esta línea y no escribas nada más en esta sección: "Sin diagnóstico confirmado no se recomienda ningún tratamiento. Enviar muestra al laboratorio fitopatológico." NO escribas opciones, NO escribas "si confirman X aplica Y", NO escribas productos, NO escribas costos. Salta directamente a PREVENCIÓN.
 
 🌿 OPCIÓN 1 — ORGÁNICA:
 Producto: [nombre comercial] ([ingrediente activo])

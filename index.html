@@ -500,6 +500,7 @@ async function analizar(b64, mime, cultivoManual) {
             ${lote?`<div style="font-size:11px;color:var(--verde);font-weight:600;margin-bottom:2px">${lote.nombre} · ${lote.cultivo} · ${lote.ha} has</div>`:''}
             <div style="font-size:15px;font-weight:600">${cultivo}</div>
             <div style="font-size:12px;color:var(--texto2)">${problema}</div>
+            ${data.fenologia?`<div style="font-size:11px;color:#7b5800;background:#fff8e1;border:1px solid #ffc107;border-radius:6px;padding:3px 8px;margin-top:5px;display:inline-block">🌱 Fenología: ${data.fenologia}</div>`:''}
           </div>
           <span class="sev-badge sev-${sev.toLowerCase()}">${sev}</span>
         </div>
