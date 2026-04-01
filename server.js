@@ -55,6 +55,49 @@ const FENOLOGIA_LOTES = {
   '18':  ['Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento'],
 };
 
+// ── PASO 6: NORMALIZADOR DE EVIDENCIA ──────────────────────────────────────
+function normalizarEvidencias({ todasEnf, insultsResults, roboflowInfo, geminiJson, openaiJson }) {
+  const ev = [];
+  todasEnf.forEach(e => ev.push({ fuente:'plant.id/crop.health', peso:0.80, diagnostico:e.name, confianza:e.probability }));
+  insultsResults.forEach(e => ev.push({ fuente:'insect.id', peso:0.75, diagnostico:e.name, confianza:e.probability }));
+  if (roboflowInfo) {
+    for (const m of roboflowInfo.matchAll(/([\w\s]+)\s+\((\d+)%\)/g))
+      ev.push({ fuente:'Roboflow/YOLO', peso:0.90, diagnostico:m[1].trim(), confianza:parseInt(m[2])/100 });
+  }
+  if (geminiJson?.diagnostico) ev.push({ fuente:'Gemini Vision', peso:0.70, diagnostico:geminiJson.diagnostico, confianza:geminiJson.confianza||0.60 });
+  if (openaiJson?.diagnostico) ev.push({ fuente:'GPT-4o', peso:0.70, diagnostico:openaiJson.diagnostico, confianza:openaiJson.confianza||0.60 });
+  return ev;
+}
+
+// ── PASO 7: MOTOR DE SCORING ───────────────────────────────────────────────
+function calcularScoring(evidencias) {
+  if (!evidencias.length) return { veredicto:'SIN DATOS', confianza:0, diagnosticoPrincipal:'', fuentes:[], contradicciones:'' };
+  const grupos = {};
+  evidencias.forEach(e => {
+    const palabras = e.diagnostico.toLowerCase().replace(/[().,\-]/g,'').split(/\s+/).filter(w=>w.length>3);
+    let match = null;
+    for (const k of Object.keys(grupos)) {
+      const kP = new Set(k.split('|'));
+      if (palabras.some(w => kP.has(w))) { match = k; break; }
+    }
+    const key = match || palabras.slice(0,3).join('|');
+    if (!grupos[key]) grupos[key] = { diagnostico:e.diagnostico, score:0, fuentes:[], count:0 };
+    grupos[key].score += e.peso * e.confianza;
+    grupos[key].fuentes.push(`${e.fuente}(${(e.confianza*100).toFixed(0)}%)`);
+    grupos[key].count++;
+  });
+  const sorted = Object.values(grupos).sort((a,b) => b.score - a.score);
+  const top = sorted[0];
+  const confianza = Math.min(Math.round(top.score * 100), 97);
+  const veredicto = top.count >= 3 ? 'FIRME' : top.count === 2 ? 'PROBABLE' : confianza >= 60 ? 'SOSPECHA' : 'INCONCLUYENTE';
+  return {
+    veredicto, confianza,
+    diagnosticoPrincipal: top.diagnostico,
+    fuentes: top.fuentes,
+    contradicciones: sorted.slice(1).map(g=>`${g.diagnostico} [${g.fuentes.join(',')}]`).join('; ')
+  };
+}
+
 function getFenologiaLote(loteId) {
   if (!loteId) return null;
   const key = String(loteId).toUpperCase().replace('LOTE','').trim();
@@ -219,6 +262,8 @@ app.post('/analyze', async (req, res) => {
     let insultsResults = [];
     let climaInfo = '';
     let geminiInfo = '';
+    let geminiJson = null;
+    let openaiJson = null;
     let plantnetInfo = '';
     let inatInfo = '';
     let inatObsInfo = '';
@@ -460,7 +505,19 @@ ${sueloInfo.fecha ? `• Fecha análisis: ${sueloInfo.fecha}` : ''}` : '';
       ? `CULTIVO CONFIRMADO POR EL USUARIO (lote ${loteId}): ${cultivoConfirmado}. NO intentes identificar el cultivo — ya se sabe que es ${cultivoConfirmado}. Enfócate SOLO en diagnosticar el problema fitosanitario o nutricional visible.${fenologiaTexto}${sueloTexto}`
       : `El usuario no seleccionó lote. Identifica el cultivo visualmente usando las características descritas abajo.${sueloTexto}`;
 
+    // ── PASO 6+7: Normalizar y calcular scoring PRE-Claude ─────────────────
+    const evidencias = normalizarEvidencias({ todasEnf, insultsResults, roboflowInfo, geminiJson, openaiJson });
+    const scoring = calcularScoring(evidencias);
+    const scoringTexto = evidencias.length ? `
+━━━ VEREDICTO PRE-CALCULADO (código — no LLM) ━━━
+Diagnóstico más probable: ${scoring.diagnosticoPrincipal}
+Score: ${scoring.confianza}% — ${scoring.veredicto}
+Fuentes a favor: ${scoring.fuentes.join(', ') || 'ninguna'}
+${scoring.contradicciones ? `Contradicciones: ${scoring.contradicciones}` : 'Sin contradicciones entre fuentes'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━` : '';
+
     const apiBio = [
+      scoringTexto,
       todasEnf.length
         ? `crop.health + plant.id: ${todasEnf.map(e=>`${e.name} (${(e.probability*100).toFixed(0)}%)`).join(', ')}.`
         : `crop.health + plant.id: sin enfermedades con alta certeza — analiza visualmente.`,
@@ -487,22 +544,20 @@ ${sueloInfo.fecha ? `• Fecha análisis: ${sueloInfo.fecha}` : ''}` : '';
             body: JSON.stringify({
               contents:[{parts:[
                 ...images.map(img => ({inline_data:{mime_type: img.mediaType, data: img.data}})),
-                {text:`Eres experto en fitopatología de cultivos peruanos. Analiza ${images.length > 1 ? 'estas '+images.length+' fotos' : 'esta foto'} y responde en 3-4 líneas en español:
-1. ¿Qué cultivo es exactamente? (palta, lúcuma, mandarina, uva, etc.)
-2. ¿Qué problema fitosanitario o nutricional ves? Nombre científico + síntomas específicos.
-3. ¿Qué parte está afectada y qué porcentaje del tejido visible?
-4. ¿Qué tan urgente es el tratamiento?
-Sé preciso y directo. Si no hay problema, dilo claramente.`}
+                {text:`Eres experto en fitopatología de cultivos peruanos. Analiza la foto y responde SOLO con JSON sin markdown: {"diagnostico":"nombre del problema en español","nombre_cientifico":"nombre científico","confianza":0.0-1.0,"sintomas":"descripción breve de síntomas observados","urgencia":"alta|media|baja"}. Si la planta está sana: {"diagnostico":"Sano","confianza":0.9,"sintomas":"sin síntomas visibles","urgencia":"baja"}.`}
               ]}],
-              generationConfig:{maxOutputTokens:400, temperature:0.2}
+              generationConfig:{maxOutputTokens:200, temperature:0.1}
             })
           }
         );
         const gd = await geminiRes.json();
         const gText = gd?.candidates?.[0]?.content?.parts?.[0]?.text || '';
         if(gText) {
-          geminiInfo = `GEMINI VISION (segunda opinión IA):\n${gText.trim()}`;
-          console.log('Gemini OK:', gText.substring(0,100));
+          try {
+            geminiJson = JSON.parse(gText.replace(/```json|```/g,'').trim());
+            geminiInfo = `GEMINI VISION: ${geminiJson.diagnostico}${geminiJson.nombre_cientifico?` (${geminiJson.nombre_cientifico})`:''}  — confianza ${Math.round((geminiJson.confianza||0)*100)}% — ${geminiJson.sintomas||''}`;
+          } catch(pe) { geminiInfo = `GEMINI VISION:\n${gText.trim()}`; }
+          console.log('Gemini OK:', geminiInfo.substring(0,100));
         }
       } catch(e) { console.log('Gemini error:', e.message); }
     }
@@ -523,10 +578,7 @@ Sé preciso y directo. Si no hay problema, dilo claramente.`}
                   type: 'image_url',
                   image_url: { url: `data:${img.mediaType};base64,${img.data}`, detail: 'low' }
                 })),
-                { type: 'text', text: `Eres experto en fitopatología de cultivos peruanos. Analiza la foto y responde en 3 líneas en español:
-1. ¿Qué cultivo es? (palta, mandarina, uva, lúcuma, etc.)
-2. ¿Qué problema fitosanitario o nutricional ves? Nombre científico + síntomas.
-3. ¿Qué tan urgente es? Sé preciso. Si no hay problema claro, dilo.` }
+                { type: 'text', text: `Eres experto en fitopatología de cultivos peruanos. Analiza la foto y responde SOLO con JSON sin markdown: {"diagnostico":"nombre del problema en español","nombre_cientifico":"nombre científico","confianza":0.0-1.0,"sintomas":"descripción breve de síntomas observados","urgencia":"alta|media|baja"}. Si la planta está sana: {"diagnostico":"Sano","confianza":0.9,"sintomas":"sin síntomas visibles","urgencia":"baja"}.` }
               ]
             }]
           })
@@ -534,8 +586,11 @@ Sé preciso y directo. Si no hay problema, dilo claramente.`}
         const od = await openaiRes.json();
         const oText = od?.choices?.[0]?.message?.content || '';
         if(oText) {
-          openaiInfo = `GPT-4 VISION (tercer testigo IA):\n${oText.trim()}`;
-          console.log('OpenAI OK:', oText.substring(0,100));
+          try {
+            openaiJson = JSON.parse(oText.replace(/```json|```/g,'').trim());
+            openaiInfo = `GPT-4o VISION: ${openaiJson.diagnostico}${openaiJson.nombre_cientifico?` (${openaiJson.nombre_cientifico})`:''}  — confianza ${Math.round((openaiJson.confianza||0)*100)}% — ${openaiJson.sintomas||''}`;
+          } catch(pe) { openaiInfo = `GPT-4o VISION:\n${oText.trim()}`; }
+          console.log('OpenAI OK:', openaiInfo.substring(0,100));
         }
       } catch(e) { console.log('OpenAI error:', e.message); }
     }
@@ -1000,7 +1055,7 @@ Próximos pasos:
 
 app.get('/health', (req,res) => res.json({status:'ok'}));
 app.get('/', (req,res) => res.json({
-  status:'ok', service:'Fundo Ishizawa API', version:'2.8',
+  status:'ok', service:'Fundo Ishizawa API', version:'2.9',
   actualizado:'01/04/2026',
   apis_activas: {
     'plant.id':    !!PLANTID_KEY,
