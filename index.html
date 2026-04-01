@@ -516,6 +516,14 @@ async function analizar(b64, mime, cultivoManual) {
           ${parsearResultado(texto)}
         </div>
       </div>
+      ${data.revisarAgronomo ? `
+      <div style="background:#fff3e0;border:2px solid #e65100;border-radius:12px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px">
+        <div style="font-size:22px">👨‍🌾</div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#e65100;text-transform:uppercase;letter-spacing:0.5px">Revisar con agrónomo</div>
+          <div style="font-size:12px;color:#5d4037;margin-top:2px">Este caso requiere confirmación en campo antes de aplicar tratamiento.</div>
+        </div>
+      </div>` : ''}
       ${data.recomendacionFoto && !data.recomendacionFoto.toLowerCase().includes('no es necesaria') && !data.recomendacionFoto.toLowerCase().includes('diagnóstico claro') ? `
       <div style="background:var(--amarillo-claro);border:1px solid var(--amarillo);border-radius:12px;padding:12px 14px;margin-bottom:10px">
         <div style="font-size:11px;font-weight:700;color:var(--amarillo);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px">📷 Foto recomendada para mejor diagnóstico</div>

@@ -178,6 +178,36 @@ app.post('/analyze', async (req, res) => {
     const primaryImage = images[0];
     const imageDataUrl = 'data:' + primaryImage.mediaType + ';base64,' + primaryImage.data;
 
+    // --- PASO 2: FILTRO DE ADMISIÓN — verificar calidad de imagen antes de llamar a todos los testigos ---
+    try {
+      const filtroRes = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01' },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 120,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: primaryImage.mediaType, data: primaryImage.data } },
+              { type: 'text', text: 'Responde SOLO con JSON sin markdown: {"calidad":"OK"|"MALA","razon":"...","organo":"hoja"|"fruto"|"tallo"|"planta"|"otro"}. Calidad MALA si: foto muy borrosa, muy oscura, muy lejos (no se distingue ningún detalle de la planta), o no es una planta. OK en cualquier otro caso.' }
+            ]
+          }]
+        })
+      });
+      const filtroData = await filtroRes.json();
+      const filtroTexto = filtroData?.content?.[0]?.text || '';
+      const filtroJson = JSON.parse(filtroTexto.replace(/```json|```/g,'').trim());
+      if (filtroJson.calidad === 'MALA') {
+        return res.json({
+          resultado: `📷 FOTO INSUFICIENTE\n\nNo se puede analizar: ${filtroJson.razon}.\n\nPor favor toma una foto más cercana, con buena luz y enfocada en la parte afectada de la planta.`,
+          cultivo: '', enfermedades: [], severidad: 'Sin datos', saludable: false,
+          cultivoConfianza: 0, recomendacionFoto: filtroJson.razon, fotosRecibidas: images.length,
+          fenologia: null, revisarAgronomo: false, fotoRechazada: true
+        });
+      }
+    } catch(e) { console.log('Filtro admisión error (continúa):', e.message); }
+
     let cultivoRaw = '';
     let cropResults = [];
     let plantResults = [];
@@ -945,7 +975,17 @@ Próximos pasos:
     const cultivoConfianza = cultivoConfirmado ? 1.0 :
       (cropResults[0]?.probability || plantResults[0]?.probability || 0);
 
-    res.json({resultado, cultivo:cultivoFinal, enfermedades:todasEnf, severidad, saludable:false, cultivoConfianza, recomendacionFoto, fotosRecibidas: images.length, fenologia: fenologiaReal || null});
+    // Bandera: revisar por agrónomo
+    const enfermedadesGraves = ['hlb','huanglongbing','greening','sunblotch','tristeza','phytophthora'];
+    const textoLower = resultado.toLowerCase();
+    const revisarAgronomo =
+      severidad === 'Grave' ||
+      textoLower.includes('no concluy') ||
+      textoLower.includes('no concluyente') ||
+      textoLower.includes('laboratorio') ||
+      enfermedadesGraves.some(e => textoLower.includes(e));
+
+    res.json({resultado, cultivo:cultivoFinal, enfermedades:todasEnf, severidad, saludable:false, cultivoConfianza, recomendacionFoto, fotosRecibidas: images.length, fenologia: fenologiaReal || null, revisarAgronomo});
 
   } catch(err) {
     console.error('Error /analyze:', err.message);
@@ -955,8 +995,8 @@ Próximos pasos:
 
 app.get('/health', (req,res) => res.json({status:'ok'}));
 app.get('/', (req,res) => res.json({
-  status:'ok', service:'Fundo Ishizawa API', version:'2.6',
-  actualizado:'28/03/2026',
+  status:'ok', service:'Fundo Ishizawa API', version:'2.8',
+  actualizado:'01/04/2026',
   apis_activas: {
     'plant.id':    !!PLANTID_KEY,
     'crop.health': !!CROPHEALTH_KEY,
