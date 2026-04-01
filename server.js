@@ -55,17 +55,68 @@ const FENOLOGIA_LOTES = {
   '18':  ['Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento','Mantenimiento'],
 };
 
+// Base de lotes del fundo (para recomendaciones preventivas a lotes del mismo cultivo)
+const LOTES_INFO = {
+  '1':   {cultivo:'Uva Quebranta',    ha:2.5}, '2':   {cultivo:'Palta Fuerte',     ha:2.5},
+  '3':   {cultivo:'Palta Fuerte',     ha:2.8}, '3A':  {cultivo:'Palta Naval',      ha:1.0},
+  '4':   {cultivo:'Lúcuma',           ha:2.9}, '5':   {cultivo:'Palta Hass',       ha:1.3},
+  '5A':  {cultivo:'Palta Villacampa', ha:1.3}, '6':   {cultivo:'Palta Hass',       ha:1.5},
+  '6A':  {cultivo:'Palta Fuerte',     ha:1.5}, '7':   {cultivo:'Lúcuma',           ha:1.0},
+  '8':   {cultivo:'Caqui',            ha:0.3}, '9':   {cultivo:'Mandarina Okitsu', ha:1.0},
+  '9A':  {cultivo:'Mandarina Río',    ha:1.5}, '10':  {cultivo:'Toronja',          ha:0.2},
+  '10A': {cultivo:'Limón',            ha:0.1}, '11':  {cultivo:'Mandarina Okitsu', ha:0.8},
+  '12':  {cultivo:'Mandarina Okitsu', ha:0.5}, '13':  {cultivo:'Manzana de Caña',  ha:0.2},
+  '13A': {cultivo:'Uva Quebranta',    ha:1.0}, '13B': {cultivo:'Borgoña',          ha:0.3},
+  '14':  {cultivo:'Palta Hass',       ha:1.5}, '15':  {cultivo:'Palta Hass',       ha:4.0},
+  '18':  {cultivo:'Vivero',           ha:0.1}
+};
+
+function getLotesMismoCultivo(loteId, cultivoNombre) {
+  const c = (cultivoNombre||'').toLowerCase();
+  const esPalta   = c.includes('palt');
+  const esMand    = c.includes('mandarin');
+  const esUva     = c.includes('uva')||c.includes('vid')||c.includes('borgon')||c.includes('quebranta');
+  const esLucuma  = c.includes('lucum')||c.includes('lúcum');
+  const esCitrico = c.includes('toronj')||c.includes('limon')||c.includes('limón')||c.includes('naranj');
+  return Object.entries(LOTES_INFO)
+    .filter(([id, info]) => {
+      if (String(id) === String(loteId).toUpperCase().replace('LOTE','').trim()) return false;
+      const ci = info.cultivo.toLowerCase();
+      return (esPalta && ci.includes('palt')) || (esMand && ci.includes('mandarin')) ||
+             (esUva && (ci.includes('uva')||ci.includes('vid')||ci.includes('borgon')||ci.includes('quebranta'))) ||
+             (esLucuma && (ci.includes('lucum')||ci.includes('lúcum'))) ||
+             (esCitrico && (ci.includes('toronj')||ci.includes('limon')||ci.includes('limón')));
+    })
+    .map(([id, info]) => `Lote ${id} (${info.cultivo}, ${info.ha} has)`);
+}
+
+// Puntaje acumulado de testigos (se actualiza con feedback)
+const puntajeTestigos = {
+  'plant.id/crop.health': {aciertos:0, errores:0},
+  'insect.id':            {aciertos:0, errores:0},
+  'Roboflow/YOLO':        {aciertos:0, errores:0},
+  'Gemini Vision':        {aciertos:0, errores:0},
+  'GPT-4o':               {aciertos:0, errores:0}
+};
+
+function getPesoTestigo(fuente) {
+  const p = puntajeTestigos[fuente];
+  if (!p || (p.aciertos + p.errores) < 5) return null; // sin datos suficientes aún
+  return Math.max(0.3, Math.min(0.95, p.aciertos / (p.aciertos + p.errores)));
+}
+
 // ── PASO 6: NORMALIZADOR DE EVIDENCIA ──────────────────────────────────────
 function normalizarEvidencias({ todasEnf, insultsResults, roboflowInfo, geminiJson, openaiJson }) {
   const ev = [];
-  todasEnf.forEach(e => ev.push({ fuente:'plant.id/crop.health', peso:0.80, diagnostico:e.name, confianza:e.probability }));
-  insultsResults.forEach(e => ev.push({ fuente:'insect.id', peso:0.75, diagnostico:e.name, confianza:e.probability }));
+  const p = f => getPesoTestigo(f);
+  todasEnf.forEach(e => ev.push({ fuente:'plant.id/crop.health', peso:p('plant.id/crop.health')||0.80, diagnostico:e.name, confianza:e.probability }));
+  insultsResults.forEach(e => ev.push({ fuente:'insect.id', peso:p('insect.id')||0.75, diagnostico:e.name, confianza:e.probability }));
   if (roboflowInfo) {
     for (const m of roboflowInfo.matchAll(/([\w\s]+)\s+\((\d+)%\)/g))
-      ev.push({ fuente:'Roboflow/YOLO', peso:0.90, diagnostico:m[1].trim(), confianza:parseInt(m[2])/100 });
+      ev.push({ fuente:'Roboflow/YOLO', peso:p('Roboflow/YOLO')||0.90, diagnostico:m[1].trim(), confianza:parseInt(m[2])/100 });
   }
-  if (geminiJson?.diagnostico) ev.push({ fuente:'Gemini Vision', peso:0.70, diagnostico:geminiJson.diagnostico, confianza:geminiJson.confianza||0.60 });
-  if (openaiJson?.diagnostico) ev.push({ fuente:'GPT-4o', peso:0.70, diagnostico:openaiJson.diagnostico, confianza:openaiJson.confianza||0.60 });
+  if (geminiJson?.diagnostico) ev.push({ fuente:'Gemini Vision', peso:p('Gemini Vision')||0.70, diagnostico:geminiJson.diagnostico, confianza:geminiJson.confianza||0.60 });
+  if (openaiJson?.diagnostico) ev.push({ fuente:'GPT-4o', peso:p('GPT-4o')||0.70, diagnostico:openaiJson.diagnostico, confianza:openaiJson.confianza||0.60 });
   return ev;
 }
 
@@ -202,6 +253,20 @@ app.post('/feedback', (req, res) => {
         FENOLOGIA_LOTES[key][mesIdx] = fenologia_correcta;
         console.log(`[FENOLOGIA] Lote ${key} mes ${mesIdx} actualizado a: ${fenologia_correcta}`);
       }
+    }
+
+    // Actualizar puntaje de testigos según acierto o error
+    const { scoring_fuentes } = req.body || {};
+    if (scoring_fuentes && Array.isArray(scoring_fuentes)) {
+      const acierto = !problema_real || problema_real.trim() === '' || problema_real === problema_detectado;
+      scoring_fuentes.forEach(f => {
+        const key = f.split('(')[0].trim();
+        if (puntajeTestigos[key]) {
+          if (acierto) puntajeTestigos[key].aciertos++;
+          else puntajeTestigos[key].errores++;
+        }
+      });
+      console.log(`[TESTIGOS] ${acierto ? 'ACIERTO' : 'ERROR'} — ${scoring_fuentes.join(', ')}`);
     }
 
     correccionesMemoria.unshift({ fecha: fecha || new Date().toISOString().slice(0,10), lote, cultivo, problema_detectado, problema_real, severidad, observacion, tipo, fenologia_correcta });
@@ -500,6 +565,18 @@ ${sueloInfo.fecha ? `• Fecha análisis: ${sueloInfo.fecha}` : ''}` : '';
     const fenologiaTexto = fenologiaReal
       ? `\nESTADO FENOLÓGICO REAL DEL LOTE (calendario oficial del fundo — NO detectar visualmente): Lote ${loteId} en ${new Date().toLocaleString('es-PE',{month:'long'})} = ${fenologiaReal.toUpperCase()}. Usa esto para ajustar el diagnóstico y tratamiento.`
       : '';
+
+    const lotesMismoCultivo = loteId && cultivoConfirmado ? getLotesMismoCultivo(loteId, cultivoConfirmado) : [];
+    const loteHaNum = loteHa ? parseFloat(loteHa) : 1;
+    // Árboles a muestrear según cultivo (densidades típicas del fundo)
+    const arbolesPorHa = cultivoConfirmado
+      ? (cultivoConfirmado.toLowerCase().includes('palt') ? 125
+        : cultivoConfirmado.toLowerCase().includes('mandarin') || cultivoConfirmado.toLowerCase().includes('citrus') || cultivoConfirmado.toLowerCase().includes('toronj') ? 300
+        : cultivoConfirmado.toLowerCase().includes('uva') || cultivoConfirmado.toLowerCase().includes('vid') ? 1500
+        : cultivoConfirmado.toLowerCase().includes('lucum') ? 80 : 100)
+      : 100;
+    const totalArboles = Math.round(arbolesPorHa * loteHaNum);
+    const muestraArboles = Math.max(5, Math.min(20, Math.round(totalArboles * 0.10)));
 
     const contextoLote = cultivoConfirmado
       ? `CULTIVO CONFIRMADO POR EL USUARIO (lote ${loteId}): ${cultivoConfirmado}. NO intentes identificar el cultivo — ya se sabe que es ${cultivoConfirmado}. Enfócate SOLO en diagnosticar el problema fitosanitario o nutricional visible.${fenologiaTexto}${sueloTexto}`
@@ -915,23 +992,27 @@ Patrón nutricional vs patológico: [uniforme=nutrición / localizado=plaga-enfe
 [Evalúa el estado nutricional observando: color de hojas (verde oscuro=N ok, amarillo=N defic, verde pálido=Mg/Fe defic), necrosis de bordes (K/Ca defic), manchas internervales (Mg defic), hojas pequeñas (Zn/B defic). Indica deficiencias o excesos con valores de referencia en palto: N 1.8-2.5%, P 0.1-0.3%, K 0.75-2%, Ca 1-2%, Mg 0.3-0.8%, Fe 60-200ppm, Zn 30-100ppm, B 20-60ppm, Mn 50-200ppm. Si la nutrición parece normal, dilo claramente.]
 
 📊 NIVEL DE INFESTACIÓN (basado en la foto):
-Estimado visual: [X]% del tejido visible afectado (si no es determinable por tamaño de plaga, indicar: "no cuantificable sin zoom extremo — ver recomendación de foto")
+Estimado visual: [X]% del tejido visible afectado (si no es determinable por tamaño de plaga, indicar: "no cuantificable sin zoom extremo")
 • Si infestación menor a 10%: [acción ligera — monitorear, aplicar solo si avanza]
 • Si infestación entre 10-30%: [acción moderada — iniciar tratamiento esta semana]
 • Si infestación mayor a 30%: [acción urgente — tratar de inmediato, puede afectar producción]
 
-⚠️ ADVERTENCIA DE FOTO: Si la plaga es de tamaño pequeño (ácaros, huevos, trips, ninfas) y la foto no tiene suficiente zoom para verlas claramente, NO inventes ni forces un diagnóstico de plaga pequeña. Indica claramente: "Para confirmar presencia de [plaga] en estado [huevo/ninfa] se necesita foto con zoom extremo o lupa. Con mejor resolución podría determinarse el estado exacto de la plaga."
+MUESTRA RECOMENDADA PARA NIVEL REAL: Para calcular el nivel de infestación real del lote, evaluar ${muestraArboles} árboles distribuidos uniformemente (bordes + centro del lote). De cada árbol tomar foto de [órgano más afectado: hoja/fruto/brote]. Total: ${muestraArboles} fotos de ${muestraArboles} árboles distintos.
 
-💊 TRATAMIENTO — ${loteId ? 'Lote ' + loteId : 'Lote'} ${loteHa ? '(' + loteHa + ' has)' : ''} — Bomba Jacto 2000 L:
+⚠️ ADVERTENCIA DE FOTO: Si la plaga es de tamaño pequeño (ácaros, huevos, trips, ninfas) y la foto no tiene suficiente zoom para verlas claramente, NO inventes ni forces un diagnóstico de plaga pequeña. Indica claramente: "Para confirmar presencia de [plaga] en estado [huevo/ninfa] se necesita foto con zoom extremo o lupa."
+
+💊 TRATAMIENTO CONFIRMADO — ${loteId ? 'Lote ' + loteId : 'Lote'}${loteHa ? ' (' + loteHa + ' has)' : ''}:
 
 ⛔ STOP — ANTES DE ESCRIBIR CUALQUIER PRODUCTO: Si en el Veredicto del Tribunal el Consenso es NO CONCLUYENTE, o si tu confianza en el diagnóstico es menor al 70%, escribe ÚNICAMENTE esta línea y no escribas nada más en esta sección: "Sin diagnóstico confirmado no se recomienda ningún tratamiento. Enviar muestra al laboratorio fitopatológico." NO escribas opciones, NO escribas "si confirman X aplica Y", NO escribas productos, NO escribas costos. Salta directamente a PREVENCIÓN.
+
+REGLA DE COMPRA — PRESENTACIONES COMERCIALES: Cuando calcules la cantidad de producto a comprar, SIEMPRE redondea hacia arriba a la presentación comercial entera. Nunca indiques fracciones de envase. Ejemplos: si necesitas 1.5 L → comprar 2 L; si necesitas 300 ml → comprar 500 ml (1 botella); si necesitas 0.8 kg → comprar 1 kg. Indica siempre: "comprar X [litros/kg/botellas]".
 
 🌿 OPCIÓN 1 — ORGÁNICA:
 Producto: [nombre comercial] ([ingrediente activo])
 Eficacia: [X]% contra [problema] — [mecanismo en 3 palabras]
-Dosis por ${volTotal} L: [dosis g/L o ml/L] × ${volTotal} L = [cantidad total kg o L]
-Precio referencial: S/[XX] por kg o L
-Costo producto: [cantidad] × S/[precio] = S/[subtotal]
+Dosis por ${volTotal} L: [dosis g/L o ml/L] × ${volTotal} L = [cantidad necesaria] → comprar [cantidad redondeada a presentación entera]
+Precio referencial: S/[XX] por [presentación comercial]
+Costo producto: [unidades a comprar] × S/[precio] = S/[subtotal]
 Costo mano de obra: S/${costoMO} (${jactosTotales} jactos × S/410)
 Costo total: S/[subtotal producto + ${costoMO}]
 Opinión IA: [ventaja principal y cuándo usar — 1 oración]
@@ -939,9 +1020,9 @@ Opinión IA: [ventaja principal y cuándo usar — 1 oración]
 ⚖️ OPCIÓN 2 — BALANCEADA:
 Producto: [nombre comercial] ([ingrediente activo])
 Eficacia: [X]% contra [problema] — [mecanismo en 3 palabras]
-Dosis por ${volTotal} L: [dosis] × ${volTotal} L = [cantidad total]
-Precio referencial: S/[XX] por kg o L
-Costo producto: S/[subtotal]
+Dosis por ${volTotal} L: [dosis] × ${volTotal} L = [cantidad necesaria] → comprar [cantidad redondeada]
+Precio referencial: S/[XX] por [presentación comercial]
+Costo producto: [unidades a comprar] × S/[precio] = S/[subtotal]
 Costo mano de obra: S/${costoMO}
 Costo total: S/[subtotal + ${costoMO}]
 Opinión IA: [ventaja principal y cuándo usar — 1 oración]
@@ -949,15 +1030,24 @@ Opinión IA: [ventaja principal y cuándo usar — 1 oración]
 🧪 OPCIÓN 3 — QUÍMICA:
 Producto: [nombre comercial] ([ingrediente activo])
 Eficacia: [X]% contra [problema] — [mecanismo en 3 palabras]
-Dosis por ${volTotal} L: [dosis] × ${volTotal} L = [cantidad total]
-Precio referencial: S/[XX] por kg o L
-Costo producto: S/[subtotal]
+Dosis por ${volTotal} L: [dosis] × ${volTotal} L = [cantidad necesaria] → comprar [cantidad redondeada]
+Precio referencial: S/[XX] por [presentación comercial]
+Costo producto: [unidades a comprar] × S/[precio] = S/[subtotal]
 Costo mano de obra: S/${costoMO}
 Costo total: S/[subtotal + ${costoMO}]
 Opinión IA: [cuándo usar — indicar si hay riesgo de resistencia o fitotoxicidad — 1 oración]
 
+${lotesMismoCultivo.length ? `🔔 RECOMENDACIÓN PREVENTIVA — Otros lotes con el mismo cultivo:
+Lotes: ${lotesMismoCultivo.join(', ')}
+Dado que se confirmó [problema] en Lote ${loteId}, recomendar aplicación preventiva en estos lotes usando la misma opción elegida. Calcular costo individual por lote según sus hectáreas.` : ''}
+
 ⏰ MOMENTO DE APLICACIÓN:
-[hora del día, temperatura ideal, humedad ideal, frecuencia, período de carencia]
+Horario del fundo: 7:00 AM a 4:00 PM. La aplicación con la Jacto (2000 L) toma 8 horas. Indicar hora de inicio (7:00 AM) y hora estimada de término. NO recomendar horarios antes de las 7 AM ni después de las 4 PM.
+Temperatura ideal: [X-Y°C] — actual [temp actual del clima]
+Humedad ideal: [X-Y%] — actual [hum actual]
+Alertas clima: [indicar si hay lluvia, viento fuerte, humedad >85% que impidan aplicar]
+Frecuencia: [número de aplicaciones e intervalo]
+Período de carencia: [días por producto]
 
 🛡️ PREVENCIÓN PRÓXIMAS 4 SEMANAS:
 • [medida 1 específica para este cultivo y problema]
@@ -1045,7 +1135,7 @@ Próximos pasos:
       textoLower.includes('laboratorio') ||
       enfermedadesGraves.some(e => textoLower.includes(e));
 
-    res.json({resultado, cultivo:cultivoFinal, enfermedades:todasEnf, severidad, saludable:false, cultivoConfianza, recomendacionFoto, fotosRecibidas: images.length, fenologia: fenologiaReal || null, revisarAgronomo});
+    res.json({resultado, cultivo:cultivoFinal, enfermedades:todasEnf, severidad, saludable:false, cultivoConfianza, recomendacionFoto, fotosRecibidas: images.length, fenologia: fenologiaReal || null, revisarAgronomo, scoringFuentes: scoring.fuentes || []});
 
   } catch(err) {
     console.error('Error /analyze:', err.message);
@@ -1055,7 +1145,7 @@ Próximos pasos:
 
 app.get('/health', (req,res) => res.json({status:'ok'}));
 app.get('/', (req,res) => res.json({
-  status:'ok', service:'Fundo Ishizawa API', version:'2.9',
+  status:'ok', service:'Fundo Ishizawa API', version:'3.0',
   actualizado:'01/04/2026',
   apis_activas: {
     'plant.id':    !!PLANTID_KEY,

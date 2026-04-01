@@ -486,7 +486,8 @@ async function analizar(b64, mime, cultivoManual) {
       severidad: sev,
       enfermedades: enfermedadesDetectadas,
       diagnosticoCompleto: texto,
-      fenologia: data.fenologia || ''
+      fenologia: data.fenologia || '',
+      scoringFuentes: data.scoringFuentes || []
     };
     historialIA.unshift(entrada);
     if(historialIA.length>200) historialIA.pop();
@@ -1144,7 +1145,7 @@ function guardarFeedbackTexto(id) {
   }
   const mes = new Date().getMonth();
   fetch('https://fundo-ishizawa2-1.onrender.com/feedback', { method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ tipo:'correccion', lote: h.lote||'', cultivo: cultivo||h.cultivo||'', problema_detectado: h.problema||'', problema_real: problema, severidad: sev, observacion: obs, fecha: h.fecha||'', fenologia_correcta: fenologiaCorrecta||'', mes }) });
+    body: JSON.stringify({ tipo:'correccion', lote: h.lote||'', cultivo: cultivo||h.cultivo||'', problema_detectado: h.problema||'', problema_real: problema, severidad: sev, observacion: obs, fecha: h.fecha||'', fenologia_correcta: fenologiaCorrecta||'', mes, scoring_fuentes: h.scoringFuentes||[] }) });
   let msg = '✅ ¡Muchas gracias por la corrección! El sistema aprenderá de este caso.';
   if (fenologiaCorrecta) msg = `✅ ¡Gracias! Estado fenológico del Lote ${h.lote||''} actualizado a "${fenologiaCorrecta}". El sistema ya lo usará en los próximos diagnósticos de este lote.`;
   document.getElementById('fb-edit-'+id).innerHTML = `<div style="color:var(--verde);font-weight:600;font-size:13px;padding:10px 0">${msg}</div>`;
